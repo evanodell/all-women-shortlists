@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+papers
+stanford-corenlp-full-2018-02-27/*
+dict
+*.rds
+Jones2016-files/HRC_cambridge_archive/*

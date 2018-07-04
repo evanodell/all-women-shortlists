@@ -1,0 +1,111 @@
+---
+title: "AI Scratchpad"
+output: html_notebook
+---
+
+## Training to predict differences [Currently not working]
+
+- See how well the computer can predict speech based on women being selected through all-women shortlists or not.
+
+- May need to divide just between Labour, as Labour and Tories may speak differently.
+
+
+```{r eval=FALSE, include=FALSE}
+df <- cnlp_get_token(sotu) %>%
+  left_join(cnlp_get_document(sotu)) %>%
+  filter(year > 2000) %>%
+  mutate(new_id = paste(id, sid, sep = "-")) %>%
+  filter(pos %in% c("NN", "NNS"))
+mat <- cnlp_get_tfidf(df, min_df = 0, max_df = 1, type = "tf",
+                 tf_weight = "raw", doc_var = "new_id")
+```
+It will be necessary to define a response variable `y` indicating whether this is a
+speech made by President Obama as well as a training flag indicating which speeches were
+made in odd numbered years. This is done via a separate table join and a pair of mutations.
+```{r eval=FALSE, include=FALSE}
+meta <- data_frame(new_id = mat$doc_) %>%
+  left_join(df[!duplicated(df$new_id),]) %>%
+  mutate(y = as.numeric(president == "Barack Obama")) %>%
+  mutate(train = year %in% seq(2001,2016, by = 2))
+
+
+
+library(topicmodels)
+tm <- cnlp_get_token(wom_annotate) %>%
+  cnlp_utils_tfidf(min_df = 0.05, max_df = 0.95, type = "tf", tf_weight = "raw") %>%
+  LDA(tf, k = 16, control = list(verbose = 1))
+
+library(topicmodels)
+tm <- cnlp_get_token(wom_annotate) %>%
+  cnlp_utils_tfidf(min_df = 0.05, max_df = 0.95, type = "tf", tf_weight = "raw") %>%
+  LDA(k = 16, control = list(verbose = 1))
+
+
+df <- cnlp_get_token(wom_annotate) %>%
+  left_join(cnlp_get_document(wom_annotate))
+
+mat <- cnlp_utils_tfidf(df, min_df = 0, max_df = 1, type = "tf",
+                 tf_weight = "raw", doc_var = "eo_id")
+
+cnlp_get_entity(wom_annotate)
+
+
+df <- cnlp_get_token(wom_annotate) %>%
+  left_join(cnlp_get_document(wom_annotate))
+
+mat <- cnlp_utils_tfidf(df, min_df = 0, max_df = 1, type = "tf",
+                 tf_weight = "raw", doc_var = "id")
+
+
+meta <- data_frame(new_id = mat$doc_) %>%
+  left_join(df[!duplicated(df$id),]) %>%
+  mutate(y = as.numeric(president == "Barack Obama")) %>%
+  mutate(train = year %in% seq(2001,2016, by = 2))
+
+library(glmnet)
+model <- cv.glmnet(mat$tf[meta$train,], meta$y[meta$train], family = "binomial")
+
+#x <-cnlp_utils_tfidf(wom_annotate)
+
+
+```
+
+
+Scratch work:
+```{r eval=FALSE, include=FALSE}
+#devtools::install_github("statsmaths/cleanNLP") 
+# need development version to get latest version of Stanford CoreNLP
+library(cleanNLP)
+library(topicmodels) ## need to explore this more
+
+# downloading
+# cnlp_download_corenlp(type = "default", output_loc = ".")
+# 
+# # initiating
+# cnlp_init_corenlp("en", anno_level = 0, 
+#                   lib_location = "stanford-corenlp-full-2018-02-27", 
+#                   mem = "6g", verbose = TRUE)
+
+reticulate::use_python("/Users/evanodell/Documents/anaconda3/bin/python")
+
+cnlp_init_spacy()
+
+# wom_annotate <- cnlp_annotate(women_speech, 
+#                               meta = select(women_speech, -speech), 
+#                               text_var = "speech", doc_var = "eo_id")
+
+x <- cnlp_quick(women_speech, text_var = "speech", doc_var = "eo_id")
+#testing
+un <- cleanNLP::un
+system.time(
+  annotation <- cnlp_annotate(un$text)
+)
+
+x <- cnlp_get_entity(annotation)
+y <- cnlp_get_token(annotation) # Penn Treebank codes
+
+# use cnlp_annotate to annotate text
+## Estimate it will take roughly 3 hours at anno_level 0 on this computer
+## Estimate it'll take roughly 3 days at anno_level 1/2 on this computer
+## Depending on LBS budget, buy something better?
+```

@@ -1,0 +1,162 @@
+---
+title: "Spacy"
+output: html_notebook
+---
+
+
+```{python, engine.path="/Users/evanodell/Documents/anaconda3/bin/python"}
+import sys
+
+print(sys.executable)
+```
+
+
+### Extracting Labour speeches 
+
+
+```{r eval=FALSE, include=FALSE}
+library(readr)
+library(dplyr)
+library(quanteda)
+library(readxl)
+library(lubridate)
+
+all_speech <- read_rds("senti_df2.rds")
+
+## Binned into quarters of a year
+all_speech$y_since_start <- round(time_length(all_speech$speech_date -
+                                          as.Date(all_speech$house_start_date),
+                                        unit = "years")* 4)/4
+
+lab_speech <- filter(all_speech, party_group=="Labour", 
+      speech_date >= "1997-05-01", speech_date < "2017-06-08", word_count > 0)
+
+rm(all_speech)
+
+all_women97_15 <- read_excel("list-of-mps.xlsx")
+
+lab_speech$short_list <- lab_speech$mnis_id %in% all_women97_15$mnis
+```
+
+
+```{r eval=FALSE, include=FALSE}
+library(readxl)
+library(readr)
+library(dplyr)
+
+women_speech <- read_rds("women_speech.rds")
+
+women_speech$party_group[is.na(women_speech$party_group)] <- "Other"
+
+women_speech$party[is.na(women_speech$party)] <- "Independent"
+
+all_women97_15 <- read_excel("list-of-mps.xlsx")
+
+women_speech$short_list <- women_speech$mnis_id %in% all_women97_15$mnis
+
+women_speech$house_start_date2 <- as.factor(women_speech$house_start_date)
+
+speech_length <- women_speech %>% 
+ group_by(short_list, party_group, house_start_date2) %>%
+ summarise(
+ mean = mean(word_count),
+ affin_mean = mean(afinn_sentiment),
+ jockers_mean = mean(jockers_sentiment),
+ nrc_mean = mean(nrc_sentiment),
+ huliu_mean = mean(huliu_sentiment),
+ rheault_mean = mean(rheault_sentiment),
+ jockers_rinker_mean = mean(jockers_rinker_sentiment),
+ senticnet_mean = mean(senticnet_sentiment)
+)
+
+
+```
+
+
+
+
+<!--Look at: https://cran.r-project.org/package=politeness for politness -->
+
+Using [@honnibal2017] for pronoun calculation, etc.
+
+### Spacy loading
+
+```{r}
+reticulate::use_python("/Users/evanodell/Documents/anaconda3/bin/python")
+library(spacyr)
+
+spacy_install()
+spacy_initialize()
+
+lab_annotate <- spacy_parse() # need to use lab_corpus for this
+
+
+# women_sample <- women_speech[sample(nrow(women_speech), 100), ]
+# wom_meta = select(women_sample, -speech, -time)
+# 
+# women_sample <- women_sample %>%
+#  select(eo_id, speech, everything())
+
+
+ lab_annotate <- cnlp_annotate(lab_speech, as_strings = TRUE, doc_ids = "eo_id",
+        text_var = "speech", doc_var = "eo_id")
+
+
+s <- cnlp_get_token(wom_annotate, include_root = TRUE)
+s <- cnlp_get_token(wom_annotate, include_root = TRUE) %>%
+ left_join(cnlp_get_document(wom_annotate)) %>% left_join(wom_meta, by=c("id"="eo_id"))
+
+
+
+
+```
+
+
+### 1997 Intake Cohort
+
+This only uses speeches by women first elected in the 1997 general election made during that parliament. 
+
+```{r}
+## ID right python
+reticulate::use_python("/Users/evanodell/Documents/anaconda3/bin/python")
+library(cleanNLP)
+library(magrittr)
+
+cnlp_init_spacy() # initate SPACY
+
+# Should at some point remove all those stopwords, constituencies, etc, from here
+# Refer to Rheault analysis for those words
+women_sample <- women_speech %>% 
+ filter(house_start_date2 == "1997-05-01", ministry == "Blair1") %>%
+ sample_n(500)
+        
+wom_meta = select(women_sample, -speech, -time)
+
+# Rearranging a bit
+women_sample <- women_sample %>%
+ select(eo_id, speech, everything())
+
+system.time(
+ wom_annotate <- cnlp_annotate(women_sample, as_strings = TRUE, doc_ids = "eo_id",
+        text_var = "speech", doc_var = "eo_id")
+)
+
+df <- cnlp_get_token(wom_annotate, include_root = TRUE) %>%
+ left_join(wom_meta, by=c("id"="eo_id"))
+
+df2 <- df %>% group_by(pos, short_list) %>% 
+ summarise(n=n()) %>% 
+ mutate(freq = n / sum(n))
+## percentage of personal pronouns?
+
+df$lemma <- factor(df$lemma)
+df$upos <- factor(df$upos)
+df$pos <- factor(df$pos)
+summary(df$pos)
+summary(df$pos)
+
+```
+
+
+PRP	PRON	PronType=prs	pronoun, personal
+PRP$	ADJ	PronType=prs Poss=yes	pronoun, possessive
