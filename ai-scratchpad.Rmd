@@ -1,6 +1,8 @@
 ---
 title: "AI Scratchpad"
 output: html_notebook
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ## Training to predict differences [Currently not working]

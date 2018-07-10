@@ -1,0 +1,695 @@
+---
+title: "All Women Shortlists Methodology"
+editor_options:
+  chunk_output_type: console
+link-citations: yes
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document:
+    df_print: paged
+  word_document: default
+bibliography: women.bib
+---
+
+# Methodology
+
+To account for the possible effects of age, parliamentary experience and cohort, and in order to compare women selected through all women shortlists to women who were not (but theoretically had the possibility to contest all-women shortlists), speech analysis has been restricted only to Labour MPs elected during or after the 1997 General Election, and before the 2017 General Election. Words contained in parentheses were removed, as they are added by Hansard to provide additional information not actually spoken by the MP.[^1] Speeches and MP data is from a dataset previously assembled by Odell [-@odell2018]. Information on all women shortlists is from the House of Commons Library [@kelly2016]. Unsuccessful General Election candidates selected through all women shortlists who were subsequently elected in a byelection are classified as having been selected on an all women shortlist. 
+
+Word classification used the `Linguistic Inquiry and Word Count 2015` (LIWC) dictionary [@pennebaker2015] and tokenising tools from the `Quanteda` R package [@benoit2018]. Word counts and words-per-sentence were calculated using `stringi` [@gagolewski2018], a wrapper to the ICU regex library.
+
+Previous research has found gender differences in some LIWC categories and in parts of speech usage in members of the US House of Representatives [@yu2014]. Following Yu [-@yu2014], and Jones [-@jones2016] we used the following categories:
+
+<!-- Feminine: -->
+* All Pronouns (pronoun)
+* First person singular pronouns (i) 
+* Verbs (verb)
+* Auxiliary verbs (auxverb) 
+* Social processes (social) 
+* Positive emotions (posemo) 
+* Negative emotions (negemo) 
+* Tentative words (tentat)
+<!-- Masculine: -->
+* Words longer than six letters (Sixltr)
+* First person plural pronouns (we)
+* Articles (article) 
+* Prepositions (preps) 
+* Anger words (anger)
+* Swear words (swear)
+* Cognitive processes (cogproc)
+
+We also included words-per-sentence (WPS), total word count (WC) and Flesch–Kincaid grade level (FK) [@kincaid1975], calculated using `Quanteda` [@benoit2018] and `stringi` [@gagolewski2018]. Effect sizes were calucated using Cohen's _d_ [@cohen1988].
+
+## Corpus creation
+
+```{r Extracing-post-1997-Labour-speeches, eval=FALSE, include=FALSE}
+### Extracing post-1997 Labour speeches
+library(readr)
+library(dplyr)
+library(quanteda)
+library(readxl)
+library(lubridate)
+library(stringi)
+
+all_speech <- read_rds("senti_df2.rds")
+
+all_speech$eo_id <- rownames(all_speech)
+
+## Binned into quarters of a year
+all_speech$y_since_start <- round(time_length(all_speech$speech_date -
+                                          as.Date(all_speech$house_start_date),
+                                        unit = "years")* 4)/4
+
+lab_speech <- filter(all_speech, party_group=="Labour", 
+                     house_start_date >= "1997-05-01",
+                     speech_date >= "1997-05-01", 
+                     speech_date < "2017-06-08", word_count > 0)
+
+rm(all_speech)
+
+all_women97_15 <- read_excel("list-of-mps.xlsx")
+
+lab_speech$short_list <- lab_speech$mnis_id %in% all_women97_15$mnis
+
+lab_speech$speech <- stri_replace_all_regex(lab_speech$speech, "\\s\\(.*?\\)",
+                                            "", vectorize_all = TRUE)
+
+write_rds(lab_speech, "lab_speech.rds")
+
+lab_corpus <- corpus(lab_speech, docid_field = "eo_id", text_field = "speech")
+
+write_rds(lab_corpus, "lab_corpus.rds")
+```
+
+
+
+
+# Descriptive Statistics
+
+```{r eval=FALSE, include=FALSE}
+elections <- as.POSIXct(c("1997-05-01", "2001-06-07", "2005-05-05", 
+               "2010-05-06", "2015-05-07", "2017-06-07"), tz = "UTC")
+
+labour_intakes <- lab_speech %>% 
+  filter(house_start_date %in% elections) %>% 
+  group_by(house_start_date, mnis_id) %>% 
+  summarise() %>% 
+  group_by(house_start_date) %>% 
+  summarise(total=n()) 
+
+labour_intakes_women <- lab_speech %>% 
+  filter(house_start_date %in% elections, gender=="Female") %>% 
+  group_by(house_start_date, mnis_id) %>% 
+  summarise() %>% 
+  group_by(house_start_date) %>% 
+  summarise(women=n()) 
+
+labour_intakes <- labour_intakes %>%  left_join(labour_intakes_women)
+labour_intakes$perc_women <- (labour_intakes$women/labour_intakes$total)*100
+
+```
+
+
+| General Election | Total MPs | Total Labour MPs | Total Female Labour MPs | Newly elected MPs | Intake Women | Percentage Intake Women | Intake Shortlist | Nominated Shortlist |
+|---|---|---|---|---|---|---|---|---|---|
+| 1997 | 659 | 418 | 101 | 177 | 64 |36% | 35 | 38 |
+| 2001 | 659 | 412 | 95 | 38 | 4 | 11% | 0 | 0 |
+| 2005 | 646 | 355 | 98 | 40 | 26 | 65% | 23 | 30 |
+| 2010 | 650 | 258 | 81 | 64 | 32 | 50% | 28 | 63 |
+| 2015 | 650 | 232 | 99 | 49 | 31 | 63% | 31 | 77 |
+
+Data in this table is from House of Commons library reports [@kelly2016; @audickas2017]. All women shortlists were not used by Labour during the 2001 General Election.
+
+
+Hypothesis:
+- Women selected through all women shortlists use more "feminine" language -- pronouns, particular personal pronouns, passive voice, hedges, etc -- than women selected in open selections.
+
+
+## LIWC creation
+
+```{r women-v-men, eval=FALSE, include=FALSE}
+#remotes::install_github("kbenoit/quanteda.dictionaries")
+library(quanteda.dictionaries)
+library(purrr)
+library(tidyr)
+library(effsize)
+
+liwc15_dict <- dictionary(file = "dict/LIWC2015_English_Flat.dic",
+       format = "LIWC")
+
+lab_liwc <- liwcalike(lab_corpus, 
+      dictionary = liwc15_dict, 
+      verbose = TRUE) %>%
+ left_join(lab_speech, by = c("docname" = "eo_id"))
+
+lab_liwc[["Sixltr"]] <- sapply(
+  tokens(texts(lab_corpus), remove_hyphens = TRUE),
+  function(y) sum(stri_length(y) > 6)) / lab_liwc[["WC"]] * 100
+
+lab_liwc$WC <- stri_count_boundaries(lab_liwc$speech,
+                                       type="word", skip_word_none=FALSE)
+
+# lab_liwc$FK <-  textstat_readability(texts(lab_corpus), "Flesch.Kincaid")
+# 
+# lab_liwc$FK <- lab_liwc$FK$Flesch.Kincaid
+# 
+# lab_liwc$FK <- if_else(lab_liwc$WC < 5, NA_real_, lab_liwc$FK)
+
+lab_liwc$WPS <- lab_liwc$WC/stri_count_boundaries(lab_liwc$speech,
+                                       type="sentence", skip_word_none=FALSE)
+
+lab_liwc$FK <- case_when(lab_liwc$WC >= 5 ~ 
+                            0.39 * lab_liwc$WPS + 
+                            11.8 * quanteda::nsyllable(lab_liwc$speech)/
+                            lab_liwc$WC - 15.59, TRUE ~ NA_real_)
+
+#lab_liwc$FK2 <- if_else(lab_liwc$WC < 5, NA_real_, lab_liwc$FK2)
+
+lab_liwc <- lab_liwc %>% select(docname, Segment, WC, WPS, FK, everything())
+
+#lab_liwc <- read_rds("lab_liwc.rds")
+
+write_rds(lab_liwc, "lab_liwc.rds")
+```
+
+
+## Women vs Men
+
+```{r liwc-women-men, include=FALSE}
+library(readr)
+library(dplyr)
+library(purrr)
+library(tidyr)
+library(effsize)
+
+lab_liwc <- read_rds("lab_liwc.rds")
+
+## Group by gender, short_list, see what's up
+cols <- names(lab_liwc)[4:92]
+
+lab_liwc_men_women_mean <- list(c("WC"), cols) %>%
+ map2(lst(mean=mean, funs(weighted.mean(., WC))),
+  ~ lab_liwc %>%
+   group_by(gender) %>%
+   summarise_at(.x, .y)) %>%
+ reduce(inner_join)
+
+#tibble::glimpse(lab_liwc_men_women_mean)
+
+lab_liwc_men_women_tidy_mean <- gather(lab_liwc_men_women_mean, 
+          "attribute", "weighted_mean", -gender, -WC) 
+
+lab_liwc_men_women_sd <- list(c("WC"), cols) %>%
+ map2(lst(mean=mean, funs(sd(., na.rm=TRUE))),
+  ~ lab_liwc %>%
+   group_by(gender) %>%
+   summarise_at(.x, .y)) %>%
+ reduce(inner_join)
+
+lab_liwc_men_women_tidy_sd <- gather(lab_liwc_men_women_sd, "attribute",
+                                     "sd", -gender, -WC) 
+
+## Joining together the SD and Means to get CIs
+
+## Calculate Cohen's D in here somehow?
+lab_liwc_men_women2 <- left_join(lab_liwc_men_women_tidy_mean, 
+         lab_liwc_men_women_tidy_sd) %>% 
+ left_join(lab_liwc %>% 
+    group_by(gender) %>% summarise(n=n())) %>%
+ mutate(se = sd / sqrt(n),
+   lower_ci = weighted_mean - qt(1 - (0.05 / 2), n - 1) * se,
+   upper_ci = weighted_mean + qt(1 - (0.05 / 2), n - 1) * se)
+
+rm(lab_liwc_men_women_tidy_sd, lab_liwc_men_women_tidy_mean)
+
+fem_mac <- c("pronoun", "i", "verb", "auxverb", "social", "posemo", 
+             "negemo", "tentat", "Sixltr", "we",  "article", "prep",
+             "anger", "swear", "cogproc", "WPS", "WC", "FK")
+
+lab_liwc_men_women2_subset <- lab_liwc_men_women2 %>%
+  filter(attribute %in% fem_mac)
+
+fem_mac_df <- tibble::tibble(
+  word_type = fem_mac,
+  women = c(1:length(fem_mac)),
+  women_sd = c(1:length(fem_mac)),
+  men = c(1:length(fem_mac)),
+  men_sd = c(1:length(fem_mac)),
+  cohen_d = c(1:length(fem_mac)),
+  magnitude = c(1:length(fem_mac)))
+
+for (i in fem_mac) {
+  d <- (cohen.d(lab_liwc[[i]], lab_liwc$gender, na.rm = TRUE,
+                noncentral = FALSE, pooled = TRUE))
+  fem_mac_df$women[fem_mac_df$word_type==i] <- mean(lab_liwc[lab_liwc$gender == "Female", i], na.rm = TRUE)
+  fem_mac_df$men[fem_mac_df$word_type==i] <- mean(lab_liwc[lab_liwc$gender == "Male", i], na.rm = TRUE)
+  fem_mac_df$women_sd[fem_mac_df$word_type==i] <- sd(lab_liwc[lab_liwc$gender == "Female", i], na.rm = TRUE)
+  fem_mac_df$men_sd[fem_mac_df$word_type==i] <- sd(lab_liwc[lab_liwc$gender == "Male", i], na.rm = TRUE)
+  fem_mac_df$cohen_d[fem_mac_df$word_type==i] <- (d$estimate[[1]])
+  fem_mac_df$magnitude[fem_mac_df$word_type==i] <- as.character(d$magnitude[[1]])
+}
+
+#fem_mac_df
+
+fem_mac_df$word_type <- recode(fem_mac_df$word_type,
+               "pronoun" = "All Pronouns",
+               "i" = "First person singular pronouns",
+               "verb" = "Verbs",
+               "auxverb" = "Auxiliary verbs",
+               "social" = "Social processes ",
+               "posemo" = "Positive emotions",
+               "negemo" = "Negative emotions",
+               "tentat" = "Tentative words",
+               "Sixltr" = "More than six letters",
+               "we" = "First person plural pronouns",
+               "article" = "Articles",
+               "prep" = "Prepositions",
+               "anger" = "Anger words",
+               "swear" = "Swear words",
+               "cogproc" = "Cognitive processes",
+               "WPS" = "Words per Sentence",
+               "WC" = "Total Word Count",
+               "FK" = "Flesh-Kincaid Grade Level")
+
+### Maybe do something different instead of this?
+# library(ggplot2)
+# 
+# p_men_women <- ggplot(aes(y = weighted_mean, x = gender),
+#                       data = lab_liwc_men_women2_subset) +
+#   geom_col() +
+#   geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci),
+#                 width = 0.2) +
+#   facet_wrap(~attribute)
+# 
+# p_men_women
+
+```
+
+```{r, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+kable(fem_mac_df, digits = 2, 
+      caption = "Effect Sizes for Male and Female Labour MPs",
+      col.names = c("", "Mean", "SD", "Mean", "SD", "Cohen's D", "Magnitude") )  %>%
+  kable_styling() %>% 
+  add_header_above(c(" " = 1, "Women" = 2, "Men" = 2, "Effect Size" = 2))
+
+```
+
+
+
+## Shortlists vs Non-Shortlists
+
+```{r liwc-shortlists, include=FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(effsize)
+
+lab_liwc <- read_rds("lab_liwc.rds")
+
+lab_liwc_women <- filter(lab_liwc, gender=="Female",
+                         house_start_date >= "1997-05-01")
+
+## Group by gender, short_lsit, see what's up
+cols <- names(lab_liwc_women)[4:92]
+
+lab_liwc_women_mean <- list(c("WC"), cols) %>%
+ map2(lst(mean=mean, funs(weighted.mean(., WC))),
+  ~ lab_liwc_women %>%
+   group_by(gender, short_list, y_since_start) %>%
+   summarise_at(.x, .y)) %>%
+ reduce(inner_join)
+
+lab_liwc_women_tidy_mean <- gather(lab_liwc_women_mean, "attribute",
+                                   "weighted_mean", -short_list, -gender, -WC,
+                                   -y_since_start) 
+
+lab_liwc_women_sd <- list(c("WC"), cols) %>%
+ map2(lst(mean=mean, funs(sd(., na.rm=TRUE))),
+  ~ lab_liwc_women %>%
+   group_by(gender, short_list, y_since_start) %>%
+   summarise_at(.x, .y)) %>%
+ reduce(inner_join)
+
+lab_liwc_women_tidy_sd <- gather(lab_liwc_women_sd, "attribute",
+                                 "sd", -short_list, -gender, -WC,
+                                 -y_since_start) 
+
+## Joining together the SD and Means to get CIs
+lab_liwc_women2 <- left_join(lab_liwc_women_tidy_mean,
+                             lab_liwc_women_tidy_sd) %>% 
+ left_join(lab_liwc_women %>% 
+    group_by(gender, short_list, y_since_start) %>% summarise(n=n())) %>%
+ mutate(se = sd / sqrt(n),
+   lower_ci = weighted_mean - qt(1 - (0.05 / 2), n - 1) * se,
+   upper_ci = weighted_mean + qt(1 - (0.05 / 2), n - 1) * se)
+
+lab_liwc_women2_subset <- lab_liwc_women2 %>%
+  filter(attribute %in% fem_mac)
+
+# library(ggplot2)
+# 
+# p1 <- ggplot(aes(y = weighted_mean, x = y_since_start, 
+#                  group = short_list, colour = short_list),
+#                       data = lab_liwc_women2_subset) +
+#   geom_smooth() + 
+#   geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci),
+#                 width = 0.2) +
+#   facet_wrap(~attribute)
+# 
+# p1
+
+```
+
+
+
+```{r, echo=FALSE,results = 'asis'}
+fem_mac_df_sl <- tibble::tibble(
+  word_type = fem_mac,
+  short_list = c(1:length(fem_mac)),
+  short_list_sd = c(1:length(fem_mac)),
+  non_short_list = c(1:length(fem_mac)),
+  non_short_list_sd = c(1:length(fem_mac)),
+  cohen_d = c(1:length(fem_mac)),
+  magnitude = c(1:length(fem_mac)))
+
+lab_liwc_women$short_list <- as.factor(lab_liwc_women$short_list)
+
+for (i in fem_mac) {
+  d <- (cohen.d(lab_liwc_women[[i]], lab_liwc_women$short_list, na.rm = TRUE,
+                noncentral = FALSE, pooled = TRUE))
+  fem_mac_df_sl$short_list[fem_mac_df_sl$word_type==i] <-
+    mean(lab_liwc_women[lab_liwc_women$short_list == TRUE, i], na.rm = TRUE)
+  fem_mac_df_sl$non_short_list[fem_mac_df_sl$word_type==i] <- 
+    mean(lab_liwc_women[lab_liwc_women$short_list == FALSE, i], na.rm = TRUE)
+  fem_mac_df_sl$short_list_sd[fem_mac_df_sl$word_type==i]  <- 
+      sd(lab_liwc_women[lab_liwc_women$short_list == TRUE, i], na.rm = TRUE)
+  fem_mac_df_sl$non_short_list_sd[fem_mac_df_sl$word_type==i] <- 
+    sd(lab_liwc_women[lab_liwc_women$short_list == FALSE, i], na.rm = TRUE)
+  fem_mac_df_sl$cohen_d[fem_mac_df_sl$word_type == i] <- 
+    d$estimate[[1]]
+  fem_mac_df_sl$magnitude[fem_mac_df_sl$word_type == i] <-
+    as.character(d$magnitude[[1]])
+}
+
+fem_mac_df_sl$word_type <- recode(fem_mac_df_sl$word_type,
+               "pronoun" = "All Pronouns",
+               "i" = "First person singular pronouns",
+               "verb" = "Verbs",
+               "auxverb" = "Auxiliary verbs",
+               "social" = "Social processes ",
+               "posemo" = "Positive emotions",
+               "negemo" = "Negative emotions",
+               "tentat" = "Tentative words",
+               "Sixltr" = "More than six letters",
+               "we" = "First person plural pronouns",
+               "article" = "Articles",
+               "prep" = "Prepositions",
+               "anger" = "Anger words",
+               "swear" = "Swear words",
+               "cogproc" = "Cognitive processes",
+               "WPS" = "Words per Sentence",
+               "WC" = "Total Word Count",
+               "FK" = "Flesh-Kincaid Grade Level")
+
+```
+
+```{r, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+kable(fem_mac_df_sl, digits = 2, 
+      caption = "Effect Sizes for Female Labour MPs by selection process",
+      col.names = c("", "Mean", "SD", "Mean", "SD", "Cohen's D", "Magnitude") )  %>%
+  kable_styling() %>% 
+  add_header_above(c(" " = 1, "All Women Shortlists" = 2, "Open Shorlists" = 2, "Effect Size" = 2))
+
+```
+
+
+## Spacy
+
+```{r eval=FALSE, include=FALSE}
+library(spacyr)
+library(progress)
+
+lab_speech <- read_rds("lab_speech.rds")
+
+lab_speech$year <- as.factor(lab_speech$year)
+
+split_data <- split(lab_speech, lab_speech$year) ### Splitting data variable
+
+all_names <- names(split_data)
+
+pb_save <- progress_bar$new(total = length(all_names),
+                            format = "[:bar] :percent ETA: :eta Elapsed: :elapsedfull")
+
+for (this_name in all_names) {
+  save_name <- paste0(this_name, "x.rds")
+  write_rds(split_data[[this_name]], path = save_name)
+  pb_save$tick()
+}
+
+
+# 
+# lab_corpus_sample <- corpus(lab_speech_sample,
+#                             docid_field = "eo_id", text_field = "speech")
+# 
+# system.time(
+#   lab_annotate_sample <- spacy_parse(lab_corpus_sample, tag = TRUE,
+#                                    dependency = TRUE,  lemma = FALSE,
+#                                    pos = FALSE) # need to use lab_corpus for this
+# )
+
+
+#devtools::install_github("quanteda/spacyr")
+#spacy_install(python_path = "/Users/evanodell/Documents/anaconda3/bin/python3")
+spacy_initialize()
+
+atemp <- list.files(pattern = "*x.rds")
+
+pb <- progress_bar$new(total = length(atemp), 
+                       format = "[:bar] :percent ETA: :eta Elapsed: :elapsedfull\n")
+
+for (i in atemp) {
+   pb$tick(0)
+  
+  df <- read_rds(i)
+  
+  message(cat("Corpusising "), i, "\n")
+  
+  lab_corpus <- corpus(df, docid_field = "eo_id", text_field = "speech")
+  
+  i <- gsub("x.rds", "", i)
+  
+  message(cat("Annotating "), i, "\n")
+  
+  # need to use corpus object for this
+  lab_annotate <- spacy_parse(lab_corpus, tag = TRUE, dependency = TRUE,
+                            lemma = FALSE, pos = FALSE, entity = TRUE) 
+ 
+  save_name <- paste0("./annotated/ano_", i, ".rds")
+  
+  write_rds(lab_annotate, path = save_name)
+  
+  pb$tick()
+  
+  gc()
+
+}
+
+atemp2 <- list.files("./annotated/", pattern = "*.rds")
+
+atemp2 <- paste0("annotated/", atemp2)
+
+df.list <- sapply(atemp2, read_rds, simplify = FALSE)
+
+annotated_labour <- bind_rows(df.list)
+
+rm(df.list, atemp2)
+
+write_rds(annotated_labour, "annotated_labour.rds")
+
+### Calculate the number of different parts of speech
+
+
+
+```
+
+
+
+```{r eval=FALSE, include=FALSE}
+# !diagnostics off
+library(readr)
+library(dplyr)
+annotated_labour <- read_rds("annotated_labour.rds")
+
+post_df <- tibble::tribble(
+     ~tag,    ~POS,
+  "-LRB-", "PUNCT",
+  "-RRB-", "PUNCT",
+      ",", "PUNCT",
+      ":", "PUNCT",
+      ".", "PUNCT",
+     "''", "PUNCT",
+   "\"\"", "PUNCT",
+     "``", "PUNCT",
+      "$",   "SYM",
+    "ADD",     "X",
+    "AFX",   "ADJ",
+    "BES",  "VERB",
+     "CC",  "CONJ",
+     "CD",   "NUM",
+     "DT",   "DET",
+     "EX",   "ADV",
+     "FW",     "X",
+     "GW",     "X",
+    "HVS",  "VERB",
+   "HYPH", "PUNCT",
+     "IN",   "ADP",
+     "JJ",   "ADJ",
+    "JJR",   "ADJ",
+    "JJS",   "ADJ",
+     "LS", "PUNCT",
+     "MD",  "VERB",
+    "NFP", "PUNCT",
+    "NIL",    "NA",
+     "NN",  "NOUN",
+    "NNP", "PROPN",
+   "NNPS", "PROPN",
+    "NNS",  "NOUN",
+    "PDT",   "ADJ",
+    "POS",  "PART",
+    "PRP",  "PRON",
+   "PRP$",   "ADJ",
+     "RB",   "ADV",
+    "RBR",   "ADV",
+    "RBS",   "ADV",
+     "RP",  "PART",
+    "_SP", "SPACE",
+    "SYM",   "SYM",
+     "TO",  "PART",
+     "UH",  "INTJ",
+     "VB",  "VERB",
+    "VBD",  "VERB",
+    "VBG",  "VERB",
+    "VBN",  "VERB",
+    "VBP",  "VERB",
+    "VBZ",  "VERB",
+    "WDT",   "ADJ",
+     "WP",  "NOUN",
+    "WP$",   "ADJ",
+    "WRB",   "ADV",
+     "XX",     "X"
+  )
+
+post_df$POS <- as.factor(post_df$POS)
+
+annotated_labour <- annotated_labour %>% left_join(post_df)
+
+summary(annotated_labour)
+
+write_rds(annotated_labour, "annotated_labour.rds")
+
+```
+
+## POS Analysis
+
+
+```{r tidying-annotations, eval=FALSE, include=FALSE}
+library(readr)
+library(dplyr)
+library(magrittr)
+library(tidyr)
+library(effsize)
+
+annotated_labour <- read_rds("annotated_labour.rds")
+
+annotated_labour <- annotated_labour %>% 
+  filter(POS != "PUNCT", is.na(POS) == FALSE, POS != "SPACE") %>%
+  group_by(doc_id, tag) %>%
+  summarise(count = n()) %>%
+  mutate(freq = count / sum(count)) %>% ungroup() 
+
+annotated_labour$count <- NULL
+
+annotated_labour <- annotated_labour %>% spread(tag, freq)
+
+lab_speech <- read_rds("lab_speech.rds")
+
+annotated_labour <- annotated_labour %>% left_join(select(lab_speech, eo_id, gender, short_list), by = c("doc_id"="eo_id"))
+
+d <- cohen.d(annotated_labour$NNS, annotated_labour$gender, na.rm = TRUE)
+
+
+```
+
+
+
+## Tokenising / Keyness
+
+The most commonly used words by both men and women would be protocol boilerplate expressions, so we calculate the keyness of words to identify gender differences in the choices of topics raised by men and women, and by short-list and non-shortlist women.
+
+### Men vs Women
+
+```{r gender-keyness, echo=FALSE, message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(quanteda)
+library(ggplot2)
+
+#lab_tokens <- tokens(lab_corpus, what = "word", include_docvars = TRUE,
+#      remove_punct = TRUE)### Do something to only include the short_list and gender docvars
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way",
+                          "give", "gentleman", "right", "percent", "per", "cent")
+
+lab_dfm_key <- lab_corpus %>% 
+  dfm(remove = parliament_stopwords, remove_punct = TRUE,
+      verbose = TRUE, groups = "gender") %>%
+  dfm_weight("count")
+
+lab_keyness <- textstat_keyness(lab_dfm_key, measure = c("chi2"))
+
+head(lab_keyness)
+
+lab_keyness_plot <- textplot_keyness(lab_keyness, n=15) +  
+  coord_cartesian(xlim=c(-5000, 14800)) 
+
+lab_keyness_plot
+
+```
+
+
+
+### Shortlists vs Non-Shortlists
+
+
+```{r shortlist-keyness, echo=FALSE, message=FALSE, warning=FALSE}
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+lab_dfm_key_fem <- lab_corpus_fem %>% 
+  dfm(remove = parliament_stopwords, remove_punct = TRUE,
+      verbose = TRUE, groups = "short_list") %>%
+  dfm_weight("count")
+
+lab_keyness_fem <- textstat_keyness(lab_dfm_key_fem, measure = c("chi2"))
+
+head(lab_keyness_fem)
+
+fem_keyness_plot <- textplot_keyness(lab_keyness_fem, n=15) + 
+  coord_cartesian(xlim=c(-1700,1000))
+
+fem_keyness_plot
+
+```
+
+
+
+[^1]: e.g. a reference to "the member for Bethnal Green and Bow" in keeping with Parliamentary convention of identifying MPs by their seat rather than their name would be followed by "(Rushnara Ali)".
+
+[^2]: 
