@@ -14,11 +14,13 @@ bibliography: women.bib
 
 # Methodology
 
-To account for the possible effects of age, parliamentary experience and cohort, and in order to compare women selected through all women shortlists to women who were not (but theoretically had the possibility to contest all-women shortlists), speech analysis has been restricted only to Labour MPs elected during or after the 1997 General Election, and before the 2017 General Election. Words contained in parentheses were removed, as they are added by Hansard to provide additional information not actually spoken by the MP.[^1] Speeches and MP data is from a dataset previously assembled by Odell [-@odell2018]. Information on all women shortlists is from the House of Commons Library [@kelly2016]. Unsuccessful General Election candidates selected through all women shortlists who were subsequently elected in a byelection are classified as having been selected on an all women shortlist. 
+Previous research on gender differences in political speech patterns has focused on differences between male and female politicians [@yu2014] or on variations in Hilary Clinton's speech patterns [@jones2016; @bligh2010].
+
+To account for the possible effects of age, parliamentary experience and cohort, and in order to compare women selected through all women shortlists to women who were not (but theoretically had the possibility to contest all-women shortlists), speech analysis has been restricted only to Labour MPs elected during or after the 1997 General Election, and before the 2017 General Election. Words contained in parentheses were removed, as they are added by Hansard to provide additional information not actually spoken by the MP.[^1] Speeches and MP data is from a previously assembled dataset [@odell2018]. Information on candidates selected through all women shortlists is from the House of Commons Library [@kelly2016]. Unsuccessful General Election candidates selected through all women shortlists who were subsequently elected in a byelection are classified as having been selected on an all women shortlist. 
 
 Word classification used the `Linguistic Inquiry and Word Count 2015` (LIWC) dictionary [@pennebaker2015] and tokenising tools from the `Quanteda` R package [@benoit2018]. Word counts and words-per-sentence were calculated using `stringi` [@gagolewski2018], a wrapper to the ICU regex library.
 
-Previous research has found gender differences in some LIWC categories and in parts of speech usage in members of the US House of Representatives [@yu2014]. Following Yu [-@yu2014], and Jones [-@jones2016] we used the following categories:
+Following Yu [-@yu2014] drawing on [@newman2008] we used the following LIWC categories:
 
 <!-- Feminine: -->
 * All Pronouns (pronoun)
@@ -38,9 +40,9 @@ Previous research has found gender differences in some LIWC categories and in pa
 * Swear words (swear)
 * Cognitive processes (cogproc)
 
-We also included words-per-sentence (WPS), total word count (WC) and Flesch–Kincaid grade level (FK) [@kincaid1975], calculated using `Quanteda` [@benoit2018] and `stringi` [@gagolewski2018]. Effect sizes were calucated using Cohen's _d_ [@cohen1988].
+We also included words-per-sentence (WPS), total word count (WC) and Flesch–Kincaid grade level (FK) [@kincaid1975], calculated using `Quanteda` [@benoit2018] and `stringi` [@gagolewski2018].
 
-## Corpus creation
+<!--## Corpus creation -->
 
 ```{r Extracing-post-1997-Labour-speeches, eval=FALSE, include=FALSE}
 ### Extracing post-1997 Labour speeches
@@ -81,10 +83,7 @@ lab_corpus <- corpus(lab_speech, docid_field = "eo_id", text_field = "speech")
 write_rds(lab_corpus, "lab_corpus.rds")
 ```
 
-
-
-
-# Descriptive Statistics
+<!--### Descriptive Statistics -->
 
 ```{r eval=FALSE, include=FALSE}
 elections <- as.POSIXct(c("1997-05-01", "2001-06-07", "2005-05-05", 
@@ -120,12 +119,7 @@ labour_intakes$perc_women <- (labour_intakes$women/labour_intakes$total)*100
 
 Data in this table is from House of Commons library reports [@kelly2016; @audickas2017]. All women shortlists were not used by Labour during the 2001 General Election.
 
-
-Hypothesis:
-- Women selected through all women shortlists use more "feminine" language -- pronouns, particular personal pronouns, passive voice, hedges, etc -- than women selected in open selections.
-
-
-## LIWC creation
+<!--## LIWC creation-->
 
 ```{r women-v-men, eval=FALSE, include=FALSE}
 #remotes::install_github("kbenoit/quanteda.dictionaries")
@@ -222,8 +216,8 @@ lab_liwc_men_women2 <- left_join(lab_liwc_men_women_tidy_mean,
 
 rm(lab_liwc_men_women_tidy_sd, lab_liwc_men_women_tidy_mean)
 
-fem_mac <- c("pronoun", "i", "verb", "auxverb", "social", "posemo", 
-             "negemo", "tentat", "Sixltr", "we",  "article", "prep",
+fem_mac <- c("pronoun", "i", "we", "verb", "auxverb", "social", "posemo", 
+             "negemo", "tentat", "Sixltr",  "article", "prep",
              "anger", "swear", "cogproc", "WPS", "WC", "FK")
 
 lab_liwc_men_women2_subset <- lab_liwc_men_women2 %>%
@@ -297,6 +291,8 @@ kable(fem_mac_df, digits = 2,
 ```
 
 
+There are no categories where gender differences meet the effect size threshold of $|0.2|$ suggested by Cohen [-@cohen1988, 25--26] to indicate a small effect. 4 categories -- words with more than six letters, prepositions, words-per-sentence and Flesh-Kincaid grade level -- exceeded the $|0.1|$ threshold suggested by Newman et al [-@newman2008].
+
 
 ## Shortlists vs Non-Shortlists
 
@@ -363,8 +359,6 @@ lab_liwc_women2_subset <- lab_liwc_women2 %>%
 
 ```
 
-
-
 ```{r, echo=FALSE,results = 'asis'}
 fem_mac_df_sl <- tibble::tibble(
   word_type = fem_mac,
@@ -421,11 +415,16 @@ library(knitr)
 library(kableExtra)
 kable(fem_mac_df_sl, digits = 2, 
       caption = "Effect Sizes for Female Labour MPs by selection process",
-      col.names = c("", "Mean", "SD", "Mean", "SD", "Cohen's D", "Magnitude") )  %>%
+      col.names = c("", "Mean", "SD", "Mean", "SD",
+                    "Cohen's D", "Magnitude")) %>%
   kable_styling() %>% 
-  add_header_above(c(" " = 1, "All Women Shortlists" = 2, "Open Shorlists" = 2, "Effect Size" = 2))
+  add_header_above(c(" " = 1, "All Women Shortlists" = 2,
+                     "Open Shorlists" = 2, "Effect Size" = 2))
 
 ```
+
+
+There are no categories among female Labour MPs by selection process meeting the $|0.2|$ threshold. Only one category -- first person plural pronouns, _d_=0.19 -- exceeded $|0.1|$.
 
 
 ## Spacy
@@ -644,8 +643,9 @@ library(ggplot2)
 
 lab_corpus <- read_rds("lab_corpus.rds")
 
-parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way",
-                          "give", "gentleman", "right", "percent", "per", "cent")
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister") ## Need to remove constituency names from this
 
 lab_dfm_key <- lab_corpus %>% 
   dfm(remove = parliament_stopwords, remove_punct = TRUE,
@@ -654,15 +654,19 @@ lab_dfm_key <- lab_corpus %>%
 
 lab_keyness <- textstat_keyness(lab_dfm_key, measure = c("chi2"))
 
-head(lab_keyness)
+#head(lab_keyness)
 
 lab_keyness_plot <- textplot_keyness(lab_keyness, n=15) +  
-  coord_cartesian(xlim=c(-5000, 14800)) 
+  coord_cartesian(xlim=c(-5000, 14800)) +
+  labs(title = "Keyness in Labour MPs by Gender",
+       x = "Chi2")
+
 
 lab_keyness_plot
-
+## Figure out what the fuck is up with Hull?
 ```
 
+Keyness -- a linguistic measure of the frequency of different words in two groups of texts -- reveals clear gender differences in the most disproportionately common words used by female and male Labour MPs. Unsurprisingly, despite male MPs saying almost twice as many words (30601887 vs 15898845) <!--Double-check these numbers--> as their female colleagues, female Labour MPs were more than two-and-a-half (2.61) times as likely to say "women". They were also much more likely to refer to "women's" and "woman". Female Labour MPs also appear much more likely to discuss "children", "people", "care", "families", "home", "parents", "work" and social policy areas such as "services", "disabled [people]" and "housing" than their male colleagues. Male MPs were more likely to refer to military topics ("Iraq", "nuclear"), and to parliamentary process and protocol  -- "question", "political", "conservative", "electoral", "house", "party", "argument" "liberal" and "point" are far more common in speeches by male Labour MPs than by female ones. This could suggest that male MPs are more comfortable using the traditional language of House of Commons debate.
 
 
 ### Shortlists vs Non-Shortlists
@@ -679,17 +683,21 @@ lab_dfm_key_fem <- lab_corpus_fem %>%
 
 lab_keyness_fem <- textstat_keyness(lab_dfm_key_fem, measure = c("chi2"))
 
-head(lab_keyness_fem)
+#head(lab_keyness_fem)
 
 fem_keyness_plot <- textplot_keyness(lab_keyness_fem, n=15) + 
-  coord_cartesian(xlim=c(-1700,1000))
+  coord_cartesian(xlim=c(-1700,1000)) +
+  labs(title = "Keyness in Female Labour MPs by Selection Process",
+       x = "Chi2")
 
 fem_keyness_plot
 
 ```
 
 
+Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. [AWS MPs given policy briefs related to these areas? Seeking them out?]
+
 
 [^1]: e.g. a reference to "the member for Bethnal Green and Bow" in keeping with Parliamentary convention of identifying MPs by their seat rather than their name would be followed by "(Rushnara Ali)".
 
-[^2]: 
+[^2]: Special Educational Needs
