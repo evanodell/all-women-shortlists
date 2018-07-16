@@ -6,9 +6,9 @@ link-citations: yes
 output:
   pdf_document: default
   html_notebook: default
+  word_document: default
   html_document:
     df_print: paged
-  word_document: default
 bibliography: women.bib
 ---
 
@@ -279,13 +279,14 @@ fem_mac_df$word_type <- recode(fem_mac_df$word_type,
 
 ```
 
-```{r, echo=FALSE, results = 'asis'}
+```{r gender-effect-sizes-table, echo=FALSE, results = 'asis'}
 library(knitr)
 library(kableExtra)
 kable(fem_mac_df, digits = 2, 
       caption = "Effect Sizes for Male and Female Labour MPs",
-      col.names = c("", "Mean", "SD", "Mean", "SD", "Cohen's D", "Magnitude") )  %>%
-  kable_styling() %>% 
+      col.names = c("", "Mean", "SD", "Mean", "SD",
+                    "Cohen's D", "Magnitude") )  %>%
+  kable_styling(latex_options = "striped") %>% 
   add_header_above(c(" " = 1, "Women" = 2, "Men" = 2, "Effect Size" = 2))
 
 ```
@@ -410,14 +411,14 @@ fem_mac_df_sl$word_type <- recode(fem_mac_df_sl$word_type,
 
 ```
 
-```{r, echo=FALSE, results = 'asis'}
+```{r sl-effect-sizes, echo=FALSE, results = 'asis'}
 library(knitr)
 library(kableExtra)
 kable(fem_mac_df_sl, digits = 2, 
       caption = "Effect Sizes for Female Labour MPs by selection process",
       col.names = c("", "Mean", "SD", "Mean", "SD",
                     "Cohen's D", "Magnitude")) %>%
-  kable_styling() %>% 
+  kable_styling(latex_options = "striped") %>% 
   add_header_above(c(" " = 1, "All Women Shortlists" = 2,
                      "Open Shorlists" = 2, "Effect Size" = 2))
 
@@ -426,8 +427,6 @@ kable(fem_mac_df_sl, digits = 2,
 
 There are no categories among female Labour MPs by selection process meeting the $|0.2|$ threshold. Only one category -- first person plural pronouns, _d_=0.19 -- exceeded $|0.1|$.
 
-
-## Spacy
 
 ```{r eval=FALSE, include=FALSE}
 library(spacyr)
@@ -516,8 +515,6 @@ write_rds(annotated_labour, "annotated_labour.rds")
 
 ```
 
-
-
 ```{r eval=FALSE, include=FALSE}
 # !diagnostics off
 library(readr)
@@ -595,8 +592,11 @@ write_rds(annotated_labour, "annotated_labour.rds")
 
 ## POS Analysis
 
+Part-of-speech (POS) tagging was done using `spaCy` [@honnibal2017] and the `spacyr` package [@benoit2018a]. 
 
 ```{r tidying-annotations, eval=FALSE, include=FALSE}
+##STILL NEED TO FIGURE THIS OUT!1!!!
+
 library(readr)
 library(dplyr)
 library(magrittr)
@@ -605,22 +605,77 @@ library(effsize)
 
 annotated_labour <- read_rds("annotated_labour.rds")
 
-annotated_labour <- annotated_labour %>% 
+annotated_labour_tag <- annotated_labour %>% 
   filter(POS != "PUNCT", is.na(POS) == FALSE, POS != "SPACE") %>%
   group_by(doc_id, tag) %>%
   summarise(count = n()) %>%
   mutate(freq = count / sum(count)) %>% ungroup() 
 
-annotated_labour$count <- NULL
+annotated_labour_tag$count <- NULL
 
-annotated_labour <- annotated_labour %>% spread(tag, freq)
+annotated_labour_tag <- annotated_labour_tag %>% spread(tag, freq)
+
+annotated_labour_pos <- annotated_labour %>% 
+  filter(POS != "PUNCT", is.na(POS) == FALSE, POS != "SPACE") %>%
+  group_by(doc_id, POS) %>%
+  summarise(count = n()) %>%
+  mutate(freq = count / sum(count)) %>% ungroup() 
+
+annotated_labour_pos$count <- NULL
+
+annotated_labour_pos <- annotated_labour_pos %>% spread(POS, freq)
+
+rm(annotated_labour)
 
 lab_speech <- read_rds("lab_speech.rds")
 
-annotated_labour <- annotated_labour %>% left_join(select(lab_speech, eo_id, gender, short_list), by = c("doc_id"="eo_id"))
+annotated_labour_tag <- annotated_labour_tag %>% 
+  left_join(select(lab_speech, eo_id, gender, short_list),
+            by = c("doc_id"="eo_id"))
+
+annotated_labour_pos <- annotated_labour_pos %>% 
+  left_join(select(lab_speech, eo_id, gender, short_list),
+            by = c("doc_id"="eo_id"))
 
 d <- cohen.d(annotated_labour$NNS, annotated_labour$gender, na.rm = TRUE)
 
+
+word_types_tags <- c("NN", "NNS")
+
+annotated_labour_tag2 <- annotated_labour_tag %>% 
+  select(NN, NNS, gender, short_list) %>% 
+  group_by(gender, NN, NNS) %>%
+  summarise(mean=mean( na.rm = TRUE))
+
+pos_df <- tibble::tibble(
+  word_type = word_types_tags,
+  women = c(1:length(word_types_tags)),
+  women_sd = c(1:length(word_types_tags)),
+  men = c(1:length(word_types_tags)),
+  men_sd = c(1:length(word_types_tags)),
+  cohen_d = c(1:length(word_types_tags)),
+  magnitude = c(1:length(word_types_tags)))
+
+
+for (i in word_types_tags) {
+  d <- (cohen.d(annotated_labour_tag[[i]], annotated_labour_tag$gender,
+                na.rm = TRUE, noncentral = FALSE, pooled = TRUE))
+  
+  pos_df$women[pos_df$word_type==i] <- 
+    
+    
+    mean(annotated_labour_tag[annotated_labour_tag$gender == "Female", i], na.rm = TRUE)
+  
+  pos_df$men[pos_df$word_type==i] <- mean(annotated_labour_tag[annotated_labour_tag$gender == "Male", i], na.rm = TRUE)
+  
+  pos_df$women_sd[pos_df$word_type==i] <- sd(annotated_labour_tag[annotated_labour_tag$gender == "Female", i], na.rm = TRUE)
+  
+  pos_df$men_sd[pos_df$word_type==i] <- sd(annotated_labour_tag[annotated_labour_tag$gender == "Male", i], na.rm = TRUE)
+  
+  pos_df$cohen_d[pos_df$word_type==i] <- (d$estimate[[1]])
+  
+  pos_df$magnitude[pos_df$word_type==i] <- as.character(d$magnitude[[1]])
+}
 
 ```
 
@@ -638,14 +693,11 @@ library(dplyr)
 library(quanteda)
 library(ggplot2)
 
-#lab_tokens <- tokens(lab_corpus, what = "word", include_docvars = TRUE,
-#      remove_punct = TRUE)### Do something to only include the short_list and gender docvars
-
 lab_corpus <- read_rds("lab_corpus.rds")
 
 parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
                           "give", "gentleman", "right", "percent", "per",
-                          "cent", "prime", "minister") ## Need to remove constituency names from this
+                          "cent", "prime", "minister")
 
 lab_dfm_key <- lab_corpus %>% 
   dfm(remove = parliament_stopwords, remove_punct = TRUE,
@@ -668,9 +720,7 @@ lab_keyness_plot
 
 Keyness -- a linguistic measure of the frequency of different words in two groups of texts -- reveals clear gender differences in the most disproportionately common words used by female and male Labour MPs. Unsurprisingly, despite male MPs saying almost twice as many words (30601887 vs 15898845) <!--Double-check these numbers--> as their female colleagues, female Labour MPs were more than two-and-a-half (2.61) times as likely to say "women". They were also much more likely to refer to "women's" and "woman". Female Labour MPs also appear much more likely to discuss "children", "people", "care", "families", "home", "parents", "work" and social policy areas such as "services", "disabled [people]" and "housing" than their male colleagues. Male MPs were more likely to refer to military topics ("Iraq", "nuclear"), and to parliamentary process and protocol  -- "question", "political", "conservative", "electoral", "house", "party", "argument" "liberal" and "point" are far more common in speeches by male Labour MPs than by female ones. This could suggest that male MPs are more comfortable using the traditional language of House of Commons debate.
 
-
 ### Shortlists vs Non-Shortlists
-
 
 ```{r shortlist-keyness, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -696,6 +746,180 @@ fem_keyness_plot
 
 
 Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. [AWS MPs given policy briefs related to these areas? Seeking them out?]
+
+
+
+## Topic Models
+
+### Shortlists vs Non-Shortlists
+
+```{r topic-model-women, eval=FALSE, include=FALSE}
+library(quanteda)
+library(quanteda.corpora)
+library(lubridate)
+library(topicmodels)
+library(readr)
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+ndoc(lab_corpus_fem)
+
+lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
+                           remove = parliament_stopwords) %>% 
+  dfm_remove(c('*-time', '*-timeUpdated', 'GMT', 'BST')) %>% 
+  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+           max_docfreq = 0.1, docfreq_type = "prop")
+
+lab_corpus_fem_dfm <- lab_corpus_fem_dfm[ntoken(lab_corpus_fem_dfm) > 0,]
+
+dtm <- convert(lab_corpus_fem_dfm, to = "topicmodels")
+fem_lda <- LDA(dtm, k = 20) #
+
+terms(fem_lda, 10)
+
+docvars(lab_corpus_fem_dfm, 'topic') <- topics(lda)
+head(topics(fem_lda), 20)
+
+write_rds(fem_lda, "fem_lda.rds")
+
+write_rds(lab_corpus_fem_dfm, "lab_corpus_fem_dfm.rds")
+```
+<!--
+```{r topic-model-short-list, eval=FALSE, include=FALSE}
+
+lab_corpus_fem_sl <- corpus_subset(lab_corpus, gender == "Female",
+                                   short_list == TRUE)
+
+lab_corpus_fem_dfm_sl <- dfm(lab_corpus_fem_sl, remove_punct = TRUE,
+                          remove = parliament_stopwords) %>% 
+  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+           max_docfreq = 0.1, docfreq_type = "prop")
+
+lab_corpus_fem_dfm_sl <- lab_corpus_fem_dfm_sl[ntoken(lab_corpus_fem_dfm_sl) > 0,]
+
+dtm_sl <- convert(lab_corpus_fem_dfm_sl, to = "topicmodels")
+fem_lda_sl <- LDA(dtm_sl, k = 15) #
+
+docvars(lab_corpus_fem_dfm_sl, 'topic') <- topics(fem_lda_sl)
+
+write_rds(fem_lda_sl, "fem_lda_sl.rds")
+
+write_rds(lab_corpus_fem_dfm_sl, "lab_corpus_fem_dfm_sl.rds")
+```
+
+```{r topic-model-non-short-list, eval=FALSE, include=FALSE}
+
+lab_corpus_fem_not_sl <- corpus_subset(lab_corpus, gender == "Female",
+                                       short_list == FALSE)
+
+lab_corpus_fem_dfm_not_sl <- dfm(lab_corpus_fem_not_sl, remove_punct = TRUE,
+                             remove = parliament_stopwords) %>% 
+  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+           max_docfreq = 0.1, docfreq_type = "prop")
+
+lab_corpus_fem_dfm_not_sl <- lab_corpus_fem_dfm_not_sl[ntoken(lab_corpus_fem_dfm_not_sl) > 0,]
+
+dtm_not_sl <- convert(lab_corpus_fem_dfm_not_sl, to = "topicmodels")
+fem_lda_not_sl <- LDA(dtm_not_sl, k = 15) #
+
+docvars(lab_corpus_fem_dfm_not_sl, 'topic') <- topics(fem_lda_not_sl)
+
+write_rds(fem_lda_not_sl, "fem_lda_not_sl.rds")
+
+write_rds(lab_corpus_fem_dfm_not_sl, "lab_corpus_fem_dfm_not_sl.rds")
+
+```
+-->
+
+```{r topic-model-analysis, echo=FALSE}
+library(readr)
+library(topicmodels)
+library(quanteda)
+library(dplyr)
+library(ggplot2)
+
+fem_lda <- read_rds("fem_lda.rds")
+
+lab_corpus_fem_dfm <- read_rds("lab_corpus_fem_dfm.rds")
+
+terms_table <- tibble::as.tibble(terms(fem_lda, 10))
+
+fem_df <- as.data.frame(docvars(lab_corpus_fem_dfm))
+
+fem_df$topic <- recode(fem_df$topic,
+               "1" = "Topic 1",
+               "2" = "Topic 2",
+               "3" = "Topic 3",
+               "4" = "Topic 4",
+               "5" = "Topic 5",
+               "6" = "Topic 6",
+               "7" = "Topic 7",
+               "8" = "Topic 8",
+               "9" = "Topic 9",
+               "10" = "Topic 10"
+               )
+fem_df$topic <- factor(fem_df$topic)
+
+fem_df2 <- fem_df %>%
+  group_by(short_list, topic) %>%
+  summarise(topic_count = n()) %>%
+    mutate(freq = topic_count / sum(topic_count))
+
+fem_df2$topic <- factor(fem_df2$topic, 
+                        levels=c("Topic 1", "Topic 2", "Topic 3", "Topic 4",
+                                 "Topic 5", "Topic 6", "Topic 7", "Topic 8",
+                                 "Topic 9", "Topic 10"))
+
+fem_df2 <- fem_df2[order(-fem_df2$short_list, fem_df2$topic),]
+
+p_lda <- ggplot(fem_df2, aes(x = short_list, y=freq)) +
+  geom_col(aes(fill = topic)) +
+  scale_y_continuous(labels=scales::percent) + 
+  labs(title = "Frequency of Topic Models",
+       subtitle = "Female Labour MPs grouped by selection process",
+       fill = "Topic Model") + 
+  ylab("") + 
+  xlab("Elected Through All Women Shortlist")
+
+p_lda
+
+```
+
+
+```{r topic-model-table, echo=FALSE, results = 'asis'}
+library(pander)
+pander(terms_table, caption = "Topic Model Terms",
+       split.table = 80, style = 'rmarkdown', justify = 'left')
+
+# library(knitr)
+# library(kableExtra)
+# kable(terms_table, caption = "Topic Model Terms")  %>%
+#   kable_styling(full_width = TRUE, latex_options = "striped") %>%
+#   landscape()
+
+```
+
+
+```{r topic-model-distribution-table, echo=FALSE, results = 'asis'}
+
+fem_df2$freq <- paste0(round(fem_df2$freq * 100, 2), "%")
+
+fem_df2 <- fem_df2 %>% ungroup() %>% select(-short_list)
+
+library(knitr)
+library(kableExtra)
+fem_df2_table <- kable(fem_df2, caption = "Topic Model Distribution") %>%
+  kable_styling(full_width = FALSE) %>%
+  group_rows(group_label = "Short List", start_row= 1, end_row = 10)  %>%
+  group_rows(group_label = "Non-Short List", start_row = 11, end_row = 20)
+
+fem_df2_table
+
+```
+
+We assigned topic models using Latent Dirichlet Allocation [@blei2003], implemented in the `topicmodels` R package [@grun2011]. See Table 4 for the ten most common words in each topic model. 
 
 
 [^1]: e.g. a reference to "the member for Bethnal Green and Bow" in keeping with Parliamentary convention of identifying MPs by their seat rather than their name would be followed by "(Rushnara Ali)".
