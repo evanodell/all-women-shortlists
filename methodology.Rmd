@@ -1,5 +1,5 @@
 ---
-title: "All Women Shortlists Methodology"
+title: "All Women Short lists Methodology"
 editor_options:
   chunk_output_type: console
 link-citations: yes
@@ -16,7 +16,7 @@ bibliography: women.bib
 
 Previous research on gender differences in political speech patterns has focused on differences between male and female politicians [@yu2014] or on variations in Hilary Clinton's speech patterns [@jones2016; @bligh2010].
 
-To account for the possible effects of age, parliamentary experience and cohort, and in order to compare women selected through all women shortlists to women who were not (but theoretically had the possibility to contest all-women shortlists), speech analysis has been restricted only to Labour MPs elected during or after the 1997 General Election, and before the 2017 General Election. Words contained in parentheses were removed, as they are added by Hansard to provide additional information not actually spoken by the MP.[^1] Speeches and MP data is from a previously assembled dataset [@odell2018]. Information on candidates selected through all women shortlists is from the House of Commons Library [@kelly2016]. Unsuccessful General Election candidates selected through all women shortlists who were subsequently elected in a byelection are classified as having been selected on an all women shortlist. 
+To account for the possible effects of age, parliamentary experience and cohort, and in order to compare women selected through all women short lists to women who were not (but theoretically had the possibility to contest all-women short lists), speech analysis has been restricted only to Labour MPs elected during or after the 1997 General Election, and before the 2017 General Election. Words contained in parentheses were removed, as they are added by Hansard to provide additional information not actually spoken by the MP.[^1] Speeches and MP data is from a previously assembled dataset [@odell2018]. Information on candidates selected through all women short lists is from the House of Commons Library [@kelly2016]. Unsuccessful General Election candidates selected through all women short lists who were subsequently elected in a byelection are classified as having been selected on an all women short list. 
 
 Word classification used the `Linguistic Inquiry and Word Count 2015` (LIWC) dictionary [@pennebaker2015] and tokenising tools from the `Quanteda` R package [@benoit2018]. Word counts and words-per-sentence were calculated using `stringi` [@gagolewski2018], a wrapper to the ICU regex library.
 
@@ -109,15 +109,17 @@ labour_intakes$perc_women <- (labour_intakes$women/labour_intakes$total)*100
 ```
 
 
-| General Election | Total MPs | Total Labour MPs | Total Female Labour MPs | Newly elected MPs | Intake Women | Percentage Intake Women | Intake Shortlist | Nominated Shortlist |
-|---|---|---|---|---|---|---|---|---|---|
-| 1997 | 659 | 418 | 101 | 177 | 64 |36% | 35 | 38 |
-| 2001 | 659 | 412 | 95 | 38 | 4 | 11% | 0 | 0 |
-| 2005 | 646 | 355 | 98 | 40 | 26 | 65% | 23 | 30 |
-| 2010 | 650 | 258 | 81 | 64 | 32 | 50% | 28 | 63 |
-| 2015 | 650 | 232 | 99 | 49 | 31 | 63% | 31 | 77 |
+| General Election | Total MPs | Total Labour MPs | Total Female Labour MPs | Percentage Women MPs | Newly elected MPs | Intake Women | Percentage Intake Women | Intake Short list | Nominated Short list |
+|------------------|-----------|------------------|-------------------------|----------------------|-------------------|--------------|-------------------------|-------------------|----------------------|
+| 1997 | 659 | 418 | 101 | 24.2% | 177 | 64 | 36% | 35 | 38 |
+| 2001 | 659 | 412 | 95 | 23.1% | 38 | 4 | 11% | 0 | 0 |
+| 2005 | 646 | 355 | 98 | 27.6% | 40 | 26 | 65% | 23 | 30 |
+| 2010 | 650 | 258 | 81 | 31.4% | 64 | 32 | 50% | 28 | 63 |
+| 2015 | 650 | 232 | 99 | 42.7% | 49 | 31 | 63% | 31 | 77 |
 
-Data in this table is from House of Commons library reports [@kelly2016; @audickas2017]. All women shortlists were not used by Labour during the 2001 General Election.
+
+
+Data in this table is from House of Commons library reports [@kelly2016; @audickas2017]. All women short lists were not used by Labour during the 2001 General Election.
 
 <!--## LIWC creation-->
 
@@ -265,18 +267,6 @@ fem_mac_df$word_type <- recode(fem_mac_df$word_type,
                "WC" = "Total Word Count",
                "FK" = "Flesh-Kincaid Grade Level")
 
-### Maybe do something different instead of this?
-# library(ggplot2)
-# 
-# p_men_women <- ggplot(aes(y = weighted_mean, x = gender),
-#                       data = lab_liwc_men_women2_subset) +
-#   geom_col() +
-#   geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci),
-#                 width = 0.2) +
-#   facet_wrap(~attribute)
-# 
-# p_men_women
-
 ```
 
 ```{r gender-effect-sizes-table, echo=FALSE, results = 'asis'}
@@ -288,16 +278,14 @@ kable(fem_mac_df, digits = 2,
                     "Cohen's D", "Magnitude") )  %>%
   kable_styling(latex_options = "striped") %>% 
   add_header_above(c(" " = 1, "Women" = 2, "Men" = 2, "Effect Size" = 2))
-
 ```
-
 
 There are no categories where gender differences meet the effect size threshold of $|0.2|$ suggested by Cohen [-@cohen1988, 25--26] to indicate a small effect. 4 categories -- words with more than six letters, prepositions, words-per-sentence and Flesh-Kincaid grade level -- exceeded the $|0.1|$ threshold suggested by Newman et al [-@newman2008].
 
 
-## Shortlists vs Non-Shortlists
+## Short lists vs Non-Short lists
 
-```{r liwc-shortlists, include=FALSE}
+```{r liwc-short lists, include=FALSE}
 library(readr)
 library(dplyr)
 library(tidyr)
@@ -313,14 +301,14 @@ lab_liwc_women <- filter(lab_liwc, gender=="Female",
 cols <- names(lab_liwc_women)[4:92]
 
 lab_liwc_women_mean <- list(c("WC"), cols) %>%
- map2(lst(mean=mean, funs(weighted.mean(., WC))),
+ map2(lst(mean=mean, funs(weighted.mean(., WC, na.rm=TRUE))),
   ~ lab_liwc_women %>%
-   group_by(gender, short_list, y_since_start) %>%
+   group_by(short_list, y_since_start) %>%
    summarise_at(.x, .y)) %>%
  reduce(inner_join)
 
 lab_liwc_women_tidy_mean <- gather(lab_liwc_women_mean, "attribute",
-                                   "weighted_mean", -short_list, -gender, -WC,
+                                   "weighted_mean", -short_list,
                                    -y_since_start) 
 
 lab_liwc_women_sd <- list(c("WC"), cols) %>%
@@ -331,7 +319,7 @@ lab_liwc_women_sd <- list(c("WC"), cols) %>%
  reduce(inner_join)
 
 lab_liwc_women_tidy_sd <- gather(lab_liwc_women_sd, "attribute",
-                                 "sd", -short_list, -gender, -WC,
+                                 "sd", -short_list, -gender,
                                  -y_since_start) 
 
 ## Joining together the SD and Means to get CIs
@@ -344,21 +332,85 @@ lab_liwc_women2 <- left_join(lab_liwc_women_tidy_mean,
    upper_ci = weighted_mean + qt(1 - (0.05 / 2), n - 1) * se)
 
 lab_liwc_women2_subset <- lab_liwc_women2 %>%
-  filter(attribute %in% fem_mac)
-
-# library(ggplot2)
-# 
-# p1 <- ggplot(aes(y = weighted_mean, x = y_since_start, 
-#                  group = short_list, colour = short_list),
-#                       data = lab_liwc_women2_subset) +
-#   geom_smooth() + 
-#   geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci),
-#                 width = 0.2) +
-#   facet_wrap(~attribute)
-# 
-# p1
+  filter(attribute %in% c(fem_mac, "WC"))
 
 ```
+
+
+The following plots show changes in the occurences of selected LIWC terms, words-per-sentence, total word count and Flesch–Kincaid grade level, over the course of an MP's career. There do not appear to be any notable changes in speaking style over the course of female Labour MPs' careers.
+
+```{r short-list-plot-key-variables, include=FALSE}
+library(ggplot2)
+
+lab_liwc_women2_subset$attribute <- recode(lab_liwc_women2_subset$attribute,
+               "pronoun" = "All Pronouns",
+               "i" = "First person singular pronouns",
+               "verb" = "Verbs",
+               "auxverb" = "Auxiliary verbs",
+               "social" = "Social processes ",
+               "posemo" = "Positive emotions",
+               "negemo" = "Negative emotions",
+               "tentat" = "Tentative words",
+               "Sixltr" = "More than six letters",
+               "we" = "First person plural pronouns",
+               "article" = "Articles",
+               "prep" = "Prepositions",
+               "anger" = "Anger words",
+               "swear" = "Swear words",
+               "cogproc" = "Cognitive processes",
+               "WPS" = "Words per Sentence",
+               "WC" = "Total Word Count",
+               "FK" = "Flesh-Kincaid Grade Level")
+
+lab_liwc_women2_subset$short_list <- recode(
+  as.factor(lab_liwc_women2_subset$short_list), 
+  "FALSE" = "Open Short List",
+  "TRUE" = "All Women Short List")
+
+p_sl1 <- ggplot(data=filter(lab_liwc_women2_subset, 
+                            attribute != "Words per Sentence", 
+                            attribute != "Total Word Count"),
+                aes(x = y_since_start, y = weighted_mean, colour = short_list)) + 
+  geom_line(alpha=0.7) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  facet_wrap(~attribute) + 
+  labs(title = "Occurence of selected LIWC terms", colour = "") + 
+  ylab("Weighted Mean") +
+  xlab("Years since entering House of Commons") + 
+  theme(legend.position = "bottom")
+
+p_sl1
+
+```
+
+
+```{r sl-wps-plot, include=FALSE}
+p_sl_wps <- ggplot(data=filter(lab_liwc_women2_subset,
+                               attribute=="Words per Sentence"),
+                aes(x=y_since_start, y = weighted_mean, colour = short_list)) +
+  geom_line(alpha=0.7) +
+  labs(title = "Words per Sentence", colour = "") + 
+  ylab("Weighted Mean") +
+  xlab("Years since entering House of Commons") + 
+  theme(legend.position = "bottom")
+
+p_sl_wps
+```
+
+```{r sl-wc-plot, include=FALSE}
+p_sl_wc <- ggplot(data=filter(lab_liwc_women2_subset,
+                               attribute=="Total Word Count"),
+                aes(x=y_since_start, y = weighted_mean, colour = short_list)) +
+  geom_line(alpha=0.7) +
+  labs(title = "Total Word Count per Speech", colour = "") + 
+  ylab("Mean") +
+  xlab("Years since entering House of Commons") + 
+  theme(legend.position = "bottom")
+
+p_sl_wc
+```
+
+
 
 ```{r, echo=FALSE,results = 'asis'}
 fem_mac_df_sl <- tibble::tibble(
@@ -419,7 +471,7 @@ kable(fem_mac_df_sl, digits = 2,
       col.names = c("", "Mean", "SD", "Mean", "SD",
                     "Cohen's D", "Magnitude")) %>%
   kable_styling(latex_options = "striped") %>% 
-  add_header_above(c(" " = 1, "All Women Shortlists" = 2,
+  add_header_above(c(" " = 1, "All Women Short lists" = 2,
                      "Open Shorlists" = 2, "Effect Size" = 2))
 
 ```
@@ -595,103 +647,254 @@ write_rds(annotated_labour, "annotated_labour.rds")
 Part-of-speech (POS) tagging was done using `spaCy` [@honnibal2017] and the `spacyr` package [@benoit2018a]. 
 
 ```{r tidying-annotations, eval=FALSE, include=FALSE}
-##STILL NEED TO FIGURE THIS OUT!1!!!
-
 library(readr)
 library(dplyr)
 library(magrittr)
 library(tidyr)
 library(effsize)
 
-annotated_labour <- read_rds("annotated_labour.rds")
+ano_lab <- read_rds("annotated_labour.rds")
 
-annotated_labour_tag <- annotated_labour %>% 
+ano_lab_tag <- ano_lab %>% 
   filter(POS != "PUNCT", is.na(POS) == FALSE, POS != "SPACE") %>%
   group_by(doc_id, tag) %>%
   summarise(count = n()) %>%
   mutate(freq = count / sum(count)) %>% ungroup() 
 
-annotated_labour_tag$count <- NULL
+ano_lab_tag$count <- NULL
 
-annotated_labour_tag <- annotated_labour_tag %>% spread(tag, freq)
+ano_lab_tag <- ano_lab_tag %>% spread(tag, freq)
 
-annotated_labour_pos <- annotated_labour %>% 
+ano_lab_tag[is.na(ano_lab_tag)] <- 0
+
+ano_lab_pos <- ano_lab %>% 
   filter(POS != "PUNCT", is.na(POS) == FALSE, POS != "SPACE") %>%
   group_by(doc_id, POS) %>%
   summarise(count = n()) %>%
   mutate(freq = count / sum(count)) %>% ungroup() 
 
-annotated_labour_pos$count <- NULL
+ano_lab_pos$count <- NULL
 
-annotated_labour_pos <- annotated_labour_pos %>% spread(POS, freq)
+ano_lab_pos <- ano_lab_pos %>% spread(POS, freq)
 
-rm(annotated_labour)
+ano_lab_pos[is.na(ano_lab_pos)] <- 0
 
 lab_speech <- read_rds("lab_speech.rds")
 
-annotated_labour_tag <- annotated_labour_tag %>% 
+ano_lab_tag <- ano_lab_tag %>% 
   left_join(select(lab_speech, eo_id, gender, short_list),
             by = c("doc_id"="eo_id"))
 
-annotated_labour_pos <- annotated_labour_pos %>% 
+ano_lab_pos <- ano_lab_pos %>% 
   left_join(select(lab_speech, eo_id, gender, short_list),
             by = c("doc_id"="eo_id"))
 
-d <- cohen.d(annotated_labour$NNS, annotated_labour$gender, na.rm = TRUE)
+ano_lab_pos$short_list <- as.factor(ano_lab_pos$short_list)
+ano_lab_tag$short_list <- as.factor(ano_lab_tag$short_list)
 
+write_rds(ano_lab_pos, "ano_lab_pos.rds")
 
-word_types_tags <- c("NN", "NNS")
-
-annotated_labour_tag2 <- annotated_labour_tag %>% 
-  select(NN, NNS, gender, short_list) %>% 
-  group_by(gender, NN, NNS) %>%
-  summarise(mean=mean( na.rm = TRUE))
-
-pos_df <- tibble::tibble(
-  word_type = word_types_tags,
-  women = c(1:length(word_types_tags)),
-  women_sd = c(1:length(word_types_tags)),
-  men = c(1:length(word_types_tags)),
-  men_sd = c(1:length(word_types_tags)),
-  cohen_d = c(1:length(word_types_tags)),
-  magnitude = c(1:length(word_types_tags)))
-
-
-for (i in word_types_tags) {
-  d <- (cohen.d(annotated_labour_tag[[i]], annotated_labour_tag$gender,
-                na.rm = TRUE, noncentral = FALSE, pooled = TRUE))
-  
-  pos_df$women[pos_df$word_type==i] <- 
-    
-    
-    mean(annotated_labour_tag[annotated_labour_tag$gender == "Female", i], na.rm = TRUE)
-  
-  pos_df$men[pos_df$word_type==i] <- mean(annotated_labour_tag[annotated_labour_tag$gender == "Male", i], na.rm = TRUE)
-  
-  pos_df$women_sd[pos_df$word_type==i] <- sd(annotated_labour_tag[annotated_labour_tag$gender == "Female", i], na.rm = TRUE)
-  
-  pos_df$men_sd[pos_df$word_type==i] <- sd(annotated_labour_tag[annotated_labour_tag$gender == "Male", i], na.rm = TRUE)
-  
-  pos_df$cohen_d[pos_df$word_type==i] <- (d$estimate[[1]])
-  
-  pos_df$magnitude[pos_df$word_type==i] <- as.character(d$magnitude[[1]])
-}
+write_rds(ano_lab_tag, "ano_lab_tag.rds")
 
 ```
 
 
+```{r tag-means, include=FALSE}
+
+library(readr)
+library(purrr)
+library(dplyr)
+
+ano_lab_tag <- read_rds("ano_lab_tag.rds")
+
+### POS
+
+#word_types_tags <- c("NN", "NNS")
+
+ano_lab_tag_gender <- ano_lab_tag %>% 
+  select(NN, NNS, gender) %>% 
+  #gather(key = "type", value = "value", NN, NNS) %>%
+  group_by(gender)
+
+ano_lab_tag_gender2 <- ano_lab_tag_gender %>% 
+  gather(key = "type", value = "value", NN, NNS) %>%
+  group_by(gender, type) %>%
+  summarise(mean = mean(value, na.rm = TRUE),
+            sd = sd(value, na.rm = TRUE))
+
+ano_lab_tag_sl <- ano_lab_tag %>%
+  select(NN, NNS, short_list, gender) %>% 
+  #gather(key = "type", value = "value", NN, NNS) %>%
+  group_by(short_list) %>% filter(gender == "Female") %>% select(-gender)
+
+ano_lab_tag_sl2 <- ano_lab_tag_sl %>% 
+  gather(key = "type", value = "value", NN, NNS) %>%
+  group_by(short_list, type) %>%
+  summarise(mean = mean(value, na.rm = TRUE),
+            sd = sd(value, na.rm = TRUE))
+```
+
+
+```{r pos-means, include=FALSE}
+library(readr)
+library(purrr)
+library(dplyr)
+
+ano_lab_pos <- read_rds("ano_lab_pos.rds")
+
+ano_lab_pos_gender <- ano_lab_pos %>% 
+  select(NOUN, ADV, VERB, ADJ, gender) %>% 
+  group_by(gender)
+
+ano_lab_pos_gender2 <- ano_lab_pos_gender %>% 
+  gather(key = "type", value = "value", NOUN, ADV, VERB, ADJ) %>%
+  group_by(gender, type) %>%
+  summarise(mean = mean(value, na.rm = TRUE),
+            sd = sd(value, na.rm = TRUE))
+
+ano_lab_pos_sl <- ano_lab_pos %>%
+  select(NOUN, ADV, VERB, ADJ, short_list, gender) %>% 
+  group_by(short_list) %>% filter(gender == "Female") %>% select(-gender)
+
+ano_lab_pos_sl2 <- ano_lab_pos_sl %>% 
+  gather(key = "type", value = "value", NOUN, ADV, VERB, ADJ) %>%
+  group_by(short_list, type) %>%
+  summarise(mean = mean(value, na.rm = TRUE),
+            sd = sd(value, na.rm = TRUE))
+
+# ano_lab_pos_sl3 <- list(.vars = lst(c("NOUN", "ADV", "VERB", "ADJ")),
+#                         .funs = lst(funs(mean = mean, sd = sd,
+#                                          .args = c(na.rm = TRUE)))) %>% 
+#   pmap(~ ano_lab_pos_sl %>% group_by(short_list) %>% summarise_at(.x, .y)) %>% 
+#   reduce(inner_join, by = "short_list")
+```
+
+```{r pos-tag-tables, include=FALSE}
+
+pos_df_gender <- bind_rows(ano_lab_pos_gender2, ano_lab_tag_gender2)
+
+pos_df_gender <- pos_df_gender %>% 
+  gather(variable, value, -(gender:type)) %>%
+  unite(temp, gender, variable) %>%
+  spread(temp, value)
+
+pos_df_gender$cohen_d <- NA
+pos_df_gender$magnitude <- NA
+
+for (i in pos_df_gender$type) {
+  
+  if (i=="NN" || i == "NNS") {
+  
+   d <- (cohen.d(ano_lab_tag[[i]], ano_lab_tag$short_list,
+                na.rm = TRUE, noncentral = FALSE, pooled = TRUE))
+  } else {
+    
+     d <- (cohen.d(ano_lab_pos[[i]], ano_lab_pos$short_list,
+                na.rm = TRUE, noncentral = FALSE, pooled = TRUE))
+  }
+   
+  pos_df_gender$cohen_d[pos_df_gender$type==i] <- (d$estimate[[1]])
+  
+  pos_df_gender$magnitude[pos_df_gender$type==i] <- as.character(d$magnitude[[1]])
+}
+
+pos_df_gender$type <- factor(pos_df_gender$type, levels=c("NOUN", "NNS", "NN", "ADJ", "ADV", "VERB"))
+
+## Recoding pos_df_sl$type into pos_df_sl$type_rec
+pos_df_gender$type <- recode(pos_df_gender$type,
+               "NOUN" = "All Nouns",
+               "NNS" = "Plural Nouns",
+               "NN" = "Singular Nouns",
+               "ADJ" = "Adjectives",
+               "ADV" = "Adverbs",
+               "VERB" = "Verbs")
+
+pos_df_gender <- pos_df_gender[order(pos_df_gender$type),]
+
+pos_df_gender[2:5] <- pos_df_gender[2:5] * 100
+
+pos_df_sl <- bind_rows(ano_lab_pos_sl2, ano_lab_tag_sl2)
+
+pos_df_sl <- pos_df_sl %>% 
+  gather(variable, value, -(short_list:type)) %>%
+  unite(temp, short_list, variable) %>%
+  spread(temp, value)
+
+pos_df_sl$cohen_d <- NA
+pos_df_sl$magnitude <- NA
+
+for (i in pos_df_sl$type) {
+  
+  if (i=="NN" || i == "NNS") {
+  
+   d <- (cohen.d(ano_lab_tag[[i]], ano_lab_tag$short_list,
+                na.rm = TRUE, noncentral = FALSE, pooled = TRUE))
+  } else {
+    
+     d <- (cohen.d(ano_lab_pos[[i]], ano_lab_pos$short_list,
+                na.rm = TRUE, noncentral = FALSE, pooled = TRUE))
+  }
+   
+  pos_df_sl$cohen_d[pos_df_sl$type==i] <- (d$estimate[[1]])
+  
+  pos_df_sl$magnitude[pos_df_sl$type==i] <- as.character(d$magnitude[[1]])
+}
+
+pos_df_sl$type <- factor(pos_df_sl$type, levels=c("NOUN", "NNS", "NN", "ADJ", "ADV", "VERB"))
+
+## Recoding pos_df_sl$type into pos_df_sl$type_rec
+pos_df_sl$type <- recode(pos_df_sl$type,
+               "NOUN" = "All Nouns",
+               "NNS" = "Plural Nouns",
+               "NN" = "Singular Nouns",
+               "ADJ" = "Adjectives",
+               "ADV" = "Adverbs",
+               "VERB" = "Verbs")
+
+pos_df_sl <- pos_df_sl[order(pos_df_sl$type),]
+
+pos_df_sl[2:5] <- pos_df_sl[2:5] * 100
+
+```
+
+
+```{r pos-gender-table, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+kable(pos_df_gender, digits = 2, 
+      caption = "Part-of-Speech Effect Sizes for Male and Female Labour MPs",
+      col.names = c("Word Type", "Mean", "SD", "Mean", "SD",
+                    "Cohen's D", "Magnitude") )  %>%
+  kable_styling(latex_options = "striped") %>% 
+  add_header_above(c(" " = 1, "Women" = 2, "Men" = 2, "Effect Size" = 2)) %>%
+  add_indent(c(2:3))
+```
+
+
+```{r pos-sl-table, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+kable(pos_df_sl, digits = 2, 
+      caption = "Part-of-Speech Effect Sizes for Male and Female Labour MPs",
+      col.names = c("Word Type", "Mean", "SD", "Mean", "SD",
+                    "Cohen's D", "Magnitude"))  %>%
+  kable_styling(latex_options = "striped") %>% 
+  add_header_above(c(" " = 1, "All Women Short lists" = 2,
+                     "Open Shorlists" = 2, "Effect Size" = 2)) %>%
+  add_indent(c(2:3))
+```
+
 
 ## Tokenising / Keyness
 
-The most commonly used words by both men and women would be protocol boilerplate expressions, so we calculate the keyness of words to identify gender differences in the choices of topics raised by men and women, and by short-list and non-shortlist women.
+The most commonly used words by both men and women would be protocol boilerplate expressions, so we calculate the keyness of words to identify gender differences in the choices of topics raised by men and women, and by short-list and non-short list women.
 
 ### Men vs Women
 
-```{r gender-keyness, echo=FALSE, message=FALSE, warning=FALSE}
+```{r dfm-creation, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 library(readr)
 library(dplyr)
 library(quanteda)
-library(ggplot2)
 
 lab_corpus <- read_rds("lab_corpus.rds")
 
@@ -704,6 +907,20 @@ lab_dfm_key <- lab_corpus %>%
       verbose = TRUE, groups = "gender") %>%
   dfm_weight("count")
 
+write_rds(lab_dfm_key, "lab_dfm_key.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+lab_dfm_key_fem <- lab_corpus_fem %>% 
+  dfm(remove = parliament_stopwords, remove_punct = TRUE,
+      verbose = TRUE, groups = "short_list") %>%
+  dfm_weight("count")
+
+write_rds(lab_dfm_key_fem, "lab_dfm_key_fem.rds")
+```
+
+```{r gender-keyness, include=FALSE}
+library(ggplot2)
 lab_keyness <- textstat_keyness(lab_dfm_key, measure = c("chi2"))
 
 #head(lab_keyness)
@@ -720,16 +937,9 @@ lab_keyness_plot
 
 Keyness -- a linguistic measure of the frequency of different words in two groups of texts -- reveals clear gender differences in the most disproportionately common words used by female and male Labour MPs. Unsurprisingly, despite male MPs saying almost twice as many words (30601887 vs 15898845) <!--Double-check these numbers--> as their female colleagues, female Labour MPs were more than two-and-a-half (2.61) times as likely to say "women". They were also much more likely to refer to "women's" and "woman". Female Labour MPs also appear much more likely to discuss "children", "people", "care", "families", "home", "parents", "work" and social policy areas such as "services", "disabled [people]" and "housing" than their male colleagues. Male MPs were more likely to refer to military topics ("Iraq", "nuclear"), and to parliamentary process and protocol  -- "question", "political", "conservative", "electoral", "house", "party", "argument" "liberal" and "point" are far more common in speeches by male Labour MPs than by female ones. This could suggest that male MPs are more comfortable using the traditional language of House of Commons debate.
 
-### Shortlists vs Non-Shortlists
+### Short lists vs Non-Short lists
 
-```{r shortlist-keyness, echo=FALSE, message=FALSE, warning=FALSE}
-
-lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
-
-lab_dfm_key_fem <- lab_corpus_fem %>% 
-  dfm(remove = parliament_stopwords, remove_punct = TRUE,
-      verbose = TRUE, groups = "short_list") %>%
-  dfm_weight("count")
+```{r short-list-keyness, include=FALSE}
 
 lab_keyness_fem <- textstat_keyness(lab_dfm_key_fem, measure = c("chi2"))
 
@@ -745,13 +955,13 @@ fem_keyness_plot
 ```
 
 
-Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. [AWS MPs given policy briefs related to these areas? Seeking them out?]
+Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. Also of note is AWS MPs making more references to their "constituency" and its "constituents"
 
 
 
 ## Topic Models
 
-### Shortlists vs Non-Shortlists
+### Short lists vs Non-Short lists
 
 ```{r topic-model-women, eval=FALSE, include=FALSE}
 library(quanteda)
@@ -881,7 +1091,7 @@ p_lda <- ggplot(fem_df2, aes(x = short_list, y=freq)) +
        subtitle = "Female Labour MPs grouped by selection process",
        fill = "Topic Model") + 
   ylab("") + 
-  xlab("Elected Through All Women Shortlist")
+  xlab("Elected Through All Women Short list")
 
 p_lda
 
@@ -904,23 +1114,189 @@ pander(terms_table, caption = "Topic Model Terms",
 
 ```{r topic-model-distribution-table, echo=FALSE, results = 'asis'}
 
-fem_df2$freq <- paste0(round(fem_df2$freq * 100, 2), "%")
+#fem_df2$freq <- paste0(round(fem_df2$freq * 100, 2), "%")
 
-fem_df2 <- fem_df2 %>% ungroup() %>% select(-short_list)
+fem_df2 <- fem_df2 %>% ungroup() %>% select(-freq)
+
+fem_df2_table <- fem_df2 %>% ungroup() %>%
+  spread(short_list, topic_count) %>%
+  mutate(not_sl_freq = (`FALSE` / sum(`FALSE`))*100, 
+         sl_freq = (`TRUE` / sum(`TRUE`))*100) %>%
+  rename("not_sl_total" = `FALSE`, "sl_total" = `TRUE`)
+
 
 library(knitr)
 library(kableExtra)
-fem_df2_table <- kable(fem_df2, caption = "Topic Model Distribution") %>%
-  kable_styling(full_width = FALSE) %>%
-  group_rows(group_label = "Short List", start_row= 1, end_row = 10)  %>%
-  group_rows(group_label = "Non-Short List", start_row = 11, end_row = 20)
+kable(fem_df2_table, caption = "Topic Model Distribution", digits = 2, 
+      col.names = c("Topic", "Not Short List Total", "Short List Total",
+                    "Not Short List Percentage", "Short List Percentage")) %>%
+  kable_styling(full_width = FALSE)
 
-fem_df2_table
 
 ```
 
-We assigned topic models using Latent Dirichlet Allocation [@blei2003], implemented in the `topicmodels` R package [@grun2011]. See Table 4 for the ten most common words in each topic model. 
+We assigned topic models using Latent Dirichlet Allocation [@blei2003], implemented in the `topicmodels` R package [@grun2011]. See [TABLE NUMBER?] for the ten most common words in each topic model. 
 
+Non-AWS women had more speeches assigned to topic 3 (14.20% vs 10.05%), a topic that, like the gender-differences in word keyness above, refers to the parliamentary process itself. Conversely, AWS women had more speeches in topic 1 (15.23% vs 12.55%) which also includes multiple references to the parliamentary process itself.
+
+
+## Machine learning
+
+We trained a Naive Bayes classifier with document-frequency priors and a multinomial distribution to predict the gender of speakers when given speeches by all Labour MPs in our dataset, and the selection process when only given female Labour MPs. The accuracy of both models were roughly equivalent, 70.83% accuracy when predicting gender and 70.31% when predicting short lists.
+
+```{r naive-bayes1, eval=FALSE, include=FALSE}
+library(quanteda)
+library(quanteda.corpora)
+library(caret)
+library(readr)
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+#set.seed(42)
+id_train <- sample(1:262071, 104828, replace = FALSE) ## 40% in training
+#head(id_train, 10)
+
+docvars(lab_corpus, "id_numeric") <- 1:ndoc(lab_corpus)
+
+# get training set
+training_dfm <- corpus_subset(lab_corpus, id_numeric %in% id_train) %>%
+  dfm(stem = TRUE)
+
+# get test set (documents not in id_train)
+test_dfm <- corpus_subset(lab_corpus, !id_numeric %in% id_train) %>%
+  dfm(stem = TRUE)
+
+nb <- textmodel_nb(training_dfm, docvars(training_dfm, "gender"),
+                   prior = "docfreq")
+#summary(nb)
+
+test_dfm <- dfm_select(test_dfm, training_dfm)
+
+actual_class <- docvars(test_dfm, "gender")
+predicted_class <- predict(nb, test_dfm)
+class_table <- table(actual_class, predicted_class)
+class_table
+
+gender_accuracy <- confusionMatrix(class_table, mode = "everything")
+gender_accuracy$overall[[1]]
+
+```
+
+```{r naive-bayes2, eval=FALSE, include=FALSE}
+
+### Short List classification
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+#set.seed(42)
+id_train <- sample(1:84572, 33829, replace = FALSE) ## 40% in training
+head(id_train, 10)
+
+docvars(lab_corpus_fem, "id_numeric") <- 1:ndoc(lab_corpus_fem)
+
+# get training set
+training_dfm <- corpus_subset(lab_corpus_fem, id_numeric %in% id_train) %>%
+  dfm(stem = TRUE)
+
+# get test set (documents not in id_train)
+test_dfm <- corpus_subset(lab_corpus_fem, !id_numeric %in% id_train) %>%
+  dfm(stem = TRUE)
+
+nb_fem <- textmodel_nb(training_dfm, docvars(training_dfm, "short_list"),
+                   prior = "docfreq")
+summary(nb_fem)
+
+test_dfm <- dfm_select(test_dfm, training_dfm)
+
+actual_class <- docvars(test_dfm, "short_list")
+predicted_class <- predict(nb_fem, test_dfm)
+class_table <- table(actual_class, predicted_class)
+class_table
+
+sl_accuracy <- confusionMatrix(class_table, mode = "sens_spec")
+sl_accuracy$overall[[1]]
+```
+
+```{r svm, eval=FALSE, include=FALSE}
+library(readr)
+library(quanteda)
+library(tidyr)
+library(e1071) ## look up name of this SVM library
+library(dplyr)
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister")
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus2 <- corpus_sample(lab_corpus, size = 1000, replace = TRUE)
+
+lab_dfm2 <- lab_corpus2 %>% 
+  dfm(remove = parliament_stopwords, remove_punct = TRUE,
+      verbose = TRUE) 
+
+x2 <- as.data.frame(as.matrix(lab_dfm2), row.names = docnames(lab_dfm2))
+
+#x2 <- convert(lab_dfm2, to = "tm", docvars = docvars(lab_corpus2))
+
+x2$eo_id <- row.names(x2)
+
+y <- docvars(lab_corpus2)
+
+y$eo_id <- row.names(y)
+
+y <- select(y, gender, eo_id) %>% rename(mp_gender=gender)
+
+x3 <- left_join(x2, y)
+
+x3$mp_gender <- as.factor(x3$mp_gender)
+
+# #x <- x[,2:3402]
+# 
+# x2 <- as.data.frame(t(x))
+# 
+# x2 <- x2[,2:3402]
+# 
+# x3 <- gather(x2, key = "gender", value = "count")
+# # 
+# # x2 <- as.data.frame(t(x))
+# # 
+# # 
+index     <- 1:nrow(x3)
+   testindex <- sample(index, trunc(length(index)/3))
+   testset   <- x3[testindex,]
+   trainset  <- x3[-testindex,]
+
+    ## svm
+    #   svm.model <- svm(Type ~ ., data = trainset, cost = 100, gamma = 1)
+    # svm.pred  <- predict(svm.model, testset[,-10])   
+
+model <- svm(gender~., data = trainset) ## This is failing, find out why
+pred  <- predict(model, testset[,-10])   
+
+
+
+## need to get svm(x,y) working, with vector of document classes
+
+lab_dfm_fem <- read_rds("lab_dfm_key_fem.rds")
+
+vm.model <- svm(docs ~ ., data = x, cost = 100, gamma = 1)
+
+ data(Glass, package="mlbench")
+ ## split data into a train and test set
+   index     <- 1:nrow(Glass)
+   testindex <- sample(index, trunc(length(index)/3))
+   testset   <- Glass[testindex,]
+   trainset  <- Glass[-testindex,]
+
+```
+
+## Discussion
+
+There do not appear to be substantial or meaningful differences in the speaking styles or topic choices of female Labour MPs selected through all women short lists when compared to their female colleagues selected through open short lists. Small differences between male and female Labour MPs were not replicated when comparing female Labour MPs by how they were selected.
+
+
+# References
 
 [^1]: e.g. a reference to "the member for Bethnal Green and Bow" in keeping with Parliamentary convention of identifying MPs by their seat rather than their name would be followed by "(Rushnara Ali)".
 
