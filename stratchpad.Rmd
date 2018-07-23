@@ -515,3 +515,53 @@ write_rds(lab_annotate, "lab_annotate.rds")
 
 ```
 
+
+
+## topic models
+
+<!--
+```{r topic-model-short-list, eval=FALSE, include=FALSE}
+
+lab_corpus_fem_sl <- corpus_subset(lab_corpus, gender == "Female",
+                                   short_list == TRUE)
+
+lab_corpus_fem_dfm_sl <- dfm(lab_corpus_fem_sl, remove_punct = TRUE,
+                          remove = parliament_stopwords) %>% 
+  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+           max_docfreq = 0.1, docfreq_type = "prop")
+
+lab_corpus_fem_dfm_sl <- lab_corpus_fem_dfm_sl[ntoken(lab_corpus_fem_dfm_sl) > 0,]
+
+dtm_sl <- convert(lab_corpus_fem_dfm_sl, to = "topicmodels")
+fem_lda_sl <- LDA(dtm_sl, k = 15) #
+
+docvars(lab_corpus_fem_dfm_sl, 'topic') <- topics(fem_lda_sl)
+
+write_rds(fem_lda_sl, "fem_lda_sl.rds")
+
+write_rds(lab_corpus_fem_dfm_sl, "lab_corpus_fem_dfm_sl.rds")
+```
+
+```{r topic-model-non-short-list, eval=FALSE, include=FALSE}
+
+lab_corpus_fem_not_sl <- corpus_subset(lab_corpus, gender == "Female",
+                                       short_list == FALSE)
+
+lab_corpus_fem_dfm_not_sl <- dfm(lab_corpus_fem_not_sl, remove_punct = TRUE,
+                             remove = parliament_stopwords) %>% 
+  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+           max_docfreq = 0.1, docfreq_type = "prop")
+
+lab_corpus_fem_dfm_not_sl <- lab_corpus_fem_dfm_not_sl[ntoken(lab_corpus_fem_dfm_not_sl) > 0,]
+
+dtm_not_sl <- convert(lab_corpus_fem_dfm_not_sl, to = "topicmodels")
+fem_lda_not_sl <- LDA(dtm_not_sl, k = 15) #
+
+docvars(lab_corpus_fem_dfm_not_sl, 'topic') <- topics(fem_lda_not_sl)
+
+write_rds(fem_lda_not_sl, "fem_lda_not_sl.rds")
+
+write_rds(lab_corpus_fem_dfm_not_sl, "lab_corpus_fem_dfm_not_sl.rds")
+
+```
+-->

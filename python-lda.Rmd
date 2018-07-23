@@ -1,0 +1,52 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r setup, include = FALSE}
+library(reticulate)
+
+use_python("/Users/evanodell/Documents/anaconda3/bin/python3")
+```
+
+```{python, engine.path = "/Users/evanodell/Documents/anaconda3/bin/python"}
+import sys
+print(sys.version)
+```
+
+<!--
+### Python topic model
+
+```{python, engine.path = "/Users/evanodell/Documents/anaconda3/bin/python"}
+import pandas as pd
+from gensim.corpora import Dictionary, MmCorpus
+from gensim.models.word2vec import LineSentence
+import gensim
+import os
+import warnings
+warnings.filterwarnings('ignore')
+
+
+```
+-->
+
+```{r}
+library(reticulate)
+gensim <- import("gensim")
+test <- gensim$models$ldamodel
+test(lab_corpus, num_topics=10)
+
+np <- import("numpy", convert = FALSE)
+
+# do some array manipulations with NumPy
+a <- np$array(c(1:4))
+sum <- a$cumsum()
+
+# convert to R explicitly at the end
+py_to_r(sum)
+
+```
+
