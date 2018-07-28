@@ -12,6 +12,13 @@ output:
 bibliography: women.bib
 ---
 
+## TO DO:
+
+1. Re-run liwc assignments, excluding as_speaker==TRUE
+
+2. Male MP topic models matching
+
+
 ```{r setup, include = FALSE}
 library(reticulate)
 
@@ -19,36 +26,38 @@ use_condaenv(condaenv = "spacy_condaenv",
              conda = "/Users/evanodell/Documents/anaconda3/bin/conda")
 ```
 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H')
+```
 
 # Methodology
 
 Previous research on gender differences in political speech patterns has focused on differences between male and female politicians [@yu2014] or on variations in Hilary Clinton's speech patterns [@jones2016; @bligh2010].
 
-To account for the possible effects of age, parliamentary experience and cohort, and in order to compare women selected through all women short lists to women who were not (but theoretically had the possibility to contest all-women short lists), speech analysis has been restricted only to Labour MPs elected during or after the 1997 General Election, and before the 2017 General Election. Words contained in parentheses were removed, as they are added by Hansard to provide additional information not actually spoken by the MP.[^1] Speeches and MP data is from a previously assembled dataset [@odell2018]. Information on candidates selected through all women short lists is from the House of Commons Library [@kelly2016]. Unsuccessful General Election candidates selected through all women short lists who were subsequently elected in a byelection are classified as having been selected on an all women short list. 
+To account for the possible effects of age, parliamentary experience and cohort, and in order to compare women selected through all women short lists to women who were not (but who theoretically had the opportunity to contest all-women short lists), our analysis is been restricted only to Labour MPs first elected to the House of Commons in the 1997 General Election, up to but excluding the 2017 General Election. Comparisons between MPs of different parties are also restricted to MPs first elected in the 1997 General Election, and before the 2017 General Election. Speeches made by the Speaker, including Deputy Speakers, were also excluded. Words contained in parentheses were removed, as they are added by Hansard to provide additional information not actually spoken by the MP.[^1] Speeches and MP data is from a previously assembled dataset [@odell2018]. Information on candidates selected through all women short lists is from the House of Commons Library [@kelly2016]. Unsuccessful General Election candidates selected through all women short lists who were subsequently elected in a byelection are classified as having been selected on an all women short list. 
 
 Word classification used the `Linguistic Inquiry and Word Count 2015` (LIWC) dictionary [@pennebaker2015] and tokenising tools from the `Quanteda` R package [@benoit2018]. Word counts and words-per-sentence were calculated using `stringi` [@gagolewski2018], a wrapper to the ICU regex library.
 
 Following Yu [-@yu2014] drawing on [@newman2008] we used the following LIWC categories:
 
-<!-- Feminine: -->
-* All Pronouns (pronoun)
-* First person singular pronouns (i) 
-* Verbs (verb)
-* Auxiliary verbs (auxverb) 
-* Social processes (social) 
-* Positive emotions (posemo) 
-* Negative emotions (negemo) 
-* Tentative words (tentat)
-<!-- Masculine: -->
-* Words longer than six letters (Sixltr)
-* First person plural pronouns (we)
-* Articles (article) 
-* Prepositions (preps) 
-* Anger words (anger)
-* Swear words (swear)
-* Cognitive processes (cogproc)
 
-We also included words-per-sentence (WPS), total word count (WC) and Flesch–Kincaid grade level (FK) [@kincaid1975], calculated using `Quanteda` [@benoit2018] and `stringi` [@gagolewski2018].
+* All Pronouns (pronoun)<!-- Feminine: -->
+* First person singular pronouns (i) <!-- Feminine: -->
+* First person plural pronouns (we)<!-- Masculine: -->
+* Verbs (verb)<!-- Feminine: -->
+* Auxiliary verbs (auxverb) <!-- Feminine: -->
+* Social processes (social) <!-- Feminine: -->
+* Positive emotions (posemo) <!-- Feminine: -->
+* Negative emotions (negemo) <!-- Feminine: -->
+* Tentative words (tentat)<!-- Feminine: -->
+* Articles (article) <!-- Masculine: -->
+* Prepositions (preps) <!-- Masculine: -->
+* Anger words (anger)<!-- Masculine: -->
+* Swear words (swear)<!-- Masculine: -->
+* Cognitive processes (cogproc)<!-- Masculine: -->
+* Words longer than six letters (Sixltr)<!-- Masculine: -->
+
+We also included mean words-per-sentence (WPS), total speach word count (WC) and Flesch–Kincaid grade level (FK) [@kincaid1975], calculated using `Quanteda` [@benoit2018] and `stringi` [@gagolewski2018].
 
 <!--## Corpus creation -->
 
@@ -70,10 +79,10 @@ all_speech$y_since_start <- round(time_length(all_speech$speech_date -
                                           as.Date(all_speech$house_start_date),
                                         unit = "years")* 4)/4
 
-lab_speech <- filter(all_speech, party_group=="Labour", 
-                     house_start_date >= "1997-05-01",
-                     speech_date >= "1997-05-01", 
-                     speech_date < "2017-06-08", word_count > 0)
+lab_speech <- all_speech %>% 
+  filter(party_group == "Labour", as_speaker == FALSE,
+         house_start_date >= "1997-05-01", speech_date >= "1997-05-01",
+         speech_date < "2017-06-08", word_count > 0)
 
 rm(all_speech)
 
@@ -84,6 +93,10 @@ lab_speech$short_list <- lab_speech$mnis_id %in% all_women97_15$mnis
 lab_speech$speech <- stri_replace_all_regex(lab_speech$speech, "\\s\\(.*?\\)",
                                             "", vectorize_all = TRUE)
 
+lab_speech$speech <- stri_replace_all_regex(lab_speech$speech, 
+                                            c("^c\\(", "\\)$"),
+                                            c("", ""), vectorize_all = TRUE)
+
 write_rds(lab_speech, "lab_speech.rds")
 
 lab_corpus <- corpus(lab_speech, docid_field = "eo_id", text_field = "speech")
@@ -93,7 +106,9 @@ write_rds(lab_corpus, "lab_corpus.rds")
 
 <!--### Descriptive Statistics -->
 
-```{r eval=FALSE, include=FALSE}
+### Descriptive Statistics
+
+```{r lab-desc-stats, eval=FALSE, include=FALSE}
 elections <- as.POSIXct(c("1997-05-01", "2001-06-07", "2005-05-05", 
                "2010-05-06", "2015-05-07", "2017-06-07"), tz = "UTC")
 
@@ -111,12 +126,43 @@ labour_intakes_women <- lab_speech %>%
   group_by(house_start_date) %>% 
   summarise(women=n()) 
 
-labour_intakes <- labour_intakes %>%  left_join(labour_intakes_women)
+labour_intakes <- labour_intakes %>% left_join(labour_intakes_women)
 labour_intakes$perc_women <- (labour_intakes$women/labour_intakes$total)*100
 
 ```
 
 
+```{r lab-desc-stats-table, echo=FALSE, results='asis'}
+library(knitr)
+library(kableExtra)
+library(dplyr)
+
+labour_intakes_table <- tibble::tribble(
+  ~general_election, ~total_mps, ~total_labour_mps, ~total_female_labour_mps, ~percentage_women_mps, ~newly_elected_mps, ~intake_women, ~percentage_intake_women, ~intake_short_list, ~nominated_short_list,
+  1997L, 659L, 418L, 101L, "24%", 177L, 64L, "36%", 35L, 38L,
+  2001L, 659L, 412L, 95L, "23%", 38L, 4L, "11%", 0L, 0L,
+  2005L, 646L, 355L, 98L, "28%", 40L, 26L, "65%", 23L, 30L,
+  2010L, 650L, 258L, 81L, "31%", 64L, 32L, "50%", 28L, 63L,
+  2015L, 650L, 232L, 99L, "43%", 49L, 31L, "63%", 31L, 77L
+)
+# 
+kable(labour_intakes_table, digits = 2, escape = TRUE, 
+      align = c("r","r","r","r","r","r","r","r","r","r"),
+      caption = "Labour MPs and Intakes",
+      col.names = c("General Election",
+                    "Total MPs",
+                    "Labour MPs",
+                    "Female Labour MPs",
+                    "Percentage Women MPs",
+                    "Newly Elected MPs",
+                    "Intake Women",
+                    "Percentage Intake Women",
+                    "Intake Short list",
+                    "Nominated Short list")) %>%
+  kable_styling(latex_options = "striped", full_width = FALSE)
+
+```
+<!--
 | General Election | Total MPs | Total Labour MPs | Total Female Labour MPs | Percentage Women MPs | Newly elected MPs | Intake Women | Percentage Intake Women | Intake Short list | Nominated Short list |
 |------------------|-----------|------------------|-------------------------|----------------------|-------------------|--------------|-------------------------|-------------------|----------------------|
 | 1997 | 659 | 418 | 101 | 24.2% | 177 | 64 | 36% | 35 | 38 |
@@ -124,19 +170,143 @@ labour_intakes$perc_women <- (labour_intakes$women/labour_intakes$total)*100
 | 2005 | 646 | 355 | 98 | 27.6% | 40 | 26 | 65% | 23 | 30 |
 | 2010 | 650 | 258 | 81 | 31.4% | 64 | 32 | 50% | 28 | 63 |
 | 2015 | 650 | 232 | 99 | 42.7% | 49 | 31 | 63% | 31 | 77 |
-
-
+-->
 
 Data in this table is from House of Commons library reports [@kelly2016; @audickas2017]. All women short lists were not used by Labour during the 2001 General Election.
 
+```{r speech-stats, eval=FALSE, include=FALSE}
+library(readr)
+library(dplyr)
+library(readxl)
+
+all_speech <- read_rds("senti_df2.rds")
+
+all_women97_15 <- read_excel("list-of-mps.xlsx")
+
+all_speech$short_list <- all_speech$mnis_id %in% all_women97_15$mnis
+
+all_speech <- all_speech %>% 
+  filter(as_speaker == FALSE,
+         house_start_date >= "1997-05-01", speech_date >= "1997-05-01",
+         speech_date < "2017-06-08", word_count > 0)
+
+speech_sum_table1 <- all_speech %>%
+  group_by(short_list, gender, party_group) %>%
+  summarise(speeches = n(),
+            words = sum(word_count)) 
+
+# speech_sum_table1$gender <- case_when(speech_sum_table1$short_list==TRUE ~
+#                                        "All Women Shortlists",
+#                                      TRUE ~ speech_sum_table1$gender)
+# 
+# speech_sum_table1$gender <- case_when(speech_sum_table1$short_list==FALSE & 
+#                                        speech_sum_table1$party_group=="Labour" & 
+#                                        speech_sum_table1$gender=="Female" ~
+#                                        "Non-All Women Shortlists",
+#                                      TRUE ~ speech_sum_table1$gender )
+
+speech_sum_table2 <- all_speech %>%
+  group_by(party_group) %>%
+  summarise(speeches = n(),
+            words = sum(word_count)) 
+
+speech_sum_table3 <- all_speech %>%
+  summarise(speeches = n(),
+            words = sum(word_count)) 
+
+speech_sum_table4 <- all_speech %>%
+  group_by(gender) %>%
+  summarise(speeches = n(),
+            words = sum(word_count)) 
+
+speech_sum_table5 <- all_speech %>%
+  filter(gender=="Female", party_group=="Labour") %>%
+  group_by(party_group, gender) %>%
+  summarise(speeches = n(),
+            words = sum(word_count))
+
+speech_sum_table <- bind_rows(speech_sum_table1, speech_sum_table2,
+                              speech_sum_table3, speech_sum_table4,
+                              speech_sum_table5)
+
+speech_sum_table[is.na(speech_sum_table)] <- "All"
+
+# speech_sum_table[10,]$gender <- "All"
+# speech_sum_table[10,]$party_group <- "All"
+# speech_sum_table[10,]$short_list <- "All"
+# speech_sum_table[10,]$speeches <- sum(speech_sum_table$speeches[1:9])
+# speech_sum_table[10,]$words <- sum(speech_sum_table$words[1:9])
+# 
+# speech_sum_table[11,]$gender <- "Female"
+# speech_sum_table[11,]$party_group <- "Labour"
+# speech_sum_table[11,]$short_list <- "Both"
+# speech_sum_table[11,]$speeches <- sum(speech_sum_table$speeches[9], 
+#                                       speech_sum_table$speeches[2])
+# 
+# speech_sum_table[11,]$words <- sum(speech_sum_table$words[9],
+#                                    speech_sum_table$words[2])
+
+write_rds(speech_sum_table, "speech_sum_table.rds")
+```
+
+```{r speech-stats-table-prep, include=FALSE}
+library(readr)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+
+speech_sum_table <- read_rds("speech_sum_table.rds")
+
+speech_sum_table <- speech_sum_table %>% ungroup() %>%
+  arrange(party_group, gender, short_list)
+
+speech_sum_table$gender <- case_when(speech_sum_table$short_list==TRUE ~
+                                       "All Women Shortlists",
+                                     TRUE ~ speech_sum_table$gender)
+
+speech_sum_table$gender <- case_when(speech_sum_table$short_list==FALSE & 
+                                       speech_sum_table$party_group=="Labour" & 
+                                       speech_sum_table$gender=="Female" ~
+                                       "Non-All Women Shortlists",
+                                     TRUE ~ speech_sum_table$gender )
+
+speech_sum_table <- speech_sum_table %>% 
+  select(-short_list) %>%
+  select(party_group, gender, everything())
+```
+
+
+
+```{r speech-stats-table, echo=FALSE, results = 'asis'}
+library(kableExtra)
+library(knitr)
+kable(speech_sum_table[2:4], digits = 2, 
+      caption = "Number of Speeches and Words in Dataset",
+      col.names = c("Gender", "Speeches", "Words") )  %>%
+  kable_styling(latex_options = "striped")  %>%
+  group_rows("Conservatives", 4, 6) %>%
+    group_rows("Labour", 7, 11) %>%
+  group_rows("Liberal Democrat", 12, 14) %>%
+    group_rows("Other", 15, 17) %>%
+  add_indent(c(9:10))
+```
+
+
 <!--## LIWC creation-->
 
-```{r women-v-men, eval=FALSE, include=FALSE}
+```{r liwc-creation, eval=FALSE, include=FALSE}
 #remotes::install_github("kbenoit/quanteda.dictionaries")
 library(quanteda.dictionaries)
+library(quanteda)
 library(purrr)
 library(tidyr)
 library(effsize)
+library(dplyr)
+library(stringi)
+
+lab_speech <- read_rds("lab_speech.rds")
+
+lab_corpus <- read_rds("lab_corpus.rds")
 
 liwc15_dict <- dictionary(file = "dict/LIWC2015_English_Flat.dic",
        format = "LIWC")
@@ -146,12 +316,12 @@ lab_liwc <- liwcalike(lab_corpus,
       verbose = TRUE) %>%
  left_join(lab_speech, by = c("docname" = "eo_id"))
 
+# lab_liwc$WC <- stri_count_boundaries(lab_liwc$speech,
+#                                        type="word", skip_word_none=FALSE)
+
 lab_liwc[["Sixltr"]] <- sapply(
   tokens(texts(lab_corpus), remove_hyphens = TRUE),
   function(y) sum(stri_length(y) > 6)) / lab_liwc[["WC"]] * 100
-
-lab_liwc$WC <- stri_count_boundaries(lab_liwc$speech,
-                                       type="word", skip_word_none=FALSE)
 
 # lab_liwc$FK <-  textstat_readability(texts(lab_corpus), "Flesch.Kincaid")
 # 
@@ -159,12 +329,14 @@ lab_liwc$WC <- stri_count_boundaries(lab_liwc$speech,
 # 
 # lab_liwc$FK <- if_else(lab_liwc$WC < 5, NA_real_, lab_liwc$FK)
 
-lab_liwc$WPS <- lab_liwc$WC/stri_count_boundaries(lab_liwc$speech,
-                                       type="sentence", skip_word_none=FALSE)
+# lab_liwc$WPS <- lab_liwc$WC/stri_count_boundaries(lab_liwc$speech,
+#                                        type="sentence", skip_word_none=FALSE)
+
+lab_liwc$total_syllable <- nsyllable(lab_liwc$speech)
 
 lab_liwc$FK <- case_when(lab_liwc$WC >= 5 ~ 
                             0.39 * lab_liwc$WPS + 
-                            11.8 * quanteda::nsyllable(lab_liwc$speech)/
+                            11.8 * lab_liwc$total_syllable/
                             lab_liwc$WC - 15.59, TRUE ~ NA_real_)
 
 #lab_liwc$FK2 <- if_else(lab_liwc$WC < 5, NA_real_, lab_liwc$FK2)
@@ -179,12 +351,11 @@ write_rds(lab_liwc, "lab_liwc.rds")
 
 ## Women vs Men
 
-```{r liwc-women-men, include=FALSE}
+```{r liwc-summaries-women-men, eval=FALSE, include=FALSE}
 library(readr)
 library(dplyr)
 library(purrr)
 library(tidyr)
-library(effsize)
 
 lab_liwc <- read_rds("lab_liwc.rds")
 
@@ -225,13 +396,22 @@ lab_liwc_men_women2 <- left_join(lab_liwc_men_women_tidy_mean,
    upper_ci = weighted_mean + qt(1 - (0.05 / 2), n - 1) * se)
 
 rm(lab_liwc_men_women_tidy_sd, lab_liwc_men_women_tidy_mean)
+```
+
+```{r liwc-tables, include=FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(effsize)
+
+lab_liwc <- read_rds("lab_liwc.rds")
 
 fem_mac <- c("pronoun", "i", "we", "verb", "auxverb", "social", "posemo", 
              "negemo", "tentat", "Sixltr",  "article", "prep",
              "anger", "swear", "cogproc", "WPS", "WC", "FK")
 
-lab_liwc_men_women2_subset <- lab_liwc_men_women2 %>%
-  filter(attribute %in% fem_mac)
+# lab_liwc_men_women2_subset <- lab_liwc_men_women2 %>%
+#   filter(attribute %in% fem_mac)
 
 fem_mac_df <- tibble::tibble(
   word_type = fem_mac,
@@ -347,7 +527,7 @@ lab_liwc_women2_subset <- lab_liwc_women2 %>%
 
 The following plots show changes in the occurences of selected LIWC terms, words-per-sentence, total word count and Flesch–Kincaid grade level, over the course of an MP's career. There do not appear to be any notable changes in speaking style over the course of female Labour MPs' careers.
 
-```{r short-list-plot-key-variables, include=FALSE}
+```{r short-list-plot-key-variables, echo=FALSE}
 library(ggplot2)
 
 lab_liwc_women2_subset$attribute <- recode(lab_liwc_women2_subset$attribute,
@@ -392,7 +572,7 @@ p_sl1
 ```
 
 
-```{r sl-wps-plot, include=FALSE}
+```{r sl-wps-plot, echo=FALSE}
 p_sl_wps <- ggplot(data=filter(lab_liwc_women2_subset,
                                attribute=="Words per Sentence"),
                 aes(x=y_since_start, y = weighted_mean, colour = short_list)) +
@@ -405,7 +585,7 @@ p_sl_wps <- ggplot(data=filter(lab_liwc_women2_subset,
 p_sl_wps
 ```
 
-```{r sl-wc-plot, include=FALSE}
+```{r sl-wc-plot, echo=FALSE}
 p_sl_wc <- ggplot(data=filter(lab_liwc_women2_subset,
                                attribute=="Total Word Count"),
                 aes(x=y_since_start, y = weighted_mean, colour = short_list)) +
@@ -420,7 +600,7 @@ p_sl_wc
 
 
 
-```{r, echo=FALSE,results = 'asis'}
+```{r fem-mac-df-sl-creation, include=FALSE}
 fem_mac_df_sl <- tibble::tibble(
   word_type = fem_mac,
   short_list = c(1:length(fem_mac)),
@@ -487,9 +667,6 @@ kable(fem_mac_df_sl, digits = 2,
 
 There are no categories among female Labour MPs by selection process meeting the $|0.2|$ threshold. Only one category -- first person plural pronouns, _d_=0.19 -- exceeded $|0.1|$.
 
-
-
-
 ## Conservatives vs Labour
 
 ```{r tory-labour-extraction, eval=FALSE, include=FALSE}
@@ -511,16 +688,21 @@ all_speech$y_since_start <- round(time_length(all_speech$speech_date -
                                         unit = "years")* 4)/4
 
 con_speech <- filter(all_speech, 
-                         party_group == "Conservative", 
-                         house_start_date >= "1997-05-01", 
-                         speech_date >= "1997-05-01", 
-                         speech_date < "2017-06-08", word_count > 0)
+                     party_group == "Conservative", 
+                     as_speaker == FALSE, house_start_date >= "1997-05-01", 
+                     speech_date >= "1997-05-01", speech_date < "2017-06-08",
+                     word_count > 0)
 
 rm(all_speech)
 
 con_speech$speech <- stri_replace_all_regex(con_speech$speech,
                                                 "\\s\\(.*?\\)",
                                                 "", vectorize_all = TRUE)
+
+con_speech$speech <- stri_replace_all_regex(con_speech$speech, 
+                                            c("^c\\(", "\\)$"),
+                                            c("", ""), vectorize_all = TRUE)
+
 
 write_rds(con_speech, "con_speech.rds")
 
@@ -551,12 +733,14 @@ con_liwc <- liwcalike(con_corpus,
       verbose = TRUE) %>%
   left_join(con_speech, by = c("docname" = "eo_id"))
 
+con_liwc$WC <- stri_count_boundaries(con_liwc$speech,
+                                         type="word", skip_word_none=FALSE)
+
 con_liwc[["Sixltr"]] <- sapply(
   tokens(texts(con_corpus), remove_hyphens = TRUE),
   function(y) sum(stri_length(y) > 6)) / con_liwc[["WC"]] * 100
 
-con_liwc$WC <- stri_count_boundaries(con_liwc$speech,
-                                         type="word", skip_word_none=FALSE)
+
 
 con_liwc$WPS <- con_liwc$WC/stri_count_boundaries(con_liwc$speech,
                                                           type="sentence", skip_word_none=FALSE)
@@ -582,7 +766,11 @@ library(readr)
 library(effsize)
 library(dplyr)
 
-lab_con_liwc <- read_rds("lab_con_liwc.rds")
+con_liwc <- read_rds("con_liwc.rds")
+
+lab_liwc <- read_rds("lab_liwc.rds")
+
+lab_con_liwc <- bind_rows(con_liwc, lab_liwc)
 
 fem_mac <- c("pronoun", "i", "we", "verb", "auxverb", "social", "posemo", 
              "negemo", "tentat", "Sixltr",  "article", "prep",
@@ -637,7 +825,7 @@ lab_con_df$word_type <- recode(lab_con_df$word_type,
 library(knitr)
 library(kableExtra)
 kable(lab_con_df, digits = 2, 
-      caption = "Effect Sizes for Male and Female MPs, Labour and Conservatives",
+      caption = "Effect Sizes for All Labour and Conservative MPs",
       col.names = c("", "Mean", "SD", "Mean", "SD",
                     "Cohen's D", "Magnitude") )  %>%
   kable_styling(latex_options = "striped") %>% 
@@ -671,7 +859,7 @@ all_speech$y_since_start <- round(time_length(all_speech$speech_date -
 
 other_speech <- filter(all_speech, 
                          !(party_group %in% c("Labour", "Conservative")), 
-                         house_start_date >= "1997-05-01", 
+                         house_start_date >= "1997-05-01", as_speaker==FALSE,
                          speech_date >= "1997-05-01", 
                          speech_date < "2017-06-08", word_count > 0)
 
@@ -680,6 +868,10 @@ rm(all_speech)
 other_speech$speech <- stri_replace_all_regex(other_speech$speech,
                                                 "\\s\\(.*?\\)",
                                                 "", vectorize_all = TRUE)
+
+other_speech$speech <- stri_replace_all_regex(other_speech$speech, 
+                                            c("^c\\(", "\\)$"),
+                                            c("", ""), vectorize_all = TRUE)
 
 write_rds(other_speech, "other_speech.rds")
 
@@ -710,12 +902,14 @@ other_liwc <- liwcalike(other_corpus,
       verbose = TRUE) %>%
   left_join(other_speech, by = c("docname" = "eo_id"))
 
+other_liwc$WC <- stri_count_boundaries(other_liwc$speech,
+                                     type="word", skip_word_none=FALSE)
+
 other_liwc[["Sixltr"]] <- sapply(
   tokens(texts(other_corpus), remove_hyphens = TRUE),
   function(y) sum(stri_length(y) > 6)) / other_liwc[["WC"]] * 100
 
-other_liwc$WC <- stri_count_boundaries(other_liwc$speech,
-                                     type="word", skip_word_none=FALSE)
+
 
 # lab_con_liwc$FK <-  textstat_readability(texts(lab_corpus), "Flesch.Kincaid")
 # 
@@ -743,15 +937,18 @@ write_rds(other_liwc, "other_liwc.rds")
 
 
 
-```{r all-parties-gender, include=FALSE}
+```{r all-parties-gender, eval=FALSE, include=FALSE}
 library(readr)
 library(dplyr)
+library(effsize)
 
 other_liwc <- read_rds("other_liwc.rds")
 
-lab_con_liwc <- read_rds("lab_con_liwc.rds")
+lab_liwc <- read_rds("lab_liwc.rds")
 
-all_liwc <- bind_rows(other_liwc, lab_con_liwc)
+con_liwc <- read_rds("con_liwc.rds")
+
+all_liwc <- bind_rows(other_liwc, con_liwc, lab_liwc)
 
 fem_mac <- c("pronoun", "i", "we", "verb", "auxverb", "social", "posemo", 
              "negemo", "tentat", "Sixltr",  "article", "prep",
@@ -799,6 +996,8 @@ all_party_gender_df$word_type <- recode(all_party_gender_df$word_type,
                                "WC" = "Total Word Count",
                                "FK" = "Flesh-Kincaid Grade Level")
 
+write_rds(all_party_gender_df, "all_party_gender_df.rds")
+
 ```
 
 
@@ -806,6 +1005,9 @@ all_party_gender_df$word_type <- recode(all_party_gender_df$word_type,
 ```{r all-party-effect-sizes, echo=FALSE, results = 'asis'}
 library(knitr)
 library(kableExtra)
+library(readr)
+all_party_gender_df <- read_rds("all_party_gender_df.rds")
+
 kable(all_party_gender_df, digits = 2, 
       caption = "Effect Sizes for Male and Female MPs, All Parties",
       col.names = c("", "Mean", "SD", "Mean", "SD",
@@ -826,6 +1028,7 @@ Part-of-speech (POS) tagging was done using `spaCy` [@honnibal2017] and the `spa
 ```{r spacy-annotations, eval=FALSE, include=FALSE}
 library(spacyr)
 library(progress)
+library(readr)
 
 lab_speech <- read_rds("lab_speech.rds")
 
@@ -1259,7 +1462,7 @@ lab_dfm_key_fem <- lab_corpus_fem %>%
 write_rds(lab_dfm_key_fem, "lab_dfm_key_fem.rds")
 ```
 
-```{r gender-keyness,  echo=FALSE}
+```{r gender-keyness,  echo=FALSE, fig.height=8}
 library(ggplot2)
 library(readr)
 library(dplyr)
@@ -1271,7 +1474,7 @@ lab_keyness <- textstat_keyness(lab_dfm_key, measure = c("lr"))
 
 #head(lab_keyness)
 
-lab_keyness_plot <- textplot_keyness(lab_keyness, n=15) +  
+lab_keyness_plot <- textplot_keyness(lab_keyness, n=25) +  
   coord_cartesian(xlim=c(-5000, 14800)) +
   labs(title = "Keyness in Labour MPs by Gender",
        x = "likelihood ratio")
@@ -1284,7 +1487,7 @@ Keyness -- a linguistic measure of the frequency of different words in two group
 
 ### Short lists vs Non-Short lists
 
-```{r short-list-keyness, echo=FALSE}
+```{r short-list-keyness, echo=FALSE, fig.height=8}
 
 lab_dfm_key_fem <- read_rds("lab_dfm_key_fem.rds")
 
@@ -1292,7 +1495,7 @@ lab_keyness_fem <- textstat_keyness(lab_dfm_key_fem, measure = c("lr"))
 
 #head(lab_keyness_fem)
 
-fem_keyness_plot <- textplot_keyness(lab_keyness_fem, n=15) + 
+fem_keyness_plot <- textplot_keyness(lab_keyness_fem, n=25) + 
   coord_cartesian(xlim=c(-1700,1000)) +
   labs(title = "Keyness in Female Labour MPs by Selection Process",
        x = "likelihood ratio")
@@ -1306,8 +1509,20 @@ fem_keyness_plot
 ```{r eval=FALSE, include=FALSE}
 library(readr)
 library(quanteda)
+library(dplyr)
 
-lab_con_corpus <- read_rds("lab_con_corpus.rds")
+all_speech <- read_rds("senti_df2.rds")
+
+lab_con_speech <- all_speech %>% 
+  filter(party_group %in% c("Labour", "Conservative"),
+         as_speaker == FALSE, house_start_date >= "1997-05-01",
+         speech_date >= "1997-05-01", speech_date < "2017-06-08",
+         word_count > 0)
+
+rm(all_speech)
+
+lab_con_corpus <- corpus(lab_con_speech, 
+                         docid_field = "eo_id", text_field = "speech")
 
 parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
                           "give", "gentleman", "right", "percent", "per",
@@ -1322,7 +1537,7 @@ write_rds(lab_con_dfm, "lab_con_dfm.rds")
 ```
 
 
-```{r lab-con-keyness, echo=FALSE}
+```{r lab-con-keyness, echo=FALSE, fig.height=8}
 library(ggplot2)
 library(quanteda)
 
@@ -1332,7 +1547,7 @@ lab_con_keyness <- textstat_keyness(lab_con_dfm, measure = c("lr"))
 
 #head(lab_keyness_fem)
 
-lab_con_keyness_plot <- textplot_keyness(lab_con_keyness, n=15, 
+lab_con_keyness_plot <- textplot_keyness(lab_con_keyness, n=25, 
                                          color = c("blue", "red")) + 
   #coord_cartesian(xlim=c(-1700,1000)) +
   labs(title = "Keyness in Between Labour and Conservatives",
@@ -1343,7 +1558,7 @@ lab_con_keyness_plot
 ```
 
 
-Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. Also of note is AWS MPs making more references to their "constituency" and its "constituents"
+Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. Also of note is AWS MPs making more references to their "constituency" and its "constituents", [drawing on representation of ]
 
 
 
@@ -1380,10 +1595,10 @@ fem_lda <- LDA(dtm, k = 20) #50 is too many, try again with 20
 
 ### Analyse these
 
-terms(fem_lda, 10)
+#terms(fem_lda, 10)
 
 docvars(lab_corpus_fem_dfm, 'topic') <- topics(fem_lda)
-head(topics(fem_lda), 20)
+#head(topics(fem_lda), 20)
 
 write_rds(fem_lda, "fem_lda.rds")
 
@@ -1403,11 +1618,11 @@ library(stringi)
 
 fem_lda <- read_rds("fem_lda.rds")
 
-terms(fem_lda, 10)
+#terms(fem_lda, 10)
 
 lab_corpus_fem_dfm <- read_rds("lab_corpus_fem_dfm.rds")
 
-terms_table <- tibble::as.tibble(terms(fem_lda, 10))
+terms_table <- tibble::as.tibble(terms(fem_lda, 20))
 
 fem_df <- as.data.frame(docvars(lab_corpus_fem_dfm))
 
@@ -1422,13 +1637,57 @@ fem_df2 <- fem_df %>%
 
 fem_df2 <- fem_df2[order(-fem_df2$short_list, fem_df2$topic),]
 
+fem_df2$topic <- recode(fem_df2$topic,
+ "Topic 01" = "Education",
+ "Topic 02" = "Energy",
+ "Topic 03" = "Process",
+ "Topic 04" = "Business",
+ "Topic 05" = "Legislation",
+ "Topic 06" = "Tax",
+ "Topic 07" = "International",
+ "Topic 08" = "Constituents",
+ "Topic 09" = "Services",
+ "Topic 10" = "Defence",
+ "Topic 11" = "Transport",
+ "Topic 12" = "Questions",
+ "Topic 13" = "Other",
+ "Topic 14" = "Children & Families",
+ "Topic 15" = "Gender",
+ "Topic 16" = "Legal",
+ "Topic 17" = "Health",
+ "Topic 18" = "Housing",
+ "Topic 19" = "Crime",
+ "Topic 20" = "Civil Society")
+
+terms_table <- terms_table %>% rename(
+  "Education"	=	"Topic 1",
+ "Energy" = "Topic 2",
+ "Process" = "Topic 3",
+ "Business" = "Topic 4",
+ "Legislation" = "Topic 5",
+ "Tax" = "Topic 6",
+ "International" = "Topic 7",
+ "Constituents" = "Topic 8",
+ "Services"	= "Topic 9",
+ "Defence" = "Topic 10",
+ "Transport" = "Topic 11",
+ "Questions" = "Topic 12",
+ "Other" = "Topic 13",
+ "Children & Families" = "Topic 14",
+ "Gender" = "Topic 15",
+ "Legal" = "Topic 16",
+ "Health" = "Topic 17",
+ "Housing" = "Topic 18",
+ "Crime" = "Topic 19",
+ "Civil Society" = "Topic 20")
+
 # p_lda <- ggplot(fem_df2, aes(x = short_list, y=freq)) +
 #   geom_col(aes(fill = topic)) +
-#   scale_y_continuous(labels=scales::percent) + 
+#   scale_y_continuous(labels=scales::percent) +
 #   labs(title = "Frequency of Topic Models",
 #        subtitle = "Female Labour MPs grouped by selection process",
-#        fill = "Topic Model") + 
-#   ylab("") + 
+#        fill = "Topic Model") +
+#   ylab("") +
 #   xlab("Elected Through All Women Short list")
 # 
 # p_lda
@@ -1445,16 +1704,13 @@ p_lda2
 ```
 
 
-```{r}
+```{r tidy-topic-model, include=FALSE}
 library(tidytext)
 
 beta_df <- tidy(fem_lda)
 
 beta_df_gamma <- tidy(fem_lda, matrix = "gamma")
-beta_df_gamma
-
-
-#x <- filter(beta_df_gamma, document == "1028176")
+#beta_df_gamma
 
 speech_classifications <- beta_df_gamma %>%
   group_by(document) %>%
@@ -1465,11 +1721,7 @@ speech_classifications <- beta_df_gamma %>%
 speech_classifications <- speech_classifications %>%
   filter(document != "1911783" | topic != 15)
 
-x2 <- speech_classifications %>%
-  group_by(document) %>%
-  summarise(n=n())
-
-summary(speech_classifications)
+#summary(speech_classifications)
 
 #1911783
 
@@ -1533,21 +1785,18 @@ kable(fem_df2_table, caption = "Topic Model Distribution", digits = 2,
       col.names = c("Topic", "Not Short List Total", "Short List Total",
                     "Not Short List Percentage", "Short List Percentage",
                     "Relative Occurence")) %>%
-  kable_styling(full_width = FALSE)
+  kable_styling(latex_options = "striped", full_width = FALSE)
 
 
 ```
 
-We assigned topic models using Latent Dirichlet Allocation [@blei2003], implemented in the `topicmodels` R package [@grun2011]. See [TABLE NUMBER?] for the ten most common words in each topic model. 
-
-Non-AWS women had more speeches assigned to topic 3 (14.20% vs 10.05%), a topic that, like the gender-differences in word keyness above, refers to the parliamentary process itself. Conversely, AWS women had more speeches in topic 1 (15.23% vs 12.55%) which also includes multiple references to the parliamentary process itself.
-
+We assigned topic models using unsupervised Latent Dirichlet Allocation [@blei2003], implemented in the `topicmodels` R package [@grun2011]. See [TABLE NUMBER?] for the ten most common words in each topic model. Topic models were trained on all speeches by female Labour MPs.
 
 
 
 ## Machine learning
 
-We trained a Naive Bayes classifier with document-frequency priors and a multinomial distribution to predict the gender of speakers when given speeches by all Labour MPs in our dataset, and the selection process when only given female Labour MPs. The accuracy of both models were roughly equivalent, 70.83% accuracy when predicting gender and 70.31% when predicting short lists.
+We trained a Naive Bayes classifier with document-frequency priors and a multinomial distribution to predict the gender of speakers when given speeches by all Labour MPs in our dataset, and the selection process when only given female Labour MPs. The accuracy of both models were roughly equivalent, 70.83% accuracy when predicting gender and 70.31% when predicting short lists. By contrast, the classifier could distinguish between Labour and Conservative speeches with 74.06% accuracy.
 
 ```{r naive-bayes1, eval=FALSE, include=FALSE}
 library(quanteda)
@@ -1621,6 +1870,55 @@ sl_accuracy <- confusionMatrix(class_table, mode = "sens_spec")
 sl_accuracy$overall[[1]]
 ```
 
+
+```{r naive-bayes-lab-vs-conservative, eval=FALSE, include=FALSE}
+library(quanteda)
+library(quanteda.corpora)
+library(caret)
+library(readr)
+
+all_speech <- read_rds("senti_df2.rds")
+
+lab_con_speech <- all_speech %>% 
+  filter(party_group %in% c("Labour", "Conservative"),
+         as_speaker == FALSE, house_start_date >= "1997-05-01",
+         speech_date >= "1997-05-01", speech_date < "2017-06-08",
+         word_count > 0)
+
+rm(all_speech)
+
+lab_con_corpus <- corpus(lab_con_speech, 
+                         docid_field = "eo_id", text_field = "speech")
+
+
+id_train <- sample(1:547233, (547233*0.4), replace = FALSE) ## 40% in training
+#head(id_train, 10)
+
+docvars(lab_con_corpus, "id_numeric") <- 1:ndoc(lab_con_corpus)
+
+# get training set
+training_dfm <- corpus_subset(lab_con_corpus, id_numeric %in% id_train) %>%
+  dfm(stem = TRUE)
+
+# get test set (documents not in id_train)
+test_dfm <- corpus_subset(lab_con_corpus, !id_numeric %in% id_train) %>%
+  dfm(stem = TRUE)
+
+nb <- textmodel_nb(training_dfm, docvars(training_dfm, "gender"),
+                   prior = "docfreq")
+#summary(nb)
+
+test_dfm <- dfm_select(test_dfm, training_dfm)
+
+actual_class <- docvars(test_dfm, "gender")
+predicted_class <- predict(nb, test_dfm)
+class_table <- table(actual_class, predicted_class)
+class_table
+
+party_accuracy <- confusionMatrix(class_table, mode = "everything")
+party_accuracy$overall[[1]]
+
+```
 
 <!--
 
@@ -1726,7 +2024,7 @@ vm.model <- svm(docs ~ ., data = x, cost = 100, gamma = 1)
 
 There do not appear to be substantial or meaningful differences in the speaking styles or topic choices of female Labour MPs selected through all women short lists when compared to their female colleagues selected through open short lists. The few small differences between male and female Labour MPs were not replicated when comparing female Labour MPs by how they were selected.
 
-There is more gender distinction on topic
+There is more gender distinction in selected terms and topics.
 
 
 # References
