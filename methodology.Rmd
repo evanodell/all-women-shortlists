@@ -603,6 +603,8 @@ p_sl1 <- ggplot(data=filter(lab_liwc_women2_subset,
   xlab("Years since entering House of Commons") + 
   theme(legend.position = "bottom")
 
+ggsave("p_sl1.eps", plot = p_sl1, path="plots", device = "eps")
+
 p_sl1
 
 ```
@@ -1792,6 +1794,8 @@ p_lda2 <- ggplot(data = fem_df2, aes(y = freq, fill = short_list, x = topic)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   xlab("") + 
   ylab("Percentage of Speeches")
+
+ggsave("p_lda2.eps", plot = p_lda2, path="plots", device = "eps")
 
 p_lda2
 ```
