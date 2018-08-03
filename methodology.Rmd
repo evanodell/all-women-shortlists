@@ -4,17 +4,21 @@ editor_options:
   chunk_output_type: console
 link-citations: yes
 output:
-  pdf_document: default
-  html_notebook: default
-  word_document: default
   html_document:
     df_print: paged
+  html_notebook: default
+  word_document: default
+  pdf_document: default
 bibliography: women.bib
 ---
 
 ## TO DO:
 
 1. Re-run liwc assignments, excluding as_speaker==TRUE
+
+1. Re-run topic model assignments, excluding as_speaker==TRUE
+
+1. Re-run spacyr, excluding as_speaker==TRUE
 
 2. Male MP topic models matching
 
@@ -90,8 +94,9 @@ all_women97_15 <- read_excel("list-of-mps.xlsx")
 
 lab_speech$short_list <- lab_speech$mnis_id %in% all_women97_15$mnis
 
-lab_speech$speech <- stri_replace_all_regex(lab_speech$speech, "\\s\\(.*?\\)",
-                                            "", vectorize_all = TRUE)
+lab_speech$speech <- stri_replace_all_regex(lab_speech$speech,
+                                            c("\\s\\(.*?\\)", "\\s\\[.*?\\]"),
+                                            c("", ""), vectorize_all = TRUE)
 
 lab_speech$speech <- stri_replace_all_regex(lab_speech$speech, 
                                             c("^c\\(", "\\)$"),
@@ -132,7 +137,7 @@ labour_intakes$perc_women <- (labour_intakes$women/labour_intakes$total)*100
 ```
 
 
-```{r lab-desc-stats-table, echo=FALSE, results='asis'}
+```{r lab-desc-stats-table, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 library(knitr)
 library(kableExtra)
 library(dplyr)
@@ -291,10 +296,35 @@ kable(speech_sum_table[2:4], digits = 2,
   add_indent(c(9:10))
 ```
 
+<!--
+## Career Advancement
 
-<!--## LIWC creation-->
+Do AWS MPs advance more?
 
-```{r liwc-creation, eval=FALSE, include=FALSE}
+```{r}
+library(readxl)
+library(mnis)
+library(dplyr)
+
+all_women97_15 <- read_excel("list-of-mps.xlsx")
+
+women_list <- lapply(all_women97_15$mnis, mnis_opposition_posts)
+
+women_oppo <- bind_rows(women_list)
+
+oppo <- janitor::clean_names(as.data.frame(t(mnis_base("holdsoppositionpost*TRUE"))))
+
+govt <- janitor::clean_names(as.data.frame(t(mnis_base("holdsgovernmentpost*TRUE"))))
+
+```
+
+
+--->
+## Women vs Men
+
+<!--### LIWC creation-->
+
+```{r lab-liwc-creation, eval=FALSE, include=FALSE}
 #remotes::install_github("kbenoit/quanteda.dictionaries")
 library(quanteda.dictionaries)
 library(quanteda)
@@ -303,6 +333,7 @@ library(tidyr)
 library(effsize)
 library(dplyr)
 library(stringi)
+library(readr)
 
 lab_speech <- read_rds("lab_speech.rds")
 
@@ -318,6 +349,12 @@ lab_liwc <- liwcalike(lab_corpus,
 
 # lab_liwc$WC <- stri_count_boundaries(lab_liwc$speech,
 #                                        type="word", skip_word_none=FALSE)
+
+lab_liwc$WC <- stri_count_boundaries(lab_liwc$speech,
+                                         type="word", skip_word_none=FALSE)
+
+lab_liwc$WPS <- lab_liwc$WC/stri_count_boundaries(lab_liwc$speech,
+                                                          type="sentence", skip_word_none=FALSE)
 
 lab_liwc[["Sixltr"]] <- sapply(
   tokens(texts(lab_corpus), remove_hyphens = TRUE),
@@ -349,7 +386,6 @@ write_rds(lab_liwc, "lab_liwc.rds")
 ```
 
 
-## Women vs Men
 
 ```{r liwc-summaries-women-men, eval=FALSE, include=FALSE}
 library(readr)
@@ -527,7 +563,7 @@ lab_liwc_women2_subset <- lab_liwc_women2 %>%
 
 The following plots show changes in the occurences of selected LIWC terms, words-per-sentence, total word count and Flesch–Kincaid grade level, over the course of an MP's career. There do not appear to be any notable changes in speaking style over the course of female Labour MPs' careers.
 
-```{r short-list-plot-key-variables, echo=FALSE}
+```{r short-list-plot-key-variables, eval=FALSE, include=FALSE}
 library(ggplot2)
 
 lab_liwc_women2_subset$attribute <- recode(lab_liwc_women2_subset$attribute,
@@ -572,7 +608,7 @@ p_sl1
 ```
 
 
-```{r sl-wps-plot, echo=FALSE}
+```{r sl-wps-plot, eval=FALSE, include=FALSE}
 p_sl_wps <- ggplot(data=filter(lab_liwc_women2_subset,
                                attribute=="Words per Sentence"),
                 aes(x=y_since_start, y = weighted_mean, colour = short_list)) +
@@ -585,7 +621,7 @@ p_sl_wps <- ggplot(data=filter(lab_liwc_women2_subset,
 p_sl_wps
 ```
 
-```{r sl-wc-plot, echo=FALSE}
+```{r sl-wc-plot, eval=FALSE, include=FALSE}
 p_sl_wc <- ggplot(data=filter(lab_liwc_women2_subset,
                                attribute=="Total Word Count"),
                 aes(x=y_since_start, y = weighted_mean, colour = short_list)) +
@@ -696,8 +732,8 @@ con_speech <- filter(all_speech,
 rm(all_speech)
 
 con_speech$speech <- stri_replace_all_regex(con_speech$speech,
-                                                "\\s\\(.*?\\)",
-                                                "", vectorize_all = TRUE)
+                                            c("\\s\\(.*?\\)", "\\s\\[.*?\\]"),
+                                            c("", ""), vectorize_all = TRUE)
 
 con_speech$speech <- stri_replace_all_regex(con_speech$speech, 
                                             c("^c\\(", "\\)$"),
@@ -736,14 +772,12 @@ con_liwc <- liwcalike(con_corpus,
 con_liwc$WC <- stri_count_boundaries(con_liwc$speech,
                                          type="word", skip_word_none=FALSE)
 
+con_liwc$WPS <- con_liwc$WC/stri_count_boundaries(con_liwc$speech,
+                                                          type="sentence", skip_word_none=FALSE)
+
 con_liwc[["Sixltr"]] <- sapply(
   tokens(texts(con_corpus), remove_hyphens = TRUE),
   function(y) sum(stri_length(y) > 6)) / con_liwc[["WC"]] * 100
-
-
-
-con_liwc$WPS <- con_liwc$WC/stri_count_boundaries(con_liwc$speech,
-                                                          type="sentence", skip_word_none=FALSE)
 
 con_liwc$FK <- case_when(con_liwc$WC >= 5 ~ 
                                0.39 * con_liwc$WPS + 
@@ -839,7 +873,7 @@ There are no categories with effect sizes exceeding $|0.2|$ between Labour and C
 ## All MPs Gender Differences
 
 
-```{r all-mp-extraction, eval=FALSE, include=FALSE}
+```{r other-mp-extraction, eval=FALSE, include=FALSE}
 ## same as above, but this time Conservative vs Labour
 library(readr)
 library(dplyr)
@@ -866,8 +900,8 @@ other_speech <- filter(all_speech,
 rm(all_speech)
 
 other_speech$speech <- stri_replace_all_regex(other_speech$speech,
-                                                "\\s\\(.*?\\)",
-                                                "", vectorize_all = TRUE)
+                                              c("\\s\\(.*?\\)", "\\s\\[.*?\\]"),
+                                              c("", ""),vectorize_all = TRUE)
 
 other_speech$speech <- stri_replace_all_regex(other_speech$speech, 
                                             c("^c\\(", "\\)$"),
@@ -881,7 +915,7 @@ write_rds(other_corpus, "other_corpus.rds")
 ```
 
 
-```{r all-mp-liwc, eval=FALSE, include=FALSE}
+```{r other-mp-liwc, eval=FALSE, include=FALSE}
 library(readr)
 library(dplyr)
 library(tidyr)
@@ -1060,7 +1094,7 @@ for (this_name in all_names) {
 
 
 #devtools::install_github("quanteda/spacyr")
-#spacy_install(python_path = "/Users/evanodell/Documents/anaconda3/bin/python3")
+spacy_install(python_path = "/Users/evanodell/Documents/anaconda3/bin/python3")
 spacy_initialize()
 
 atemp <- list.files(pattern = "*x.rds")
@@ -1196,9 +1230,23 @@ library(magrittr)
 library(tidyr)
 library(effsize)
 
-ano_lab <- read_rds("annotated_labour.rds")
+# all_speech <- read_rds("senti_df2.rds")
+# 
+# speakers <- all_speech %>% filter(party_group == "Labour", as_speaker == TRUE,
+#          house_start_date >= "1997-05-01", speech_date >= "1997-05-01",
+#          speech_date < "2017-06-08", word_count > 0)
+# 
+# rm(all_speech)
 
-ano_lab_tag <- ano_lab %>% 
+annotated_labour <- read_rds("annotated_labour.rds")
+
+### remove matches
+
+# ano_lab <- ano_lab %>% filter(!(doc_id %in% speakers$eo_id))
+
+## THere are 129 gender NAs
+
+ano_lab_tag <- annotated_labour %>% 
   filter(POS != "PUNCT", is.na(POS) == FALSE, POS != "SPACE") %>%
   group_by(doc_id, tag) %>%
   summarise(count = n()) %>%
@@ -1210,7 +1258,7 @@ ano_lab_tag <- ano_lab_tag %>% spread(tag, freq)
 
 ano_lab_tag[is.na(ano_lab_tag)] <- 0
 
-ano_lab_pos <- ano_lab %>% 
+ano_lab_pos <- annotated_labour %>% 
   filter(POS != "PUNCT", is.na(POS) == FALSE, POS != "SPACE") %>%
   group_by(doc_id, POS) %>%
   summarise(count = n()) %>%
@@ -1462,7 +1510,7 @@ lab_dfm_key_fem <- lab_corpus_fem %>%
 write_rds(lab_dfm_key_fem, "lab_dfm_key_fem.rds")
 ```
 
-```{r gender-keyness,  echo=FALSE, fig.height=8}
+```{r gender-keyness, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(readr)
 library(dplyr)
@@ -1470,35 +1518,42 @@ library(quanteda)
 
 lab_dfm_key <- read_rds("lab_dfm_key.rds")
 
-lab_keyness <- textstat_keyness(lab_dfm_key, measure = c("lr"))
+lab_keyness <- textstat_keyness(lab_dfm_key, measure = c("chi2"))
 
 #head(lab_keyness)
 
-lab_keyness_plot <- textplot_keyness(lab_keyness, n=25) +  
-  coord_cartesian(xlim=c(-5000, 14800)) +
+lab_keyness_plot <- textplot_keyness(lab_keyness, n = 25, 
+                                     color = c("purple", "darkgreen")) +  
+  #coord_cartesian(xlim=c(-3100, 14100)) +
+  scale_x_continuous(limits = c(-3100, 14100), 
+                     breaks = seq(-3000, 15000, by = 1500)) + 
   labs(title = "Keyness in Labour MPs by Gender",
-       x = "likelihood ratio")
+       x = "Chi2") + 
+  theme(legend.position = "bottom")
 
 lab_keyness_plot
-## Figure out what the fuck is up with Hull?
 ```
 
 Keyness -- a linguistic measure of the frequency of different words in two groups of texts -- reveals clear gender differences in the most disproportionately common words used by female and male Labour MPs. Unsurprisingly, despite male MPs saying almost twice as many words (30601887 vs 15898845) <!--Double-check these numbers--> as their female colleagues, female Labour MPs were more than two-and-a-half (2.61) times as likely to say "women". They were also much more likely to refer to "women's" and "woman". Female Labour MPs also appear much more likely to discuss "children", "people", "care", "families", "home", "parents", "work" and social policy areas such as "services", "disabled [people]" and "housing" than their male colleagues. Male MPs were more likely to refer to military topics ("Iraq", "nuclear"), and to parliamentary process and protocol  -- "question", "political", "conservative", "electoral", "house", "party", "argument" "liberal" and "point" are far more common in speeches by male Labour MPs than by female ones. This could suggest that male MPs are more comfortable using the traditional language of House of Commons debate.
 
 ### Short lists vs Non-Short lists
 
-```{r short-list-keyness, echo=FALSE, fig.height=8}
+```{r short-list-keyness, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE}
 
 lab_dfm_key_fem <- read_rds("lab_dfm_key_fem.rds")
 
-lab_keyness_fem <- textstat_keyness(lab_dfm_key_fem, measure = c("lr"))
+lab_keyness_fem <- textstat_keyness(lab_dfm_key_fem, measure = c("chi2"))
 
 #head(lab_keyness_fem)
 
 fem_keyness_plot <- textplot_keyness(lab_keyness_fem, n=25) + 
-  coord_cartesian(xlim=c(-1700,1000)) +
+  scale_color_manual(labels = c("Non-AWS", "AWS"),
+                     values = c("grey", "darkblue"), name = NULL) +
+  scale_x_continuous(limits = c(-700, 700), 
+                     breaks = seq(-500, 800, by = 100)) + 
   labs(title = "Keyness in Female Labour MPs by Selection Process",
-       x = "likelihood ratio")
+       x = "Chi2") + 
+  theme(legend.position = "bottom")
 
 fem_keyness_plot
 ```
@@ -1537,21 +1592,23 @@ write_rds(lab_con_dfm, "lab_con_dfm.rds")
 ```
 
 
-```{r lab-con-keyness, echo=FALSE, fig.height=8}
+```{r lab-con-keyness, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(quanteda)
 
 lab_con_dfm <- read_rds("lab_con_dfm.rds")
 
-lab_con_keyness <- textstat_keyness(lab_con_dfm, measure = c("lr"))
+lab_con_keyness <- textstat_keyness(lab_con_dfm, measure = c("chi2"))
 
 #head(lab_keyness_fem)
 
 lab_con_keyness_plot <- textplot_keyness(lab_con_keyness, n=25, 
                                          color = c("blue", "red")) + 
-  #coord_cartesian(xlim=c(-1700,1000)) +
+  scale_x_continuous(limits = c(-4100, 8000), 
+                     breaks = seq(-3000, 8000, by = 1000)) +
   labs(title = "Keyness in Between Labour and Conservatives",
-       x = "likelihood ratio")
+       x = "Chi2") + 
+  theme(legend.position = "bottom")
 
 lab_con_keyness_plot
 
@@ -1561,6 +1618,62 @@ lab_con_keyness_plot
 Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. Also of note is AWS MPs making more references to their "constituency" and its "constituents", [drawing on representation of ]
 
 
+## Bigrams
+
+We created bigrams of all first person plural and singular pronouns for female Labour MPs.
+
+```{r bigrams-short-list-creation, eval=FALSE, message=FALSE, include=FALSE}
+library(quanteda)
+library(readr)
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+fem_bigrams <- tokens(lab_corpus_fem, what = "word", remove_numbers = FALSE,
+                       remove_punct = FALSE, remove_symbols = FALSE,  
+                       remove_twitter = TRUE, remove_url = TRUE, 
+                       ngrams = 2, verbose = TRUE)
+
+bigram_phrases <- c("i", "i'd",  "i'll", "i'm", "i've", "me", "methinks",
+                    "mine", "my", "myself", "let's", "lets", "our", "ours",
+                    "ourselves", "us", "we", "we'd", "we'll", "we're", "we've")
+
+bigram_phrases <- paste0(bigram_phrases, "_*")
+
+pro_bigram <- tokens_select(fem_bigrams, phrase(bigram_phrases))
+#84569
+
+write_rds(pro_bigram, "pro_bigram.rds")
+```
+
+```{r bigrams-short-list-keyness, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8}
+library(quanteda)
+library(readr)
+library(ggplot2)
+
+pro_bigram <- read_rds("pro_bigram.rds")
+
+pro_dfm <- dfm(pro_bigram, verbose=TRUE, groups = "short_list") %>%
+  dfm_trim(min_termfreq = 100)
+
+pro_dfm_key <- textstat_keyness(pro_dfm, measure = "chi2")
+
+pro_dfm_key$n_total <- pro_dfm_key$n_reference + pro_dfm_key$n_target
+
+pro_dfm_key_plot <- textplot_keyness(pro_dfm_key, n=25) +  
+    scale_color_manual(labels = c("Non-AWS", "AWS"), 
+                       values = c("grey", "darkblue"), name = NULL) +
+    scale_x_continuous(limits = c(-650, 500), 
+                     breaks = seq(-600, 500, by = 100)) +
+  labs(title = "Bigram Keyness in Female Labour MPs by Selection Process",
+       x = "Chi2") + 
+  theme(legend.position = "bottom")
+
+pro_dfm_key_plot
+
+```
+
 
 ## Topic Models
 
@@ -1569,7 +1682,6 @@ Keyness differences by selection process are not as obviously stereotypical. Non
 ```{r topic-model-women, eval=FALSE, include=FALSE}
 library(quanteda)
 library(quanteda.corpora)
-library(lubridate)
 library(topicmodels)
 library(readr)
 
@@ -1579,7 +1691,7 @@ lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
 
 parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
                           "give", "gentleman", "right", "percent", "per",
-                          "cent", "prime", "minister")
+                          "cent", "prime", "minister", "c")
 rm(lab_corpus)
 #ndoc(lab_corpus_fem)
 
@@ -1591,7 +1703,8 @@ lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
 lab_corpus_fem_dfm <- lab_corpus_fem_dfm[ntoken(lab_corpus_fem_dfm) > 0,]
 
 dtm <- convert(lab_corpus_fem_dfm, to = "topicmodels")
-fem_lda <- LDA(dtm, k = 20) #50 is too many, try again with 20
+#fem_lda <- LDA(dtm, k = 20) #50 is too many, try again with 20
+fem_lda <- LDA(dtm, k = 10)
 
 ### Analyse these
 
@@ -1637,49 +1750,29 @@ fem_df2 <- fem_df %>%
 
 fem_df2 <- fem_df2[order(-fem_df2$short_list, fem_df2$topic),]
 
-fem_df2$topic <- recode(fem_df2$topic,
- "Topic 01" = "Education",
- "Topic 02" = "Energy",
- "Topic 03" = "Process",
- "Topic 04" = "Business",
- "Topic 05" = "Legislation",
- "Topic 06" = "Tax",
- "Topic 07" = "International",
- "Topic 08" = "Constituents",
- "Topic 09" = "Services",
- "Topic 10" = "Defence",
- "Topic 11" = "Transport",
- "Topic 12" = "Questions",
- "Topic 13" = "Other",
- "Topic 14" = "Children & Families",
- "Topic 15" = "Gender",
- "Topic 16" = "Legal",
- "Topic 17" = "Health",
- "Topic 18" = "Housing",
- "Topic 19" = "Crime",
- "Topic 20" = "Civil Society")
+# fem_df2$topic <- recode(fem_df2$topic,
+#  "Topic 01" = "Children & Families",
+#  "Topic 02" = "Education",
+#  "Topic 03" = "Issues",
+#  "Topic 04" = "Transport",
+#  "Topic 05" = "Economy",
+#  "Topic 06" = "Crime",
+#  "Topic 07" = "Science",
+#  "Topic 08" = "Health",
+#  "Topic 09" = "Housing",
+#  "Topic 10" = "Regions",
+#  "Topic 11" = "Legal",
+#  "Topic 12" = "Tax",
+#  "Topic 13" = "Constituency",
+#  "Topic 14" = "Debate",
+#  "Topic 15" = "Process",
+#  "Topic 16" = "Legal",
+#  "Topic 17" = "Gender",
+#  "Topic 18" = "Other",
+#  "Topic 19" = "Legislation",
+#  "Topic 20" = "Defence")
+# 
 
-terms_table <- terms_table %>% rename(
-  "Education"	=	"Topic 1",
- "Energy" = "Topic 2",
- "Process" = "Topic 3",
- "Business" = "Topic 4",
- "Legislation" = "Topic 5",
- "Tax" = "Topic 6",
- "International" = "Topic 7",
- "Constituents" = "Topic 8",
- "Services"	= "Topic 9",
- "Defence" = "Topic 10",
- "Transport" = "Topic 11",
- "Questions" = "Topic 12",
- "Other" = "Topic 13",
- "Children & Families" = "Topic 14",
- "Gender" = "Topic 15",
- "Legal" = "Topic 16",
- "Health" = "Topic 17",
- "Housing" = "Topic 18",
- "Crime" = "Topic 19",
- "Civil Society" = "Topic 20")
 
 # p_lda <- ggplot(fem_df2, aes(x = short_list, y=freq)) +
 #   geom_col(aes(fill = topic)) +
@@ -1718,29 +1811,24 @@ speech_classifications <- beta_df_gamma %>%
   ungroup() %>%
   arrange(gamma)
 
-speech_classifications <- speech_classifications %>%
-  filter(document != "1911783" | topic != 15)
+summary(speech_classifications)
 
-#summary(speech_classifications)
+speech_classifications2 <- beta_df_gamma %>%
+  group_by(document) %>%
+  top_n(2, gamma) %>%
+  ungroup() %>%
+  arrange(gamma) %>%
+  group_by(document) %>%
+  top_n(-1, gamma) %>%
+  ungroup() %>%
+  arrange(gamma)
 
-#1911783
+summary(speech_classifications2)
 
-# d2 <- lab_speech %>% filter(eo_id == "1206560")
+# lab_speech <- read_rds("lab_speech.rds")
 # 
-# speech_classifications2 <- beta_df_gamma %>%
-#   group_by(document) %>%
-#   top_n(2, gamma) %>%
-#   ungroup() %>%
-#   arrange(gamma) %>%
-#   group_by(document) %>%
-#   top_n(-1, gamma) %>%
-#   ungroup() %>%
-#   arrange(gamma) 
-
-lab_speech <- read_rds("lab_speech.rds")
-
-lda_texts <- left_join(speech_classifications, lab_speech,
-                       by = c("document"="eo_id"))
+# lda_texts <- left_join(speech_classifications, lab_speech,
+#                        by = c("document"="eo_id"))
 
 # x$diff <- x$gamma.y - x$gamma.x
 # 
@@ -1792,9 +1880,7 @@ kable(fem_df2_table, caption = "Topic Model Distribution", digits = 2,
 
 We assigned topic models using unsupervised Latent Dirichlet Allocation [@blei2003], implemented in the `topicmodels` R package [@grun2011]. See [TABLE NUMBER?] for the ten most common words in each topic model. Topic models were trained on all speeches by female Labour MPs.
 
-
-
-## Machine learning
+## Naive Bayes classification
 
 We trained a Naive Bayes classifier with document-frequency priors and a multinomial distribution to predict the gender of speakers when given speeches by all Labour MPs in our dataset, and the selection process when only given female Labour MPs. The accuracy of both models were roughly equivalent, 70.83% accuracy when predicting gender and 70.31% when predicting short lists. By contrast, the classifier could distinguish between Labour and Conservative speeches with 74.06% accuracy.
 
