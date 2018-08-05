@@ -4,21 +4,15 @@ editor_options:
   chunk_output_type: console
 link-citations: yes
 output:
-  html_document:
-    df_print: paged
+  pdf_document: default
   html_notebook: default
   word_document: default
-  pdf_document: default
+  html_document:
+    df_print: paged
 bibliography: women.bib
 ---
 
 ## TO DO:
-
-1. Re-run liwc assignments, excluding as_speaker==TRUE
-
-1. Re-run topic model assignments, excluding as_speaker==TRUE
-
-1. Re-run spacyr, excluding as_speaker==TRUE
 
 2. Male MP topic models matching
 
@@ -36,7 +30,7 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 # Methodology
 
-Previous research on gender differences in political speech patterns has focused on differences between male and female politicians [@yu2014] or on variations in Hilary Clinton's speech patterns [@jones2016; @bligh2010].
+Previous research on gender differences in political speech patterns has focused on differences between male and female politicians [@yu2014] or on variations in Hilary Clinton's speech patterns [@jones2016; @bligh2010]. This paper focuses on differences in speech patterns between female Labour MPs nominated through All Women Shortlists (AWS) and female Labour MPs nominated through open short lists. We examined differences in speaking styles using the `Linguistic Inquiry and Word Count 2015` (LIWC) dictionary [@pennebaker2015] and the `spaCy` [@honnibal2017] Parts-of-Speech (POS) tagger. We examined differences in the topics discussed by AWS and non-AWS MPs, using ${\chi}^2$ tests for individual words and for bigrams. We experimented with unsupervised Latent Dirichlet Allocation [@blei2003], and trained a Naive Bayes classifier to distinguish AWS and non-AWS speeches.
 
 To account for the possible effects of age, parliamentary experience and cohort, and in order to compare women selected through all women short lists to women who were not (but who theoretically had the opportunity to contest all-women short lists), our analysis is been restricted only to Labour MPs first elected to the House of Commons in the 1997 General Election, up to but excluding the 2017 General Election. Comparisons between MPs of different parties are also restricted to MPs first elected in the 1997 General Election, and before the 2017 General Election. Speeches made by the Speaker, including Deputy Speakers, were also excluded. Words contained in parentheses were removed, as they are added by Hansard to provide additional information not actually spoken by the MP.[^1] Speeches and MP data is from a previously assembled dataset [@odell2018]. Information on candidates selected through all women short lists is from the House of Commons Library [@kelly2016]. Unsuccessful General Election candidates selected through all women short lists who were subsequently elected in a byelection are classified as having been selected on an all women short list. 
 
@@ -137,45 +131,51 @@ labour_intakes$perc_women <- (labour_intakes$women/labour_intakes$total)*100
 ```
 
 
-```{r lab-desc-stats-table, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+```{r lab-desc-stats-table, echo=FALSE, message=FALSE, results='asis'}
 library(knitr)
 library(kableExtra)
 library(dplyr)
 
 labour_intakes_table <- tibble::tribble(
-  ~general_election, ~total_mps, ~total_labour_mps, ~total_female_labour_mps, ~percentage_women_mps, ~newly_elected_mps, ~intake_women, ~percentage_intake_women, ~intake_short_list, ~nominated_short_list,
-  1997L, 659L, 418L, 101L, "24%", 177L, 64L, "36%", 35L, 38L,
-  2001L, 659L, 412L, 95L, "23%", 38L, 4L, "11%", 0L, 0L,
-  2005L, 646L, 355L, 98L, "28%", 40L, 26L, "65%", 23L, 30L,
-  2010L, 650L, 258L, 81L, "31%", 64L, 32L, "50%", 28L, 63L,
-  2015L, 650L, 232L, 99L, "43%", 49L, 31L, "63%", 31L, 77L
+  ~general_election, ~total_mps, ~total_labour_mps, ~total_female_labour_mps, ~newly_elected_mps, ~intake_women, ~intake_short_list, ~nominated_short_list,
+  1997L, 659L, 418L, "101 (24%)", 177L, "64 (36%)", 35L, 38L,
+  2001L, 659L, 412L, "95 (23%)", 38L, "4 (11%)", 0L, 0L,
+  2005L, 646L, 355L, "98 (28%)", 40L, "26 (65%)", 23L, 30L,
+  2010L, 650L, 258L, "81 (31%)", 64L, "32 (50%)", 28L, 63L,
+  2015L, 650L, 232L, "99 (43%)", 49L, "31 (63%)", 31L, 77L
 )
-# 
+
+# | General Election | Total MPs | Total Labour MPs | Total Female Labour MPs | Percentage Women MPs | Newly elected MPs | Intake Women | Percentage Intake Women | Intake Short list | Nominated Short list |
+# |------------------|-----------|------------------|-------------------------|----------------------|-------------------|--------------|-------------------------|-------------------|----------------------|
+# | 1997 | 659 | 418 | 101 | 24.2% | 177 | 64 | 36% | 35 | 38 |
+# | 2001 | 659 | 412 | 95 | 23.1% | 38 | 4 | 11% | 0 | 0 |
+# | 2005 | 646 | 355 | 98 | 27.6% | 40 | 26 | 65% | 23 | 30 |
+# | 2010 | 650 | 258 | 81 | 31.4% | 64 | 32 | 50% | 28 | 63 |
+# | 2015 | 650 | 232 | 99 | 42.7% | 49 | 31 | 63% | 31 | 77 |
+
 kable(labour_intakes_table, digits = 2, escape = TRUE, 
-      align = c("r","r","r","r","r","r","r","r","r","r"),
+      align = c("r","r","r","r","r","r","r","r"),
       caption = "Labour MPs and Intakes",
       col.names = c("General Election",
                     "Total MPs",
                     "Labour MPs",
                     "Female Labour MPs",
-                    "Percentage Women MPs",
-                    "Newly Elected MPs",
+                    #"Percentage Women MPs",
+                    "Labour MPs Intake",
                     "Intake Women",
-                    "Percentage Intake Women",
+                    #"Percentage Intake Women",
                     "Intake Short list",
-                    "Nominated Short list")) %>%
+                    "Nominated Short list")) %>% 
+  column_spec(1, width = "1.5cm") %>%
+  column_spec(2, width = "1cm") %>%
+  column_spec(3, width = "1.5cm") %>%
+  column_spec(4:5, width = "2cm") %>%
+  column_spec(6:7, width = "1.5cm") %>%
+  column_spec(8, width = "2cm") %>%
   kable_styling(latex_options = "striped", full_width = FALSE)
 
 ```
-<!--
-| General Election | Total MPs | Total Labour MPs | Total Female Labour MPs | Percentage Women MPs | Newly elected MPs | Intake Women | Percentage Intake Women | Intake Short list | Nominated Short list |
-|------------------|-----------|------------------|-------------------------|----------------------|-------------------|--------------|-------------------------|-------------------|----------------------|
-| 1997 | 659 | 418 | 101 | 24.2% | 177 | 64 | 36% | 35 | 38 |
-| 2001 | 659 | 412 | 95 | 23.1% | 38 | 4 | 11% | 0 | 0 |
-| 2005 | 646 | 355 | 98 | 27.6% | 40 | 26 | 65% | 23 | 30 |
-| 2010 | 650 | 258 | 81 | 31.4% | 64 | 32 | 50% | 28 | 63 |
-| 2015 | 650 | 232 | 99 | 42.7% | 49 | 31 | 63% | 31 | 77 |
--->
+
 
 Data in this table is from House of Commons library reports [@kelly2016; @audickas2017]. All women short lists were not used by Labour during the 2001 General Election.
 
@@ -280,8 +280,6 @@ speech_sum_table <- speech_sum_table %>%
   select(party_group, gender, everything())
 ```
 
-
-
 ```{r speech-stats-table, echo=FALSE, results = 'asis'}
 library(kableExtra)
 library(knitr)
@@ -295,6 +293,9 @@ kable(speech_sum_table[2:4], digits = 2,
     group_rows("Other", 15, 17) %>%
   add_indent(c(9:10))
 ```
+
+
+
 
 <!--
 ## Career Advancement
@@ -1468,7 +1469,7 @@ kable(pos_df_gender, digits = 2,
 library(knitr)
 library(kableExtra)
 kable(pos_df_sl, digits = 2, 
-      caption = "Part-of-Speech Effect Sizes for Male and Female Labour MPs",
+      caption = "Part-of-Speech Effect Sizes for AWS and non-AWS Labour MPs",
       col.names = c("Word Type", "Mean", "SD", "Mean", "SD",
                     "Cohen's D", "Magnitude"))  %>%
   kable_styling(latex_options = "striped") %>% 
@@ -1480,9 +1481,11 @@ kable(pos_df_sl, digits = 2,
 
 ## Tokenising / Keyness
 
-The most commonly used words by both men and women would be protocol boilerplate expressions, so we calculate the keyness of words to identify gender differences in the choices of topics raised by men and women, and by short-list and non-short list women.
+The most commonly used words by both men and women would be protocol decorum expressions, so we calculate the keyness of words to identify gender differences in the choices of topics raised by men and women, and by short-list and non-short list women.
 
 ### Men vs Women
+
+Keyness -- a linguistic measure of the frequency of different words in two groups of texts -- reveals clear gender differences in the most disproportionately common words used by female and male Labour MPs. Unsurprisingly, despite male MPs saying almost twice as many words (30601887 vs 15898845) <!--Double-check these numbers--> as their female colleagues, female Labour MPs were more than two-and-a-half (2.61) times as likely to say "women". They were also much more likely to refer to "women's" and "woman". Female Labour MPs also appear much more likely to discuss "children", "people", "care", "families", "home", "parents", "work" and social policy areas such as "services", "disabled [people]" and "housing" than their male colleagues. Male MPs were more likely to refer to military topics ("Iraq", "nuclear"), and to parliamentary process and protocol  -- "question", "political", "conservative", "electoral", "house", "party", "argument" "liberal" and "point" are far more common in speeches by male Labour MPs than by female ones. This could suggest that male MPs are more comfortable using the traditional language of House of Commons debate.
 
 ```{r dfm-creation, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 library(readr)
@@ -1529,16 +1532,19 @@ lab_keyness_plot <- textplot_keyness(lab_keyness, n = 25,
   #coord_cartesian(xlim=c(-3100, 14100)) +
   scale_x_continuous(limits = c(-3100, 14100), 
                      breaks = seq(-3000, 15000, by = 1500)) + 
-  labs(title = "Keyness in Labour MPs by Gender",
+  labs(title = "Keyness between Labour MPs, by Gender",
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
 lab_keyness_plot
 ```
 
-Keyness -- a linguistic measure of the frequency of different words in two groups of texts -- reveals clear gender differences in the most disproportionately common words used by female and male Labour MPs. Unsurprisingly, despite male MPs saying almost twice as many words (30601887 vs 15898845) <!--Double-check these numbers--> as their female colleagues, female Labour MPs were more than two-and-a-half (2.61) times as likely to say "women". They were also much more likely to refer to "women's" and "woman". Female Labour MPs also appear much more likely to discuss "children", "people", "care", "families", "home", "parents", "work" and social policy areas such as "services", "disabled [people]" and "housing" than their male colleagues. Male MPs were more likely to refer to military topics ("Iraq", "nuclear"), and to parliamentary process and protocol  -- "question", "political", "conservative", "electoral", "house", "party", "argument" "liberal" and "point" are far more common in speeches by male Labour MPs than by female ones. This could suggest that male MPs are more comfortable using the traditional language of House of Commons debate.
+
 
 ### Short lists vs Non-Short lists
+
+
+Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. Also of note is AWS MPs making more references to their "constituency" and its "constituents", [drawing on representation of ]
 
 ```{r short-list-keyness, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE}
 
@@ -1550,10 +1556,10 @@ lab_keyness_fem <- textstat_keyness(lab_dfm_key_fem, measure = c("chi2"))
 
 fem_keyness_plot <- textplot_keyness(lab_keyness_fem, n=25) + 
   scale_color_manual(labels = c("Non-AWS", "AWS"),
-                     values = c("grey", "darkblue"), name = NULL) +
+                     values = c("#ff674c", "#02d5a1"), name = NULL) +
   scale_x_continuous(limits = c(-700, 700), 
                      breaks = seq(-500, 800, by = 100)) + 
-  labs(title = "Keyness in Female Labour MPs by Selection Process",
+  labs(title = "Keyness between Female Labour MPs, by Selection Process",
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
@@ -1562,6 +1568,8 @@ fem_keyness_plot
 
 
 ### Labour vs Conservative
+
+The keyness differences between Labour and Conservative MPs are much greater than gender differences within Labour. The very high use of "Lady" by Conservative MPs is reflective of the greater proportion of female MPs in other parties, as it is often used to refer to comments by other members of the house.
 
 ```{r eval=FALSE, include=FALSE}
 library(readr)
@@ -1608,7 +1616,7 @@ lab_con_keyness_plot <- textplot_keyness(lab_con_keyness, n=25,
                                          color = c("blue", "red")) + 
   scale_x_continuous(limits = c(-4100, 8000), 
                      breaks = seq(-3000, 8000, by = 1000)) +
-  labs(title = "Keyness in Between Labour and Conservatives",
+  labs(title = "Keyness between Labour and Conservative MPs",
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
@@ -1617,7 +1625,6 @@ lab_con_keyness_plot
 ```
 
 
-Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. Also of note is AWS MPs making more references to their "constituency" and its "constituents", [drawing on representation of ]
 
 
 ## Bigrams
@@ -1665,7 +1672,7 @@ pro_dfm_key$n_total <- pro_dfm_key$n_reference + pro_dfm_key$n_target
 
 pro_dfm_key_plot <- textplot_keyness(pro_dfm_key, n=25) +  
     scale_color_manual(labels = c("Non-AWS", "AWS"), 
-                       values = c("grey", "darkblue"), name = NULL) +
+                      values = c("#ff674c", "#02d5a1"), name = NULL) +
     scale_x_continuous(limits = c(-650, 500), 
                      breaks = seq(-600, 500, by = 100)) +
   labs(title = "Bigram Keyness in Female Labour MPs by Selection Process",
@@ -1723,7 +1730,7 @@ write_rds(lab_corpus_fem_dfm, "lab_corpus_fem_dfm.rds")
 ```
 
 
-```{r topic-model-analysis, echo=FALSE}
+```{r topic-model-analysis, echo=FALSE, message=FALSE}
 library(readr)
 library(topicmodels)
 library(quanteda)
@@ -1787,9 +1794,10 @@ fem_df2 <- fem_df2[order(-fem_df2$short_list, fem_df2$topic),]
 # 
 # p_lda
 
-
 p_lda2 <- ggplot(data = fem_df2, aes(y = freq, fill = short_list, x = topic)) + 
   geom_col(position = "dodge") + 
+    scale_fill_manual(labels = c("Non-AWS", "AWS"),
+                     values = c("#ff674c", "#02d5a1"), name = NULL) +
   scale_y_continuous(labels=scales::percent) + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   xlab("") + 
