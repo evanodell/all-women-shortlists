@@ -4,12 +4,10 @@ editor_options:
   chunk_output_type: console
 link-citations: yes
 output:
-  pdf_document: default
-  html_notebook: default
-  word_document: default
-  html_document:
-    df_print: paged
+  pdf_document:
+    toc: yes
 bibliography: women.bib
+csl: apa.csl
 ---
 
 ## TO DO:
@@ -32,12 +30,11 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 Previous research on gender differences in political speech patterns has focused on differences between male and female politicians [@yu2014] or on variations in Hilary Clinton's speech patterns [@jones2016; @bligh2010]. This paper focuses on differences in speech patterns between female Labour MPs nominated through All Women Shortlists (AWS) and female Labour MPs nominated through open short lists. We examined differences in speaking styles using the `Linguistic Inquiry and Word Count 2015` (LIWC) dictionary [@pennebaker2015] and the `spaCy` [@honnibal2017] Parts-of-Speech (POS) tagger. We examined differences in the topics discussed by AWS and non-AWS MPs, using ${\chi}^2$ tests for individual words and for bigrams. We experimented with unsupervised Latent Dirichlet Allocation [@blei2003], and trained a Naive Bayes classifier to distinguish AWS and non-AWS speeches.
 
-To account for the possible effects of age, parliamentary experience and cohort, and in order to compare women selected through all women short lists to women who were not (but who theoretically had the opportunity to contest all-women short lists), our analysis is been restricted only to Labour MPs first elected to the House of Commons in the 1997 General Election, up to but excluding the 2017 General Election. Comparisons between MPs of different parties are also restricted to MPs first elected in the 1997 General Election, and before the 2017 General Election. Speeches made by the Speaker, including Deputy Speakers, were also excluded. Words contained in parentheses were removed, as they are added by Hansard to provide additional information not actually spoken by the MP.[^1] Speeches and MP data is from a previously assembled dataset [@odell2018]. Information on candidates selected through all women short lists is from the House of Commons Library [@kelly2016]. Unsuccessful General Election candidates selected through all women short lists who were subsequently elected in a byelection are classified as having been selected on an all women short list. 
+To account for the possible effects of age, parliamentary experience and cohort, and in order to compare women selected through all women short lists to women who were not (but who theoretically had the opportunity to contest all-women short lists), our analysis is been restricted only to Labour MPs first elected to the House of Commons in the 1997 General Election, up to but excluding the 2017 General Election. Comparisons between MPs of different parties are also restricted to MPs first elected in the 1997 General Election, and before the 2017 General Election. Speeches made by the Speaker, including Deputy Speakers, were also excluded. Words contained in parentheses were removed, as they are added by Hansard to provide additional information not actually spoken by the MP.[^1] Speeches and data on MPs' gender and party affiliation are from a previously assembled dataset [@odell2018]. Information on candidates selected through all women short lists is from the House of Commons Library [@kelly2016]. Unsuccessful General Election candidates selected through all women short lists who were subsequently elected in a byelection are classified as having been selected on an all women short list. 
 
 Word classification used the `Linguistic Inquiry and Word Count 2015` (LIWC) dictionary [@pennebaker2015] and tokenising tools from the `Quanteda` R package [@benoit2018]. Word counts and words-per-sentence were calculated using `stringi` [@gagolewski2018], a wrapper to the ICU regex library.
 
 Following Yu [-@yu2014] drawing on [@newman2008] we used the following LIWC categories:
-
 
 * All Pronouns (pronoun)<!-- Feminine: -->
 * First person singular pronouns (i) <!-- Feminine: -->
@@ -1686,8 +1683,175 @@ pro_dfm_key_plot
 
 ## Topic Models
 
-### Short lists vs Non-Short lists
+Using topic models to classify text is widely used in social sciences, as, when combined with the large volume of plain text data available, it allows for a rapid and consistent method of analysis. Topic modelling and other statistic methods of textual analysis are not a substitute for reading the texts themselves, but can augment other analysis or -- as in this case -- analyse and classify larger amounts of text than would be feasible using human coders [@grimmer2013]. Topic models classify a series of documents (in this case individual speeches) into one of a given number of topics, identifying terms that are common in some documents but rare in others. When developing topic models, there is a trade-off between high precision in the classification of each document with broader topics when using smaller numbers of topics, or lower precision in individual speech classification with more finely-grained topics when using larger numbers of topics. Grimmer and Stewart also highlight the importance of validating unsurpervised topic models when applied to new sets of texts. 
 
+
+The R package `stm` [@roberts2018] implements a structured topic model [@roberts2016; @arora2013]
+
+<!--
+We used an algorith developed by Lee and Mimno [-@lee2014c], implemented in the `stm` package [@roberts2018], to estimate the number of topics across all speeches made by female Labour MPs. The resulting topic model has 49 topics, 81607 documents and a 115477 word dictionary. <!--We then used `stm`'s implementation of Latent Dirichlet Allocation [@blei2003]-->
+
+
+
+### Short lists vs Non-Short lists
+<!--
+```{r STM-Ksearch, eval=FALSE, include=FALSE}
+library(stm)
+library(quanteda)
+library(quanteda.corpora)
+library(topicmodels)
+library(readr)
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+rm(lab_corpus)
+#ndoc(lab_corpus_fem)
+
+lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
+                           remove = parliament_stopwords, verbose = TRUE) #%>% 
+#  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+#           max_docfreq = 0.1, docfreq_type = "prop")
+
+
+lab_corpus_fem_stm <- convert(lab_corpus_fem_dfm, to = "stm", docvars = NULL)
+
+lab_corpus_fem_stm$meta$short_list <- as.factor(lab_corpus_fem_stm$meta$short_list)
+
+topic_numbers <-c(10, 20, 50)
+
+kresult <- searchK(lab_corpus_fem_stm$documents, 
+                   vocab = lab_corpus_fem_stm$vocab, K = topic_numbers,
+                   prevalence=~short_list, data=lab_corpus_fem_stm$meta,
+                   verbose = TRUE)
+#plot(kresult)
+
+```
+-->
+
+```{r STM-classification, eval=FALSE, include=FALSE}
+library(stm)
+library(quanteda)
+library(quanteda.corpora)
+library(topicmodels)
+library(readr)
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+rm(lab_corpus)
+#ndoc(lab_corpus_fem)
+
+lab_corpus_fem_stm <- dfm(lab_corpus_fem, remove_punct = TRUE,
+                           remove = parliament_stopwords, verbose = TRUE) %>%
+  convert(to = "stm", docvars = NULL)
+
+
+#%>% 
+#  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+#           max_docfreq = 0.1, docfreq_type = "prop")
+
+lab_corpus_fem_stm$meta$short_list <- as.factor(lab_corpus_fem_stm$meta$short_list)
+
+# topic_model2 <- stm(lab_corpus_fem_stm$documents, 
+#                     vocab = lab_corpus_fem_stm$vocab, 
+#                     K = 2, content = ~short_list, 
+#                     data = lab_corpus_fem_stm$meta,
+#                     verbose = TRUE, init.type = "Spectral")
+
+set.seed(402)
+
+topic_model2 <- stm(lab_corpus_fem_stm$documents, 
+                    vocab = lab_corpus_fem_stm$vocab, 
+                    K = 0, prevalence = ~short_list, 
+                    data = lab_corpus_fem_stm$meta,
+                    verbose = TRUE, init.type = "Spectral")
+
+write_rds(topic_model2, "stm-topic-model2.rds")
+
+```
+
+
+
+```{r STM-classification-old, eval=FALSE, include=FALSE}
+library(stm)
+library(quanteda)
+library(quanteda.corpora)
+library(topicmodels)
+library(readr)
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+rm(lab_corpus)
+#ndoc(lab_corpus_fem)
+
+lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
+                           remove = parliament_stopwords, verbose = TRUE) #%>% 
+#  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+#           max_docfreq = 0.1, docfreq_type = "prop")
+
+topic_model <- stm(lab_corpus_fem_dfm, K = 0, 
+                   verbose = TRUE, init.type = "Spectral")
+
+write_rds(topic_model, "stm-topic-model.rds")
+```
+
+
+```{r}
+library(readr)
+library(stm)
+
+topic_model <- read_rds("stm-topic-model.rds")
+
+```
+
+
+- 49 topic models
+<!--
+
+```{r STM-creation, eval=FALSE, include=FALSE}
+library(stm)
+library(quanteda)
+library(quanteda.corpora)
+library(topicmodels)
+library(readr)
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+rm(lab_corpus)
+#ndoc(lab_corpus_fem)
+
+lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
+                           remove = parliament_stopwords, verbose = TRUE) #%>% 
+#  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+#           max_docfreq = 0.1, docfreq_type = "prop")
+
+topic_model_lda49 <- stm(lab_corpus_fem_dfm, K = 49, 
+                         verbose = TRUE, init.type = "LDA")
+
+write_rds(topic_model_lda49, "topic_model_lda49.rds")
+```
+-->
+<!--
+We assigned topic models using unsupervised Latent Dirichlet Allocation [@blei2003], implemented in the `topicmodels` R package [@grun2011]. See [TABLE NUMBER?] for the ten most common words in each topic model. Topic models were trained on all speeches by female Labour MPs.
 ```{r topic-model-women, eval=FALSE, include=FALSE}
 library(quanteda)
 library(quanteda.corpora)
@@ -1729,8 +1893,7 @@ docvars(lab_corpus_fem_dfm, "topic") <- topics(fem_lda)
 write_rds(lab_corpus_fem_dfm, "lab_corpus_fem_dfm.rds")
 ```
 
-
-```{r topic-model-analysis, echo=FALSE, message=FALSE}
+```{r topic-model-analysis, eval=FALSE, message=FALSE, include=FALSE}
 library(readr)
 library(topicmodels)
 library(quanteda)
@@ -1808,8 +1971,7 @@ ggsave("p_lda2.eps", plot = p_lda2, path="plots", device = "eps")
 p_lda2
 ```
 
-
-```{r tidy-topic-model, include=FALSE}
+```{r tidy-topic-model, eval=FALSE, include=FALSE}
 library(tidytext)
 
 beta_df <- tidy(fem_lda)
@@ -1850,8 +2012,7 @@ summary(speech_classifications2)
 
 ```
 
-
-```{r topic-model-table, echo=FALSE, results = 'asis'}
+```{r topic-model-table, eval=FALSE, include=FALSE}
 library(pander)
 pander(terms_table, caption = "Topic Model Terms",
        split.table = 80, style = 'rmarkdown', justify = 'left')
@@ -1864,8 +2025,7 @@ pander(terms_table, caption = "Topic Model Terms",
 
 ```
 
-
-```{r topic-model-distribution-table, echo=FALSE, results = 'asis'}
+```{r topic-model-distribution-table, eval=FALSE, include=FALSE}
 library(tidyr)
 #fem_df2$freq <- paste0(round(fem_df2$freq * 100, 2), "%")
 
@@ -1889,14 +2049,14 @@ kable(fem_df2_table, caption = "Topic Model Distribution", digits = 2,
 
 
 ```
+-->
 
-We assigned topic models using unsupervised Latent Dirichlet Allocation [@blei2003], implemented in the `topicmodels` R package [@grun2011]. See [TABLE NUMBER?] for the ten most common words in each topic model. Topic models were trained on all speeches by female Labour MPs.
 
 ## Naive Bayes classification
 
-We trained a Naive Bayes classifier with document-frequency priors and a multinomial distribution to predict the gender of speakers when given speeches by all Labour MPs in our dataset, and the selection process when only given female Labour MPs. The accuracy of both models were roughly equivalent, 70.83% accuracy when predicting gender and 70.31% when predicting short lists. By contrast, the classifier could distinguish between Labour and Conservative speeches with 74.06% accuracy.
+We trained a Naive Bayes classifier with document-frequency priors and a multinomial distribution to predict the gender of speakers when given speeches by all Labour MPs in our dataset, and the selection process when only given female Labour MPs. The accuracy of both models were roughly equivalent, 70.55% accuracy when predicting gender and 70.84% when predicting short lists. By contrast, the classifier could distinguish between Labour and Conservative speeches with 74.23% accuracy.
 
-```{r naive-bayes1, eval=FALSE, include=FALSE}
+```{r naive-bayes-gender, eval=FALSE, include=FALSE}
 library(quanteda)
 library(quanteda.corpora)
 library(caret)
@@ -1904,7 +2064,7 @@ library(readr)
 
 lab_corpus <- read_rds("lab_corpus.rds")
 
-#set.seed(42)
+set.seed(42)
 id_train <- sample(1:262071, 104828, replace = FALSE) ## 40% in training
 #head(id_train, 10)
 
@@ -1934,12 +2094,12 @@ gender_accuracy$overall[[1]]
 
 ```
 
-```{r naive-bayes2, eval=FALSE, include=FALSE}
+```{r naive-bayes-sl, eval=FALSE, include=FALSE}
 
 ### Short List classification
 lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
 
-#set.seed(42)
+set.seed(42)
 id_train <- sample(1:84572, 33829, replace = FALSE) ## 40% in training
 head(id_train, 10)
 
@@ -1968,27 +2128,26 @@ sl_accuracy <- confusionMatrix(class_table, mode = "sens_spec")
 sl_accuracy$overall[[1]]
 ```
 
-
 ```{r naive-bayes-lab-vs-conservative, eval=FALSE, include=FALSE}
 library(quanteda)
 library(quanteda.corpora)
 library(caret)
 library(readr)
+library(dplyr)
 
 all_speech <- read_rds("senti_df2.rds")
 
 lab_con_speech <- all_speech %>% 
   filter(party_group %in% c("Labour", "Conservative"),
          as_speaker == FALSE, house_start_date >= "1997-05-01",
-         speech_date >= "1997-05-01", speech_date < "2017-06-08",
-         word_count > 0)
+         speech_date >= "1997-05-01", speech_date < "2017-06-08")
 
 rm(all_speech)
 
 lab_con_corpus <- corpus(lab_con_speech, 
                          docid_field = "eo_id", text_field = "speech")
 
-
+set.seed(42)
 id_train <- sample(1:547233, (547233*0.4), replace = FALSE) ## 40% in training
 #head(id_train, 10)
 
@@ -2015,11 +2174,11 @@ class_table
 
 party_accuracy <- confusionMatrix(class_table, mode = "everything")
 party_accuracy$overall[[1]]
+round(party_accuracy$overall[[1]], 4)
 
 ```
 
 <!--
-
 ```{r svm, eval=FALSE, include=FALSE}
 library(readr)
 library(quanteda)
@@ -2116,7 +2275,6 @@ vm.model <- svm(docs ~ ., data = x, cost = 100, gamma = 1)
 
 ```
 -->
-
 
 ## Discussion
 
