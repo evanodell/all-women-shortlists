@@ -14,17 +14,20 @@ csl: apa.csl
 
 2. Male MP topic models matching
 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H')
+```
+
 
 ```{r setup, include = FALSE}
 library(reticulate)
 
 use_condaenv(condaenv = "spacy_condaenv", 
              conda = "/Users/evanodell/Documents/anaconda3/bin/conda")
+
+library(drake)
 ```
 
-```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.pos = 'H')
-```
 
 # Methodology
 
@@ -55,6 +58,194 @@ Following Yu [-@yu2014] drawing on [@newman2008] we used the following LIWC cate
 We also included mean words-per-sentence (WPS), total speach word count (WC) and Flesch–Kincaid grade level (FK) [@kincaid1975], calculated using `Quanteda` [@benoit2018] and `stringi` [@gagolewski2018].
 
 <!--## Corpus creation -->
+
+
+```{r government-jobs, eval=FALSE, include=FALSE}
+library(listviewer)
+library(httr)
+library(dplyr)
+
+gov <- GET("http://data.parliament.uk/membersdataplatform/services/mnis/Department/0/Government/All/", accept_json())
+
+s <- mnis::tidy_bom(gov)
+
+d <- jsonlite::fromJSON(s)
+
+x <- d$Department$Posts$Post
+
+post_names <- c()
+
+for (i in 1:length( d$Department$Posts$Post$Name)) {
+  
+  post_names[i] <- d$Department$Posts$Post$Name[[i]]
+  
+}
+
+for (i in 1:length(post_names)) {
+  if (class(x$PostHolders$PostHolder[[i]])=="NULL") { 
+    } else {
+  
+  x$PostHolders$PostHolder[[i]]$post_name <- post_names[i]
+  x$PostHolders$PostHolder[[i]]$LayingMinisterName <- as.character(x$PostHolders$PostHolder[[i]]$LayingMinisterName)
+    x$PostHolders$PostHolder[[i]]$LayingMinisterName <- NULL
+  x$PostHolders$PostHolder[[i]]$Member$CurrentStatus <- NULL
+  x$PostHolders$PostHolder[[i]]$Member$DateOfDeath <- NULL
+  x$PostHolders$PostHolder[[i]]$Member$HouseEndDate <- NULL
+  x$PostHolders$PostHolder[[i]]$HouseEndDate <- NULL
+  x$PostHolders$PostHolder[[i]]$Member$Party <- x$PostHolders$PostHolder[[i]]$Member$Party$`#text`
+
+  if (length(x$PostHolders$PostHolder[[i]]$EndDate) > 1) {
+    x$PostHolders$PostHolder[[i]]$EndDate <- as.character(x$PostHolders$PostHolder[[i]]$EndDate[1])
+  }
+  
+  
+   x$PostHolders$PostHolder[[i]]$Member$LayingMinisterName <- NULL
+    x$PostHolders$PostHolder[[i]]$Member$HouseEndDate <- NULL
+   
+  mem_df <- as.data.frame(x$PostHolders$PostHolder[[i]]$Member)
+  
+  x$PostHolders$PostHolder[[i]]$Member <- NULL
+  
+  mem_df <- lapply(mem_df, as.character)
+
+  mem_df$LayingMinisterName <- NULL
+  
+  mem_df$HouseEndDate <- NULL
+  
+  x$PostHolders$PostHolder[[i]] <- bind_cols(as.data.frame(x$PostHolders$PostHolder[[i]]), mem_df)
+    }
+}
+
+government_posts <- bind_rows(x$PostHolders$PostHolder)
+
+names(government_posts) <- snakecase::to_snake_case(names(government_posts))
+
+government_posts$member_id <- if_else(is.na(government_posts$member_id),
+                                      government_posts$x_member_id,
+                                      government_posts$member_id)
+
+government_posts$type <- "Government"
+
+government_posts$end_date <- if_else(
+  government_posts$member_id=="439" & 
+    government_posts$post_name=="Secretary of State for Education and Skills", 
+  "2006-05-05", government_posts$end_date)
+
+```
+
+```{r opposition-jobs, eval=FALSE, include=FALSE}
+library(listviewer)
+library(httr)
+
+opp <- GET("http://data.parliament.uk/membersdataplatform/services/mnis/Department/0/Opposition/All/", accept_json())
+
+s <- mnis::tidy_bom(opp)
+
+d <- jsonlite::fromJSON(s)
+
+x <- d$Department$Posts$Post
+
+post_names <- c()
+
+for (i in 1:length( d$Department$Posts$Post$Name)) {
+  
+  post_names[i] <- d$Department$Posts$Post$Name[[i]]
+  
+}
+
+for (i in 1:length(post_names)) {
+  if (class(x$PostHolders$PostHolder[[i]])=="NULL") { 
+    } else {
+  
+  x$PostHolders$PostHolder[[i]]$post_name <- post_names[i]
+  x$PostHolders$PostHolder[[i]]$Member$CurrentStatus <- NULL
+  x$PostHolders$PostHolder[[i]]$Member$DateOfDeath <- NULL
+  x$PostHolders$PostHolder[[i]]$Member$HouseEndDate <- NULL
+  x$PostHolders$PostHolder[[i]]$HouseEndDate <- NULL
+  x$PostHolders$PostHolder[[i]]$Member$Party <- x$PostHolders$PostHolder[[i]]$Member$Party$`#text`
+# 
+   for (j in 1:length(x$PostHolders$PostHolder[[i]]$EndDate[1])) {
+     
+     if (length(x$PostHolders$PostHolder[[i]]$EndDate[[j]]) > 1) {
+       x$PostHolders$PostHolder[[i]]$EndDate[[j]] <- "1"
+     }
+     
+     # x$PostHolders$PostHolder[[i]]$EndDate[[1]] <- x$PostHolders$PostHolder[[i]]$EndDate[[1]][[1]]
+   }
+  
+#  x$PostHolders$PostHolder[[i]]$EndDate <- as.character(x$PostHolders$PostHolder[[i]]$EndDate)
+  
+   x$PostHolders$PostHolder[[i]]$Member$LayingMinisterName <- NULL
+    x$PostHolders$PostHolder[[i]]$Member$HouseEndDate <- NULL
+
+x$PostHolders$PostHolder[[i]]$Member$CurrentStatus <- NULL
+   
+  mem_df <- as.data.frame(x$PostHolders$PostHolder[[i]]$Member)
+  
+  x$PostHolders$PostHolder[[i]]$Member <- NULL
+  
+  mem_df$LayingMinisterName <- NULL
+  mem_df$HouseEndDate <- NULL
+  
+  #mem_df <- lapply(mem_df, as.character)
+  
+  mem_df$HouseEndDate <- NULL
+  mem_df$DateOfBirth <- NULL
+  
+  x$PostHolders$PostHolder[[i]] <- bind_cols(as.data.frame(x$PostHolders$PostHolder[[i]]), mem_df)
+  
+  if (!("EndDate..xsi.nil" %in% names(x$PostHolders$PostHolder[[i]]))) {
+  
+    x$PostHolders$PostHolder[[i]]$EndDate <- as.character(x$PostHolders$PostHolder[[i]]$EndDate)
+  }
+    }
+  
+
+}
+
+
+non.null.list <- lapply(x$PostHolders$PostHolder, Filter, f = Negate(is.null))
+
+oppo_posts <- bind_rows(non.null.list)
+
+names(oppo_posts) <- snakecase::to_snake_case(names(oppo_posts))
+
+oppo_posts$member_id <- if_else(is.na(oppo_posts$member_id),
+                                      oppo_posts$x_member_id,
+                                      oppo_posts$member_id)
+
+oppo_posts$type <- "Opposition"
+
+```
+
+```{r lab-fem-jobs, eval=FALSE, include=FALSE}
+library(readxl)
+library(dplyr)
+
+all_jobs <- bind_rows(oppo_posts, government_posts)
+
+summary(as.factor(all_jobs$gender))
+
+lab_fem_jobs <- all_jobs %>% 
+  filter(gender=="F", party %in% c("Labour (Co-op)", "Labour")) %>%
+  select(start_date, end_date, member_id, post_name, display_as)
+
+#all_women97_15 <- read_excel("list-of-mps.xlsx")
+
+#lab_fem_jobs$short_list <- lab_fem_jobs$member_id %in% all_women97_15$mnis
+
+lab_fem_jobs$end_date <- if_else(lab_fem_jobs$end_date == "list(`@xsi:nil` = \"true\", `@xmlns:xsi` = \"http://www.w3.org/2001/XMLSchema-instance\")",
+                                 "NA", lab_fem_jobs$end_date)
+
+lab_fem_jobs$end_date[lab_fem_jobs$end_date=="NA"] <- NA
+
+lab_fem_jobs$end_date <- as.Date(lab_fem_jobs$end_date)
+
+lab_fem_jobs$start_date <- as.Date(lab_fem_jobs$start_date)
+
+## use interval from lubridate to include jobs
+
+```
 
 ```{r Extracing-post-1997-Labour-speeches, eval=FALSE, include=FALSE}
 ### Extracing post-1997 Labour speeches
@@ -92,6 +283,15 @@ lab_speech$speech <- stri_replace_all_regex(lab_speech$speech,
 lab_speech$speech <- stri_replace_all_regex(lab_speech$speech, 
                                             c("^c\\(", "\\)$"),
                                             c("", ""), vectorize_all = TRUE)
+
+library(fuzzyjoin)
+test <- fuzzy_left_join(lab_speech, lab_fem_jobs,
+                         by = c(
+                           "mnis_id" = "member_id",
+                           "speech_date" = "start_date",
+                           "speech_date" = "end_date"
+    ),
+  match_fun = list(`==`, `>=`, `<`))
 
 write_rds(lab_speech, "lab_speech.rds")
 
@@ -291,33 +491,6 @@ kable(speech_sum_table[2:4], digits = 2,
   add_indent(c(9:10))
 ```
 
-
-
-
-<!--
-## Career Advancement
-
-Do AWS MPs advance more?
-
-```{r}
-library(readxl)
-library(mnis)
-library(dplyr)
-
-all_women97_15 <- read_excel("list-of-mps.xlsx")
-
-women_list <- lapply(all_women97_15$mnis, mnis_opposition_posts)
-
-women_oppo <- bind_rows(women_list)
-
-oppo <- janitor::clean_names(as.data.frame(t(mnis_base("holdsoppositionpost*TRUE"))))
-
-govt <- janitor::clean_names(as.data.frame(t(mnis_base("holdsgovernmentpost*TRUE"))))
-
-```
-
-
---->
 ## Women vs Men
 
 <!--### LIWC creation-->
@@ -1680,378 +1853,6 @@ pro_dfm_key_plot
 
 ```
 
-
-## Topic Models
-
-Using topic models to classify text is widely used in social sciences, as, when combined with the large volume of plain text data available, it allows for a rapid and consistent method of analysis. Topic modelling and other statistic methods of textual analysis are not a substitute for reading the texts themselves, but can augment other analysis or -- as in this case -- analyse and classify larger amounts of text than would be feasible using human coders [@grimmer2013]. Topic models classify a series of documents (in this case individual speeches) into one of a given number of topics, identifying terms that are common in some documents but rare in others. When developing topic models, there is a trade-off between high precision in the classification of each document with broader topics when using smaller numbers of topics, or lower precision in individual speech classification with more finely-grained topics when using larger numbers of topics. Grimmer and Stewart also highlight the importance of validating unsurpervised topic models when applied to new sets of texts. 
-
-
-The R package `stm` [@roberts2018] implements a structured topic model [@roberts2016; @arora2013]
-
-<!--
-We used an algorith developed by Lee and Mimno [-@lee2014c], implemented in the `stm` package [@roberts2018], to estimate the number of topics across all speeches made by female Labour MPs. The resulting topic model has 49 topics, 81607 documents and a 115477 word dictionary. <!--We then used `stm`'s implementation of Latent Dirichlet Allocation [@blei2003]-->
-
-
-
-### Short lists vs Non-Short lists
-<!--
-```{r STM-Ksearch, eval=FALSE, include=FALSE}
-library(stm)
-library(quanteda)
-library(quanteda.corpora)
-library(topicmodels)
-library(readr)
-
-lab_corpus <- read_rds("lab_corpus.rds")
-
-lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
-
-parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
-                          "give", "gentleman", "right", "percent", "per",
-                          "cent", "prime", "minister", "c")
-rm(lab_corpus)
-#ndoc(lab_corpus_fem)
-
-lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
-                           remove = parliament_stopwords, verbose = TRUE) #%>% 
-#  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
-#           max_docfreq = 0.1, docfreq_type = "prop")
-
-
-lab_corpus_fem_stm <- convert(lab_corpus_fem_dfm, to = "stm", docvars = NULL)
-
-lab_corpus_fem_stm$meta$short_list <- as.factor(lab_corpus_fem_stm$meta$short_list)
-
-topic_numbers <-c(10, 20, 50)
-
-kresult <- searchK(lab_corpus_fem_stm$documents, 
-                   vocab = lab_corpus_fem_stm$vocab, K = topic_numbers,
-                   prevalence=~short_list, data=lab_corpus_fem_stm$meta,
-                   verbose = TRUE)
-#plot(kresult)
-
-```
--->
-
-```{r STM-classification, eval=FALSE, include=FALSE}
-library(stm)
-library(quanteda)
-library(quanteda.corpora)
-library(topicmodels)
-library(readr)
-
-lab_corpus <- read_rds("lab_corpus.rds")
-
-lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
-
-parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
-                          "give", "gentleman", "right", "percent", "per",
-                          "cent", "prime", "minister", "c")
-rm(lab_corpus)
-#ndoc(lab_corpus_fem)
-
-lab_corpus_fem_stm <- dfm(lab_corpus_fem, remove_punct = TRUE,
-                           remove = parliament_stopwords, verbose = TRUE) %>%
-  convert(to = "stm", docvars = NULL)
-
-
-#%>% 
-#  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
-#           max_docfreq = 0.1, docfreq_type = "prop")
-
-lab_corpus_fem_stm$meta$short_list <- as.factor(lab_corpus_fem_stm$meta$short_list)
-
-# topic_model2 <- stm(lab_corpus_fem_stm$documents, 
-#                     vocab = lab_corpus_fem_stm$vocab, 
-#                     K = 2, content = ~short_list, 
-#                     data = lab_corpus_fem_stm$meta,
-#                     verbose = TRUE, init.type = "Spectral")
-
-set.seed(402)
-
-topic_model2 <- stm(lab_corpus_fem_stm$documents, 
-                    vocab = lab_corpus_fem_stm$vocab, 
-                    K = 0, prevalence = ~short_list, 
-                    data = lab_corpus_fem_stm$meta,
-                    verbose = TRUE, init.type = "Spectral")
-
-write_rds(topic_model2, "stm-topic-model2.rds")
-
-```
-
-
-
-```{r STM-classification-old, eval=FALSE, include=FALSE}
-library(stm)
-library(quanteda)
-library(quanteda.corpora)
-library(topicmodels)
-library(readr)
-
-lab_corpus <- read_rds("lab_corpus.rds")
-
-lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
-
-parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
-                          "give", "gentleman", "right", "percent", "per",
-                          "cent", "prime", "minister", "c")
-rm(lab_corpus)
-#ndoc(lab_corpus_fem)
-
-lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
-                           remove = parliament_stopwords, verbose = TRUE) #%>% 
-#  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
-#           max_docfreq = 0.1, docfreq_type = "prop")
-
-topic_model <- stm(lab_corpus_fem_dfm, K = 0, 
-                   verbose = TRUE, init.type = "Spectral")
-
-write_rds(topic_model, "stm-topic-model.rds")
-```
-
-
-```{r}
-library(readr)
-library(stm)
-
-topic_model <- read_rds("stm-topic-model.rds")
-
-```
-
-
-- 49 topic models
-<!--
-
-```{r STM-creation, eval=FALSE, include=FALSE}
-library(stm)
-library(quanteda)
-library(quanteda.corpora)
-library(topicmodels)
-library(readr)
-
-lab_corpus <- read_rds("lab_corpus.rds")
-
-lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
-
-parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
-                          "give", "gentleman", "right", "percent", "per",
-                          "cent", "prime", "minister", "c")
-rm(lab_corpus)
-#ndoc(lab_corpus_fem)
-
-lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
-                           remove = parliament_stopwords, verbose = TRUE) #%>% 
-#  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
-#           max_docfreq = 0.1, docfreq_type = "prop")
-
-topic_model_lda49 <- stm(lab_corpus_fem_dfm, K = 49, 
-                         verbose = TRUE, init.type = "LDA")
-
-write_rds(topic_model_lda49, "topic_model_lda49.rds")
-```
--->
-<!--
-We assigned topic models using unsupervised Latent Dirichlet Allocation [@blei2003], implemented in the `topicmodels` R package [@grun2011]. See [TABLE NUMBER?] for the ten most common words in each topic model. Topic models were trained on all speeches by female Labour MPs.
-```{r topic-model-women, eval=FALSE, include=FALSE}
-library(quanteda)
-library(quanteda.corpora)
-library(topicmodels)
-library(readr)
-
-lab_corpus <- read_rds("lab_corpus.rds")
-
-lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
-
-parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
-                          "give", "gentleman", "right", "percent", "per",
-                          "cent", "prime", "minister", "c")
-rm(lab_corpus)
-#ndoc(lab_corpus_fem)
-
-lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
-                           remove = parliament_stopwords, verbose = TRUE) %>% 
-  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
-           max_docfreq = 0.1, docfreq_type = "prop")
-
-lab_corpus_fem_dfm <- lab_corpus_fem_dfm[ntoken(lab_corpus_fem_dfm) > 0,]
-
-dtm <- convert(lab_corpus_fem_dfm, to = "topicmodels")
-#fem_lda <- LDA(dtm, k = 20) #50 is too many, try again with 20
-fem_lda <- LDA(dtm, k = 10)
-
-### Analyse these
-
-#terms(fem_lda, 10)
-
-docvars(lab_corpus_fem_dfm, 'topic') <- topics(fem_lda)
-#head(topics(fem_lda), 20)
-
-write_rds(fem_lda, "fem_lda.rds")
-
-docvars(lab_corpus_fem_dfm, "topic") <- topics(fem_lda)
-
-write_rds(lab_corpus_fem_dfm, "lab_corpus_fem_dfm.rds")
-```
-
-```{r topic-model-analysis, eval=FALSE, message=FALSE, include=FALSE}
-library(readr)
-library(topicmodels)
-library(quanteda)
-library(dplyr)
-library(ggplot2)
-library(stringi)
-
-fem_lda <- read_rds("fem_lda.rds")
-
-#terms(fem_lda, 10)
-
-lab_corpus_fem_dfm <- read_rds("lab_corpus_fem_dfm.rds")
-
-terms_table <- tibble::as.tibble(terms(fem_lda, 20))
-
-fem_df <- as.data.frame(docvars(lab_corpus_fem_dfm))
-
-fem_df$topic <- as.factor(case_when(
-  stri_length(fem_df$topic) == 1 ~ paste0("Topic 0", fem_df$topic),
-  TRUE ~ paste0("Topic ", fem_df$topic)))
-
-fem_df2 <- fem_df %>%
-  group_by(short_list, topic) %>%
-  summarise(topic_count = n()) %>%
-    mutate(freq = topic_count / sum(topic_count)) 
-
-fem_df2 <- fem_df2[order(-fem_df2$short_list, fem_df2$topic),]
-
-# fem_df2$topic <- recode(fem_df2$topic,
-#  "Topic 01" = "Children & Families",
-#  "Topic 02" = "Education",
-#  "Topic 03" = "Issues",
-#  "Topic 04" = "Transport",
-#  "Topic 05" = "Economy",
-#  "Topic 06" = "Crime",
-#  "Topic 07" = "Science",
-#  "Topic 08" = "Health",
-#  "Topic 09" = "Housing",
-#  "Topic 10" = "Regions",
-#  "Topic 11" = "Legal",
-#  "Topic 12" = "Tax",
-#  "Topic 13" = "Constituency",
-#  "Topic 14" = "Debate",
-#  "Topic 15" = "Process",
-#  "Topic 16" = "Legal",
-#  "Topic 17" = "Gender",
-#  "Topic 18" = "Other",
-#  "Topic 19" = "Legislation",
-#  "Topic 20" = "Defence")
-# 
-
-
-# p_lda <- ggplot(fem_df2, aes(x = short_list, y=freq)) +
-#   geom_col(aes(fill = topic)) +
-#   scale_y_continuous(labels=scales::percent) +
-#   labs(title = "Frequency of Topic Models",
-#        subtitle = "Female Labour MPs grouped by selection process",
-#        fill = "Topic Model") +
-#   ylab("") +
-#   xlab("Elected Through All Women Short list")
-# 
-# p_lda
-
-p_lda2 <- ggplot(data = fem_df2, aes(y = freq, fill = short_list, x = topic)) + 
-  geom_col(position = "dodge") + 
-    scale_fill_manual(labels = c("Non-AWS", "AWS"),
-                     values = c("#ff674c", "#02d5a1"), name = NULL) +
-  scale_y_continuous(labels=scales::percent) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  xlab("") + 
-  ylab("Percentage of Speeches")
-
-ggsave("p_lda2.eps", plot = p_lda2, path="plots", device = "eps")
-
-p_lda2
-```
-
-```{r tidy-topic-model, eval=FALSE, include=FALSE}
-library(tidytext)
-
-beta_df <- tidy(fem_lda)
-
-beta_df_gamma <- tidy(fem_lda, matrix = "gamma")
-#beta_df_gamma
-
-speech_classifications <- beta_df_gamma %>%
-  group_by(document) %>%
-  top_n(1, gamma) %>%
-  ungroup() %>%
-  arrange(gamma)
-
-summary(speech_classifications)
-
-speech_classifications2 <- beta_df_gamma %>%
-  group_by(document) %>%
-  top_n(2, gamma) %>%
-  ungroup() %>%
-  arrange(gamma) %>%
-  group_by(document) %>%
-  top_n(-1, gamma) %>%
-  ungroup() %>%
-  arrange(gamma)
-
-summary(speech_classifications2)
-
-# lab_speech <- read_rds("lab_speech.rds")
-# 
-# lda_texts <- left_join(speech_classifications, lab_speech,
-#                        by = c("document"="eo_id"))
-
-# x$diff <- x$gamma.y - x$gamma.x
-# 
-# summary(x$diff)
-# 
-# y <- filter(speech_classifications, document == "1028176")
-
-```
-
-```{r topic-model-table, eval=FALSE, include=FALSE}
-library(pander)
-pander(terms_table, caption = "Topic Model Terms",
-       split.table = 80, style = 'rmarkdown', justify = 'left')
-
-# library(knitr)
-# library(kableExtra)
-# kable(terms_table, caption = "Topic Model Terms")  %>%
-#   kable_styling(full_width = TRUE, latex_options = "striped") %>%
-#   landscape()
-
-```
-
-```{r topic-model-distribution-table, eval=FALSE, include=FALSE}
-library(tidyr)
-#fem_df2$freq <- paste0(round(fem_df2$freq * 100, 2), "%")
-
-fem_df2 <- fem_df2 %>% ungroup() %>% select(-freq)
-
-fem_df2_table <- fem_df2 %>% ungroup() %>%
-  spread(short_list, topic_count) %>%
-  mutate(not_sl_freq = (`FALSE` / sum(`FALSE`))*100, 
-         sl_freq = (`TRUE` / sum(`TRUE`))*100) %>%
-  rename("not_sl_total" = `FALSE`, "sl_total" = `TRUE`)
-
-fem_df2_table$proportion <- fem_df2_table$sl_freq/fem_df2_table$not_sl_freq
-
-library(knitr)
-library(kableExtra)
-kable(fem_df2_table, caption = "Topic Model Distribution", digits = 2, 
-      col.names = c("Topic", "Not Short List Total", "Short List Total",
-                    "Not Short List Percentage", "Short List Percentage",
-                    "Relative Occurence")) %>%
-  kable_styling(latex_options = "striped", full_width = FALSE)
-
-
-```
--->
-
-
 ## Naive Bayes classification
 
 We trained a Naive Bayes classifier with document-frequency priors and a multinomial distribution to predict the gender of speakers when given speeches by all Labour MPs in our dataset, and the selection process when only given female Labour MPs. The accuracy of both models were roughly equivalent, 70.55% accuracy when predicting gender and 70.84% when predicting short lists. By contrast, the classifier could distinguish between Labour and Conservative speeches with 74.23% accuracy.
@@ -2275,6 +2076,159 @@ vm.model <- svm(docs ~ ., data = x, cost = 100, gamma = 1)
 
 ```
 -->
+
+
+## Topic Models
+
+Using topic models to classify text is widely used in social sciences, as, when combined with the large volume of plain text data available, it allows for a rapid and consistent method of analysis. Topic modelling and other statistic methods of textual analysis are not a substitute for reading the texts themselves, but can augment other analysis or -- as in this case -- analyse and classify larger amounts of text than would be feasible using human coders [@grimmer2013]. Topic models classify a series of documents (in this case individual speeches) into one of a given number of topics, identifying terms that are common in some documents but rare in others. When developing topic models, there is a trade-off between high precision in the classification of each document with broader topics when using smaller numbers of topics, or lower precision in individual speech classification with more finely-grained topics when using larger numbers of topics. Grimmer and Stewart also highlight the importance of validating unsurpervised topic models when applied to new sets of texts. 
+
+
+The R package `stm` [@roberts2018] implements a structured topic model (STM) [@roberts2016; @arora2013]. An STM incorporates data about the writer or speaker into the topic classification algorithm. We incorporated the AWS status of speakers into our topic model. We used an algorith developed by Lee and Mimno [-@lee2014c], implemented in the `stm` package [@roberts2018], to estimate the number of topics across all speeches made by female Labour MPs. The resulting topic model has 69 topics, across 81,607 documents and a dictionary of 115,477 words.
+
+<!--
+ <!--We then used `stm`'s implementation of Latent Dirichlet Allocation [@blei2003]-->
+
+
+
+### Short lists vs Non-Short lists
+<!--
+```{r STM-Ksearch, eval=FALSE, include=FALSE}
+library(stm)
+library(quanteda)
+library(quanteda.corpora)
+library(topicmodels)
+library(readr)
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+rm(lab_corpus)
+#ndoc(lab_corpus_fem)
+
+lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
+                           remove = parliament_stopwords, verbose = TRUE) #%>% 
+#  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+#           max_docfreq = 0.1, docfreq_type = "prop")
+
+
+lab_corpus_fem_stm <- convert(lab_corpus_fem_dfm, to = "stm", docvars = NULL)
+
+lab_corpus_fem_stm$meta$short_list <- as.factor(lab_corpus_fem_stm$meta$short_list)
+
+topic_numbers <-c(10, 20, 50)
+
+kresult <- searchK(lab_corpus_fem_stm$documents, 
+                   vocab = lab_corpus_fem_stm$vocab, K = topic_numbers,
+                   prevalence=~short_list, data=lab_corpus_fem_stm$meta,
+                   verbose = TRUE)
+#plot(kresult)
+
+```
+-->
+
+```{r STM-classification-prep, eval=FALSE, include=FALSE}
+library(stm)
+library(quanteda)
+library(quanteda.corpora)
+library(topicmodels)
+library(readr)
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+rm(lab_corpus)
+#ndoc(lab_corpus_fem)
+
+lab_corpus_fem_stm <- dfm(lab_corpus_fem, remove_punct = TRUE,
+                           remove = parliament_stopwords, verbose = TRUE) %>%
+  convert(to = "stm", docvars = NULL)
+
+lab_corpus_fem_stm$meta$short_list <- as.factor(lab_corpus_fem_stm$meta$short_list)
+
+write_rds(lab_corpus_fem_stm, "lab_corpus_fem_stm.rds")
+```
+
+```{r STM-classification, eval=FALSE, include=FALSE}
+library(stm)
+library(quanteda)
+library(quanteda.corpora)
+library(topicmodels)
+library(readr)
+set.seed(402)
+
+topic_model2 <- stm(lab_corpus_fem_stm$documents, 
+                    vocab = lab_corpus_fem_stm$vocab, 
+                    K = 0, prevalence = ~short_list, 
+                    data = lab_corpus_fem_stm$meta,
+                    verbose = TRUE, init.type = "Spectral")
+
+write_rds(topic_model2, "stm-topic-model2.rds")
+
+```
+
+```{r stm-analysis, echo=FALSE}
+library(readr)
+library(stm)
+
+topic_model2 <- read_rds("stm-topic-model2.rds")
+
+lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+
+#plot(topic_model2)
+
+corr_topic <- topicCorr(topic_model2, method = "huge")
+
+prep <- estimateEffect(1:69 ~ short_list, topic_model2, 
+                       meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
+
+#summary(prep)
+
+prep_df <- summary(prep)[[3]]
+
+prep_df <- as.data.frame(do.call(rbind, prep_df))
+
+prep_df$topic <- rep(1:69, each = 2)
+
+prep_df$type <- row.names(prep_df)
+
+prep_df$type <- gsub("\\.[0-9][0-9]", "", prep_df$type)
+
+prep_df$type <- gsub("\\.[0-9]", "", prep_df$type)
+
+prep_df$type <- gsub("\\.$", "", prep_df$type)
+
+prep_df_coeff <- prep_df %>% filter(type == "short_listTRUE")
+
+### Figure out distribution of topics amongst short_list, non-short lists
+## assign colour schemes
+## If I can get the differences for each topic number, I can great a pallette
+# I can presumably also create a size parameter, make common topics bigger
+# Need to get that data out of prep_df
+
+library(igraph)
+p_topic1 <- plot(corr_topic, vlabels = c(1:69),
+                 vertex.color = viridis::cividis(10))
+
+# plot(topic_model2, type = "summary")
+# 
+# gg <- nexus.get("Davis")
+# plot(gg)
+# 
+# library(GGally)
+# 
+# test_plot <- ggnet2(corr_topic)
+
+#x <- labelTopics(topic_model2)
+
+```
 
 ## Discussion
 
