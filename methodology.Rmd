@@ -59,7 +59,6 @@ We also included mean words-per-sentence (WPS), total speach word count (WC) and
 
 <!--## Corpus creation -->
 
-
 ```{r government-jobs, eval=FALSE, include=FALSE}
 library(listviewer)
 library(httr)
@@ -285,7 +284,7 @@ lab_speech$speech <- stri_replace_all_regex(lab_speech$speech,
                                             c("", ""), vectorize_all = TRUE)
 
 library(fuzzyjoin)
-test <- fuzzy_left_join(lab_speech, lab_fem_jobs,
+lab_speech <- fuzzy_left_join(lab_speech, lab_fem_jobs,
                          by = c(
                            "mnis_id" = "member_id",
                            "speech_date" = "start_date",
@@ -1709,12 +1708,9 @@ lab_keyness_plot <- textplot_keyness(lab_keyness, n = 25,
 lab_keyness_plot
 ```
 
-
-
 ### Short lists vs Non-Short lists
 
-
-Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. Also of note is AWS MPs making more references to their "constituency" and its "constituents", [drawing on representation of ]
+Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen"[^2]. Also of note is AWS MPs making more references to their "constituency" and its "constituents", suggesting that AWS MPs may draw on the fact they were elected by their constituents as a source political legitimacy, at least more than non-AWS MPs.
 
 ```{r short-list-keyness, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE}
 
@@ -1736,10 +1732,9 @@ fem_keyness_plot <- textplot_keyness(lab_keyness_fem, n=25) +
 fem_keyness_plot
 ```
 
-
 ### Labour vs Conservative
 
-The keyness differences between Labour and Conservative MPs are much greater than gender differences within Labour. The very high use of "Lady" by Conservative MPs is reflective of the greater proportion of female MPs in other parties, as it is often used to refer to comments by other members of the house.
+The keyness differences between Labour and Conservative MPs are much greater than gender differences within Labour. The very high use of "Lady" by Conservative MPs is reflective of the greater proportion of female MPs in other parties, as it is often used to refer to comments by other members of the house. It may also represent a greater use of traditional hosue decorum by Conservative MPs.
 
 ```{r eval=FALSE, include=FALSE}
 library(readr)
@@ -1771,7 +1766,6 @@ lab_con_dfm <- lab_con_corpus %>%
 write_rds(lab_con_dfm, "lab_con_dfm.rds")
 ```
 
-
 ```{r lab-con-keyness, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(quanteda)
@@ -1794,12 +1788,9 @@ lab_con_keyness_plot
 
 ```
 
-
-
-
 ## Bigrams
 
-We created bigrams of all first person plural and singular pronouns for female Labour MPs.
+We created bigrams of all first person plural and singular pronouns for female Labour MPs. As above, AWS MPs are far more likely to make references to their constituency or their constituents.
 
 ```{r bigrams-short-list-creation, eval=FALSE, message=FALSE, include=FALSE}
 library(quanteda)
@@ -2080,10 +2071,9 @@ vm.model <- svm(docs ~ ., data = x, cost = 100, gamma = 1)
 
 ## Topic Models
 
-Using topic models to classify text is widely used in social sciences, as, when combined with the large volume of plain text data available, it allows for a rapid and consistent method of analysis. Topic modelling and other statistic methods of textual analysis are not a substitute for reading the texts themselves, but can augment other analysis or -- as in this case -- analyse and classify larger amounts of text than would be feasible using human coders [@grimmer2013]. Topic models classify a series of documents (in this case individual speeches) into one of a given number of topics, identifying terms that are common in some documents but rare in others. When developing topic models, there is a trade-off between high precision in the classification of each document with broader topics when using smaller numbers of topics, or lower precision in individual speech classification with more finely-grained topics when using larger numbers of topics. Grimmer and Stewart also highlight the importance of validating unsurpervised topic models when applied to new sets of texts. 
+Using topic models to classify text is widely used in social sciences [@grimmer2013], as, when combined with the large volume of plain text data available, it allows for a rapid and consistent method of analysis . Topic modelling and other statistic methods of textual analysis are not a substitute for reading the texts themselves, but can augment other analysis or -- as in this case -- analyse and classify larger amounts of text than would be feasible using human coders [@grimmer2013]. Topic models classify a series of documents (in this case individual speeches) into one of a given number of topics, identifying terms that are common in some documents but rare in others. When developing topic models, there is a trade-off between high precision in the classification of each document with broader topics when using smaller numbers of topics, or lower precision in individual speech classification with more finely-grained topics when using larger numbers of topics. Grimmer and Stewart also highlight the importance of validating unsurpervised topic models when applied to new sets of texts. 
 
-
-The R package `stm` [@roberts2018] implements a structured topic model (STM) [@roberts2016; @arora2013]. An STM incorporates data about the writer or speaker into the topic classification algorithm. We incorporated the AWS status of speakers into our topic model. We used an algorith developed by Lee and Mimno [-@lee2014c], implemented in the `stm` package [@roberts2018], to estimate the number of topics across all speeches made by female Labour MPs. The resulting topic model has 69 topics, across 81,607 documents and a dictionary of 115,477 words.
+The R package `stm` [@roberts2018] implements a structured topic model (STM) [@roberts2016; @arora2013]. An STM incorporates data about the writer or speaker into the topic classification algorithm. We incorporated the AWS status of speakers into our topic model. We used an algorithm developed by Lee and Mimno [-@lee2014c], implemented in the `stm` package [@roberts2018], to estimate the number of topics across all speeches made by female Labour MPs, using the "spectral" method developed by @arora2013. The resulting topic model has 69 topics, across 81,607 documents and a dictionary of 115,477 words.
 
 <!--
  <!--We then used `stm`'s implementation of Latent Dirichlet Allocation [@blei2003]-->
@@ -2091,6 +2081,9 @@ The R package `stm` [@roberts2018] implements a structured topic model (STM) [@r
 
 
 ### Short lists vs Non-Short lists
+
+Fruchterman-Reingold [@fruchterman1991] diagram of all 69 topic models. Larger vertices indicate more common topics, and the plot implements a colour scale to indicate the proportion of speeches classed in that topic made by AWS and non-AWS female Labour MPs.
+
 <!--
 ```{r STM-Ksearch, eval=FALSE, include=FALSE}
 library(stm)
@@ -2163,6 +2156,7 @@ library(quanteda.corpora)
 library(topicmodels)
 library(readr)
 set.seed(402)
+#topic_model2 seed = 9957388
 
 topic_model2 <- stm(lab_corpus_fem_stm$documents, 
                     vocab = lab_corpus_fem_stm$vocab, 
@@ -2174,22 +2168,22 @@ write_rds(topic_model2, "stm-topic-model2.rds")
 
 ```
 
-```{r stm-analysis, echo=FALSE}
+```{r stm-analysis, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7}
 library(readr)
 library(stm)
-
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+#library(tidystm)
 topic_model2 <- read_rds("stm-topic-model2.rds")
 
 lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
 
-#plot(topic_model2)
-
-corr_topic <- topicCorr(topic_model2, method = "huge")
+corr_topic <- topicCorr(topic_model2, method = "huge", verbose = FALSE)
 
 prep <- estimateEffect(1:69 ~ short_list, topic_model2, 
                        meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
-
-#summary(prep)
 
 prep_df <- summary(prep)[[3]]
 
@@ -2207,34 +2201,185 @@ prep_df$type <- gsub("\\.$", "", prep_df$type)
 
 prep_df_coeff <- prep_df %>% filter(type == "short_listTRUE")
 
-### Figure out distribution of topics amongst short_list, non-short lists
-## assign colour schemes
-## If I can get the differences for each topic number, I can great a pallette
-# I can presumably also create a size parameter, make common topics bigger
-# Need to get that data out of prep_df
+vlabels=NULL
+layout=NULL
 
-library(igraph)
-p_topic1 <- plot(corr_topic, vlabels = c(1:69),
-                 vertex.color = viridis::cividis(10))
+topics <- 1:nrow(corr_topic$posadj)
+  
+x <- corr_topic$posadj[topics, topics]
+  
+g <- igraph::graph.adjacency(x, mode="undirected", weighted=TRUE, diag=FALSE)
+igraph::E(g)$size <- 1
+igraph::E(g)$lty <- 2
+igraph::E(g)$color <- "black"
+igraph::V(g)$label <- topics
 
-# plot(topic_model2, type = "summary")
-# 
-# gg <- nexus.get("Davis")
-# plot(gg)
-# 
-# library(GGally)
-# 
-# test_plot <- ggnet2(corr_topic)
+plotcord <- data.frame(layout.fruchterman.reingold(g))
+  
+edgelist <- get.edgelist(g)
 
-#x <- labelTopics(topic_model2)
+#convert to a four column edge data frame with source and destination coordinates
+edges <- data.frame(plotcord[edgelist[,1],], plotcord[edgelist[,2],])
+colnames(edges) <- c("X1","Y1","X2","Y2")
 
+plotcord$topic <- as.numeric(row.names(plotcord))
+  
+plotcord <- plotcord %>% left_join(prep_df_coeff)
+
+lab_corpus_fem_stm$meta$eo_id <- docnames(lab_corpus_fem_stm$documents)
+
+topic_dt <- make.dt(topic_model2, lab_corpus_fem_stm$meta)
+
+topic_dt$assigned_topic <- colnames(topic_dt[,2:70])[max.col(topic_dt[,2:70],ties.method="random")]
+
+topic_dt$assigned_topic <- as.factor(topic_dt$assigned_topic)
+
+## Reordering x$assigned_topic
+topic_dt$assigned_topic <- factor(topic_dt$assigned_topic, 
+                           levels=c("Topic1", "Topic2", "Topic3", 
+                                    "Topic4", "Topic5", "Topic6",
+                                    "Topic7", "Topic8", "Topic9",
+                                    "Topic10", "Topic11", "Topic12", 
+                                    "Topic13", "Topic14", "Topic15", 
+                                    "Topic16", "Topic17", "Topic18", 
+                                    "Topic19", "Topic20", "Topic21", 
+                                    "Topic22", "Topic23", "Topic24", 
+                                    "Topic25", "Topic26", "Topic27", 
+                                    "Topic28", "Topic29", "Topic30",
+                                    "Topic31", "Topic32", "Topic33",
+                                    "Topic34", "Topic35", "Topic36", 
+                                    "Topic37", "Topic38", "Topic39", 
+                                    "Topic40", "Topic41", "Topic42", 
+                                    "Topic43", "Topic44", "Topic45", 
+                                    "Topic46", "Topic47", "Topic48", 
+                                    "Topic49", "Topic50", "Topic51", 
+                                    "Topic52", "Topic53", "Topic54", 
+                                    "Topic55", "Topic56", "Topic57",
+                                    "Topic58", "Topic59", "Topic60", 
+                                    "Topic61", "Topic62", "Topic63", 
+                                    "Topic64", "Topic65", "Topic66", 
+                                    "Topic67", "Topic68", "Topic69"))
+
+topic_dt2 <- topic_dt %>% group_by(assigned_topic) %>%
+  summarise(count = n()) %>%
+  mutate(freq = count/sum(count) )
+
+plotcord$assigned_topic <- paste0("Topic", plotcord$topic)
+
+plotcord <- plotcord %>% left_join(topic_dt2)
+
+p_network <- ggplot() + 
+  geom_segment(aes(x=X1, y=Y1, xend = X2, yend = Y2),
+               data=edges, size = 0.5, colour="grey") +
+  geom_point(data = plotcord, aes(X1, X2, colour = Estimate, size = freq)) + 
+  geom_text(aes(X1, X2, label=topic), hjust="center", vjust="top",
+            size = 5, data = plotcord) + 
+  scale_colour_viridis(breaks = c(max(plotcord$Estimate),
+                                  min(plotcord$Estimate)), 
+                       labels = c("More AWS", "More non-AWS"),
+                       name=NULL, option = "plasma") + 
+  scale_size(guide = "none") + 
+  theme_void() + 
+  theme(legend.position = "bottom",
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),  
+    axis.title.x = element_blank(), 
+    axis.title.y = element_blank())
+
+p_network
 ```
+
+```{r topic-dt3-creation, include=FALSE}
+library(scales)
+topic_dt3 <- topic_dt %>% group_by(assigned_topic, short_list) %>%
+  summarise(count = n()) %>%
+  ungroup() %>%
+  spread(key = "short_list", value = "count") %>%
+  rename("AWS" = "TRUE", "non_AWS" = "FALSE") %>%
+  mutate(AWS_freq = percent(AWS/sum(AWS)),
+         non_AWS_freq = percent(non_AWS/sum(non_AWS, na.rm = TRUE)),
+         assigned_topic = gsub("Topic", "Topic ", assigned_topic),
+         AWS = formatC(AWS, big.mark = ","),
+         non_AWS = formatC(non_AWS, big.mark = ",")) %>%
+  select(assigned_topic, AWS, AWS_freq, non_AWS, non_AWS_freq)
+```
+
+```{r topic-summary-table, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+
+kable(topic_dt3, booktabs = TRUE, longtable = TRUE, 
+      col.names = c("Topic Number", "AWS Speeches", "Percent of AWS Speeches",
+                    "Non-AWS Speeches", "Percent of non-AWS Speeches"),
+      align = c("l","r","r","r","r")) %>%
+    kable_styling(latex_options = c("hold_position",  "repeat_header",
+                                    "striped"), full_width = TRUE )
+```
+
+```{r stm-topic-words, message=FALSE, warning=FALSE, include=FALSE, results='asis'}
+library(tidyr)
+topic_words <- labelTopics(topic_model2, n = 10, frexweight = 0.5)
+
+topic_words2 <- tibble::as.tibble(topic_words[[1]])
+
+topic_words2 <- topic_words2 %>% unite(V1:V10, sep = ", ")
+
+topic_words2$topic <- paste0("Topic ", row.names(topic_words2))
+
+topic_words2 <- topic_words2 %>% select(topic, everything())
+```
+
+```{r topic-words-table, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+
+kable(topic_words2, booktabs = TRUE, longtable = TRUE, 
+      col.names = c("Topic Number", "Top Ten Words")) %>%
+    kable_styling(latex_options = c("hold_position",  "repeat_header",
+                                    "striped"), full_width = TRUE ) %>% 
+  column_spec(2, width = "12cm")
+```
+
+```{r eval=FALSE, include=FALSE}
+library(tidytext)
+test3 <- tidytext::tidy(topic_model2, matrix = "gamma",
+                        document_names = rownames(topic_model2))
+
+
+test4 <- test3  %>%
+  group_by(document) %>%
+  top_n(1, gamma) %>%
+  ungroup() %>%
+  arrange(document, -gamma)
+
+test5 <- tidytext::tidy(topic_model2, matrix = "beta")
+
+test6 <- test5  %>%
+  group_by(topic) %>%
+  top_n(5, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+head(test6)
+```
+
 
 ## Discussion
 
-There do not appear to be substantial or meaningful differences in the speaking styles or topic choices of female Labour MPs selected through all women short lists when compared to their female colleagues selected through open short lists. The few small differences between male and female Labour MPs were not replicated when comparing female Labour MPs by how they were selected.
+There do not appear to be substantial or meaningful differences in the speaking styles of female Labour MPs selected through all women short lists when compared to their female colleagues selected through open short lists using LIWC.
 
-There is more gender distinction in selected terms and topics.
+There is more gender distinction in some selected terms and topics. AWS MPs are far more likely to make reference to their constituency and their constituents.
+
+# Appendix
+
+## Full topic model summary
+
+
+```{r topic-model2-summary, echo=FALSE, message=FALSE}
+summary(topic_model2)
+```
+
 
 
 # References
