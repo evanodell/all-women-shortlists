@@ -861,3 +861,101 @@ kable(fem_df2_table, caption = "Topic Model Distribution", digits = 2,
 
 
 
+
+<!--
+```{r svm, eval=FALSE, include=FALSE}
+library(readr)
+library(quanteda)
+library(tidyr)
+library(e1071) ## look up name of this SVM library
+library(dplyr)
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister")
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus2 <- corpus_sample(lab_corpus, size = ndoc(lab_corpus)/500, replace = TRUE)
+
+lab_dfm2 <- lab_corpus2 %>% 
+  dfm(remove = parliament_stopwords, remove_punct = TRUE,
+      verbose = TRUE) 
+
+lab_df <- as.matrix(lab_dfm2)
+
+lab_df <- as.data.frame(lab_df, row.names = docnames(lab_dfm2))
+
+# x2 <- convert(lab_dfm2, to = "tripletlist")
+# 
+# x <- slam::as.simple_triplet_matrix(lab_dfm2)
+# 
+# models <- svm(x=x2$vocab, y=x2$meta$gender)
+
+lab_df$eo_id <- row.names(lab_df)
+
+lab_docvars <- docvars(lab_corpus2)
+
+lab_docvars$eo_id <- row.names(lab_docvars)
+
+lab_docvars <- select(lab_docvars, gender, eo_id) %>% rename(mp_gender=gender)
+
+lab_df <- left_join(lab_df, lab_docvars)
+
+lab_df$mp_gender <- as.factor(lab_df$mp_gender)
+
+row.names(lab_df) <- lab_df$eo_id
+
+lab_df <- lab_df %>% select(mp_gender, everything(), -eo_id)
+
+# #x <- x[,2:3402]
+# 
+# x2 <- as.data.frame(t(x))
+# 
+# x2 <- x2[,2:3402]
+# 
+# x3 <- gather(x2, key = "gender", value = "count")
+# # 
+# # x2 <- as.data.frame(t(x))
+# # 
+# # 
+
+x <- colSums(lab_df[,!names(lab_df)=="mp_gender"])
+
+summary(x)
+
+index <- 1:nrow(lab_df)
+   testindex <- sample(index, trunc(length(index)/3))
+   testset   <- lab_df[testindex,]
+   trainset  <- lab_df[-testindex,]
+
+   
+# library(sampling)
+# strata_training <- strata(trainset, stratanames = "emptyvar", size = c(1000,500))
+# #this creates a sample of size 1000 and 500 for 0 and 1 each
+# strata.train<-getdata(train,Training)
+# #it creates additional 3 columns which you can remove
+# train<-strata.train[,!colnames(strata.train) %in% c("ID_unit","Prob","Stratum")]
+#    
+## Need to make sure that all columns have at least some values other than 0
+
+model <- svm(mp_gender~., data = trainset) ## This is failing, find out why
+pred  <- predict(model, testset[,-10])   
+
+
+
+## need to get svm(x,y) working, with vector of document classes
+
+lab_dfm_fem <- read_rds("lab_dfm_key_fem.rds")
+
+vm.model <- svm(docs ~ ., data = x, cost = 100, gamma = 1)
+
+ data(Glass, package="mlbench")
+ ## split data into a train and test set
+   index     <- 1:nrow(Glass)
+   testindex <- sample(index, trunc(length(index)/3))
+   testset   <- Glass[testindex,]
+   trainset  <- Glass[-testindex,]
+
+```
+-->
