@@ -5,6 +5,72 @@ bibliography: women.bib
 link-citations: true
 ---
 
+
+```{r pro-bigram-plots, eval=FALSE, include=FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(magrittr)
+
+pro_bigram <- read_rds("pro_bigram.rds")
+
+docvars(pro_bigram, "year") <- lubridate::year(docvars(pro_bigram, "speech_date"))
+
+pro_dfm <- dfm(pro_bigram, verbose=TRUE, groups = c("short_list", "year")) %>%
+  dfm_trim(min_termfreq = 25)
+
+#x <- textstat_frequency(pro_dfm, n = NULL, groups = c("short_list", "year"))
+
+pro_dfm_df <- tibble::as.tibble(as.data.frame(pro_dfm))
+
+pro_dfm_df2 <- pro_dfm_df %>% 
+  separate("document", into = c("short_list", "year"), remove = FALSE) %>%
+  select(short_list, year, everything()) %>% 
+  group_by(short_list, year) %>% 
+  mutate_at(vars(i_hope:our_amendments), as.numeric, na.rm=TRUE) %>% 
+  mutate(total = sum(i_hope:our_amendments), 
+         cons_total = sum(my_constituents, my_constituency,
+                          my_constituent, na.rm=TRUE),
+         cons_perc = cons_total/total)
+
+pro_dfm_df2$year <- factor(pro_dfm_df2$year)
+
+my_cons_plot <- ggplot(pro_dfm_df2, 
+                       aes(x=year, y = cons_perc,
+                           group = short_list, colour = short_list)) + 
+  geom_point()
+
+my_cons_plot
+```
+
+
+```{r tidy-text-testing, eval=FALSE, include=FALSE}
+library(tidytext)
+test3 <- tidytext::tidy(topic_model2, matrix = "gamma",
+                        document_names = rownames(topic_model2))
+
+
+test4 <- test3  %>%
+  group_by(document) %>%
+  top_n(1, gamma) %>%
+  ungroup() %>%
+  arrange(document, -gamma)
+
+test5 <- tidytext::tidy(topic_model2, matrix = "beta")
+
+test6 <- test5  %>%
+  group_by(topic) %>%
+  top_n(5, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+head(test6)
+```
+
+
+
+
+
 Existing work on this topic has either compared women and men, or tracked changes in a single woman [@jones2016] or group of women. 
 
 
@@ -956,6 +1022,25 @@ vm.model <- svm(docs ~ ., data = x, cost = 100, gamma = 1)
    testindex <- sample(index, trunc(length(index)/3))
    testset   <- Glass[testindex,]
    trainset  <- Glass[-testindex,]
+
+```
+-->
+
+<!--
+```{r}
+#"want me to make these points"
+
+lab_speech <- read_rds("lab_speech.rds")
+
+example1 <- lab_speech[grep("want me to make these points", lab_speech$speech),]
+
+#"Ric Potter"
+
+example2 <- lab_speech[grep("Ric Potter", lab_speech$speech),]
+
+#"My constituents want more than pressure"
+example3 <- lab_speech[grep("My constituents want more than pressure", lab_speech$speech),]
+
 
 ```
 -->
