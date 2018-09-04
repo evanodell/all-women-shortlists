@@ -1,0 +1,2 @@
+load("/Users/evanodell/Documents/Code/all-women-shortlists/stm-topic-model.rds")
+load("/Users/evanodell/Documents/Code/all-women-shortlists/stm-topic-model2.rds")

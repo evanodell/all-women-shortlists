@@ -1,0 +1,644 @@
+---
+title: "Methods-K0"
+author: "Evan Odell"
+date: "31/08/2018"
+output: html_document
+---
+### Shortlists vs Non-Shortlists - k0
+
+The first implementation used an algorithm developed by @lee2014c, implemented in the `stm` package [@roberts2018], to estimate the number of topics across all speeches made by female Labour MPs, using the "spectral" method developed by @arora2013, implemented by @roberts2018. The resulting topic model has 84 topics, across 81,607 documents and a dictionary of 115,477 words. However, the topic quality with K = 84 is poor, and several topics have poor semantic coherence (see \ref{k0-coherence}).
+
+There are several clusters of topics in \ref{k0-network}. For instance, we can see the closeness of Topic 15 (unemployment) and Topic 43 (housing), as both are social issues include discussions of budgets and costs, while Topics 23 (bill amendments) and 16 (education) are very far apart.
+
+<!--
+```{r STM-Ksearch, eval=FALSE, include=FALSE}
+library(stm)
+library(quanteda)
+library(quanteda.corpora)
+library(topicmodels)
+library(readr)
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+rm(lab_corpus)
+#ndoc(lab_corpus_fem)
+
+lab_corpus_fem_dfm <- dfm(lab_corpus_fem, remove_punct = TRUE,
+                           remove = parliament_stopwords, verbose = TRUE) #%>% 
+#  dfm_trim(min_termfreq = 0.95, termfreq_type = "quantile", 
+#           max_docfreq = 0.1, docfreq_type = "prop")
+
+
+lab_corpus_fem_stm <- convert(lab_corpus_fem_dfm, to = "stm", docvars = NULL)
+
+lab_corpus_fem_stm$meta$short_list <- as.factor(lab_corpus_fem_stm$meta$short_list)
+
+topic_numbers <-c(10, 20, 50)
+
+kresult <- searchK(lab_corpus_fem_stm$documents, 
+                   vocab = lab_corpus_fem_stm$vocab, K = topic_numbers,
+                   prevalence=~short_list, data=lab_corpus_fem_stm$meta,
+                   verbose = TRUE)
+#plot(kresult)
+
+```
+-->
+
+
+```{r STM-classification-k0, eval=FALSE, include=FALSE}
+library(stm)
+library(readr)
+
+lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+
+set.seed(402)
+#topic_model_k0 seed = 9957388
+
+topic_model_k0 <- stm(lab_corpus_fem_stm$documents, 
+                    vocab = lab_corpus_fem_stm$vocab, 
+                    K = 0, prevalence = ~short_list, 
+                    seed = 9957388,
+                    data = lab_corpus_fem_stm$meta,
+                    verbose = TRUE, init.type = "Spectral")
+
+write_rds(topic_model_k0, "topic_model_k0.rds")
+
+```
+
+
+THIS NEEDS TO BE RUN
+```{r STM-men-women-match-k0, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+
+topic_model_k0 <- read_rds("topic_model_k0.rds")
+
+lab_corpus_man_stm <- read_rds("lab_corpus_man_stm.rds")
+
+new_man_k0 <- alignCorpus(new=lab_corpus_man_stm, old.vocab=topic_model_k0$vocab)
+
+#new_man_k0 <- asSTMCorpus(new_man_k0)
+
+topic_model_man_k0 <- fitNewDocuments(model = topic_model_k0, 
+                                   documents = new_man_k0$documents,
+                                   newData = new_man_k0$meta, 
+                                   prevalence = ~short_list, verbose = TRUE)
+write_rds(topic_model_man_k0, "topic_model_man_k0.rds")
+write_rds(new_man_k0, "new_man_k0.rds")
+#summary(topic_model_man_k30)
+```
+
+
+
+```{r corr_creation-k0, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+#library(tidystm)
+topic_model_k0 <- read_rds("topic_model_k0.rds")
+
+lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+
+corr_topic_k0 <- topicCorr(topic_model_k0, method = "huge", verbose = FALSE)
+
+prep_k0 <- estimateEffect(1:84 ~ short_list, topic_model_k0, 
+                       meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
+
+write_rds(corr_topic_k0, "corr_topic_k0.rds")
+
+write_rds(prep_k0, "prep_k0.rds")
+```
+
+```{r stm-analysis-k0, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k0-network}Fruchterman-Reingold plot of k0 Network"}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+#library(tidystm)
+
+corr_topic_k0 <- read_rds("corr_topic_k0.rds")
+
+prep_k0 <- read_rds("prep_k0.rds")
+
+lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+
+topic_model_k0 <- read_rds("topic_model_k0.rds")
+
+prep_df_k0 <- summary(prep_k0)[[3]]
+
+prep_df_k0 <- as.data.frame(do.call(rbind, prep_df_k0))
+
+prep_df_k0$topic <- NA
+
+prep_df_k0$topic <- rep(1:84, each = 2)
+
+prep_df_k0$type <- row.names(prep_df_k0)
+
+prep_df_k0$type <- gsub("\\.[0-9][0-9]", "", prep_df_k0$type)
+
+prep_df_k0$type <- gsub("\\.[0-9]", "", prep_df_k0$type)
+
+prep_df_k0$type <- gsub("\\.$", "", prep_df_k0$type)
+
+prep_df_k0_coeff <- prep_df_k0 %>% filter(type == "short_listTRUE")
+
+vlabels=NULL
+layout=NULL
+
+topics <- 1:nrow(corr_topic_k0$posadj)
+  
+x <- corr_topic_k0$posadj[topics, topics]
+  
+g <- igraph::graph.adjacency(x, mode="directed", weighted=TRUE, diag=FALSE)
+igraph::E(g)$size <- 1
+igraph::E(g)$lty <- 2
+igraph::E(g)$color <- "black"
+igraph::V(g)$label <- topics
+
+plotcord_k0 <- data.frame(layout_with_fr(g))
+  
+edgelist_k0 <- get.edgelist(g)
+
+#convert to a four column edge data frame with source and destination coordinates
+edges_k0 <- data.frame(plotcord_k0[edgelist_k0[,1],], 
+                    plotcord_k0[edgelist_k0[,2],])
+colnames(edges_k0) <- c("X1","Y1","X2","Y2")
+
+plotcord_k0$topic <- as.numeric(row.names(plotcord_k0))
+  
+plotcord_k0 <- plotcord_k0 %>% left_join(prep_df_k0_coeff)
+
+lab_corpus_fem_stm$meta$eo_id <- docnames(lab_corpus_fem_stm$documents)
+
+topic_dt_k0 <- make.dt(topic_model_k0, lab_corpus_fem_stm$meta)
+
+topic_dt_k0$assigned_topic <- colnames(topic_dt_k0[,2:85])[max.col(topic_dt_k0[,2:85],ties.method="random")]
+
+topic_dt_k0$assigned_topic <- as.factor(topic_dt_k0$assigned_topic)
+
+## Reordering x$assigned_topic
+topic_dt_k0$assigned_topic <- factor(topic_dt_k0$assigned_topic, 
+                           levels=c("Topic1", "Topic2", "Topic3",
+                                    "Topic4", "Topic5", "Topic6",
+                                    "Topic7", "Topic8", "Topic9",
+                                    "Topic10", "Topic11", "Topic12",
+                                    "Topic13", "Topic14", "Topic15",
+                                    "Topic16", "Topic17", "Topic18",
+                                    "Topic19", "Topic20", "Topic21",
+                                    "Topic22", "Topic23", "Topic24",
+                                    "Topic25", "Topic26", "Topic27",
+                                    "Topic28", "Topic29", "Topic30",
+                                    "Topic31", "Topic32", "Topic33",
+                                    "Topic34", "Topic35", "Topic36",
+                                    "Topic37", "Topic38", "Topic39",
+                                    "Topic40", "Topic41", "Topic42",
+                                    "Topic43", "Topic44", "Topic45",
+                                    "Topic46", "Topic47", "Topic48",
+                                    "Topic49", "Topic50", "Topic51",
+                                    "Topic52", "Topic53", "Topic54",
+                                    "Topic55", "Topic56", "Topic57",
+                                    "Topic58", "Topic59", "Topic60",
+                                    "Topic61", "Topic62", "Topic63",
+                                    "Topic64", "Topic65", "Topic66",
+                                    "Topic67", "Topic68", "Topic69",
+                                    "Topic71", "Topic72", "Topic73",
+                                    "Topic74", "Topic75", "Topic76", 
+                                    "Topic77", "Topic78", "Topic79", 
+                                    "Topic80", "Topic81", "Topic82",
+                                    "Topic83", "Topic84"))
+
+topic_dt_k0_2 <- topic_dt_k0 %>% group_by(assigned_topic) %>%
+  summarise(count = n()) %>%
+  mutate(freq = count/sum(count) )
+
+plotcord_k0$assigned_topic <- paste0("Topic", plotcord_k0$topic)
+
+plotcord_k0 <- plotcord_k0 %>% left_join(topic_dt_k0_2)
+
+p_network_k0 <- ggplot() + 
+  geom_segment(aes(x=X1, y=Y1, xend = X2, yend = Y2),
+               data=edges_k0, size = 0.5, colour="grey") +
+  geom_point(data = plotcord_k0, aes(X1, X2, colour = Estimate, size = freq)) + 
+  geom_text(aes(X1, X2, label=topic), hjust="center", vjust="top",
+            size = 5, data = plotcord_k0) + 
+  scale_colour_viridis(breaks = c(max(plotcord_k0$Estimate),
+                                  min(plotcord_k0$Estimate)), 
+                       labels = c("More AWS", "More non-AWS"),
+                       name=NULL, option = "plasma") + 
+  scale_size(guide = "none") + 
+  theme_void() + 
+  theme(legend.position = "bottom",
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),  
+    axis.title.x = element_blank(), 
+    axis.title.y = element_blank())
+
+ggsave("p_network_k0.svg", plot = p_network_k0, path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_network_k0
+```
+
+
+```{r estimate-table-k0, eval=FALSE, include=FALSE}
+library(knitr)
+library(kableExtra)
+library(dplyr)
+
+row.names(prep_df_k0) <- NULL
+prep_df_k0$type <- gsub("X.Intercept", "Intercept", prep_df_k0$type)
+prep_df_k0$type <- gsub("short_listTRUE", "Shortlist", prep_df_k0$type)
+
+prep_df_k0$stars <- case_when(prep_df_k0$`Pr(>|t|)` < 0.001 ~ "***", 
+                               prep_df_k0$`Pr(>|t|)` < 0.01 ~ "**",
+                               prep_df_k0$`Pr(>|t|)` < 0.05 ~ "*", 
+                               TRUE ~ "")
+
+  topics <- prep_k0$topics
+  nsim <- 500
+  tables <- vector(mode="list", length=length(topics))
+  for(i in seq_along(topics)) {
+    topic = topics[i]
+    sims <- lapply(prep_k0$parameters[[topic]], function(x) stm:::rmvnorm(nsim, x$est, x$vcov))
+    sims <- do.call(rbind,sims)
+    est<- colMeans(sims)
+    se <- sqrt(apply(sims,2, stats::var))
+    tval <- est/se
+    rdf <- nrow(prep_k0$data) - length(est)
+    p <- 2 * stats::pt(abs(tval), rdf, lower.tail = FALSE)
+    
+    coefficients <- cbind(est, se, tval, p)
+    rownames(coefficients) <- attr(prep_k0$parameters[[1]][[1]]$est, "names") 
+    colnames(coefficients) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
+    tables[[i]] <- coefficients
+  }
+  out <- list(call=prep_k0$call, topics=topics, tables=tables)
+  class(out) <- "lm"
+  return(out)
+}
+
+kable(prep_df_k0,  booktabs = TRUE, longtable = TRUE, 
+      caption = "Count and Distribution of Topics -- k0",
+      col.names = c("Estimate", "Standard Error", "t value",
+                    "P", "Topic",
+                    "Type", "Stars"),
+      align = c("l","r","r","r","r","r")) %>%
+    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
+                                    "striped"), full_width = TRUE )
+```
+
+
+
+```{r stm-excl-coh-k0, echo=FALSE, fig.cap="\\label{k0-coherence}Coherence of k0 Topic Models"}
+
+library(ggrepel)
+
+sem_test_k0 <- semanticCoherence(topic_model_k0, lab_corpus_fem_stm$documents)
+
+exc_test_k0 <- exclusivity(topic_model_k0)
+
+sem_exc_k0 <- tibble::tibble(topic = 1:84, sem_test_k0, exc_test_k0)
+
+p_sem_exc_k0 <- ggplot(sem_exc_k0, aes(y=exc_test_k0, x = sem_test_k0)) + 
+  geom_point() + 
+  geom_label_repel(aes(label = topic)) +
+  #coord_cartesian(xlim = c(-200,0), ylim = c(9.4, 10)) + 
+  labs(x="Semantic Coherence", y = "Exclusivity")
+
+ggsave("p_sem_exc_k0.svg", plot = p_sem_exc_k0, path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_sem_exc_k0
+```
+
+```{r topic-dt-man-creation-k0, include=FALSE}
+library(scales)
+library(tidyr)
+
+topic_model_man_k0 <- read_rds("topic_model_man_k0.rds")
+new_man_k0 <- read_rds("new_man_k0.rds")
+
+new_man$meta$eo_id <- docnames(new_man$documents)
+
+topic_man_dt_k0 <- make.dt(topic_model_man, new_man$meta)
+
+topic_man_dt_k0$assigned_topic <- colnames(topic_man_dt_k0[,2:85])[max.col(topic_man_dt_k0[,2:85],ties.method="random")]
+
+topic_man_dt_k0$assigned_topic <- as.factor(topic_man_dt_k0$assigned_topic)
+
+## Reordering x$assigned_topic
+topic_man_dt_k0$assigned_topic <- factor(topic_man_dt_k0$assigned_topic)#, 
+                            levels=c("Topic1", "Topic2", "Topic3",
+                                    "Topic4", "Topic5", "Topic6",
+                                    "Topic7", "Topic8", "Topic9",
+                                    "Topic10", "Topic11", "Topic12",
+                                    "Topic13", "Topic14", "Topic15",
+                                    "Topic16", "Topic17", "Topic18",
+                                    "Topic19", "Topic20", "Topic21",
+                                    "Topic22", "Topic23", "Topic24",
+                                    "Topic25", "Topic26", "Topic27",
+                                    "Topic28", "Topic29", "Topic30",
+                                    "Topic31", "Topic32", "Topic33",
+                                    "Topic34", "Topic35", "Topic36",
+                                    "Topic37", "Topic38", "Topic39",
+                                    "Topic40", "Topic41", "Topic42",
+                                    "Topic43", "Topic44", "Topic45",
+                                    "Topic46", "Topic47", "Topic48",
+                                    "Topic49", "Topic50", "Topic51",
+                                    "Topic52", "Topic53", "Topic54",
+                                    "Topic55", "Topic56", "Topic57",
+                                    "Topic58", "Topic59", "Topic60",
+                                    "Topic61", "Topic62", "Topic63",
+                                    "Topic64", "Topic65", "Topic66",
+                                    "Topic67", "Topic68", "Topic69",
+                                    "Topic71", "Topic72", "Topic73",
+                                    "Topic74", "Topic75", "Topic76", 
+                                    "Topic77", "Topic78", "Topic79", 
+                                    "Topic80", "Topic81", "Topic82",
+                                    "Topic83", "Topic84")
+
+topic_man_dt_k0_2 <- topic_man_dt_k0 %>% group_by(assigned_topic) %>%
+  summarise(man_count = n()) %>%
+  mutate(man_freq = man_count/sum(man_count, na.rm = TRUE),
+         assigned_topic = gsub("Topic", "Topic ", assigned_topic))
+
+```
+
+```{r topic-dt3-creation-k0, include=FALSE}
+topic_dt_k0_3 <- topic_dt_k0 %>%
+  group_by(assigned_topic, short_list) %>%
+  summarise(count = n()) %>%
+  ungroup() %>%
+  spread(key = "short_list", value = "count") %>%
+  rename("AWS" = "TRUE", "non_AWS" = "FALSE") %>%
+  mutate(AWS_freq = AWS/sum(AWS, na.rm = TRUE),
+         non_AWS_freq = non_AWS/sum(non_AWS, na.rm = TRUE),
+         assigned_topic = gsub("Topic", "Topic ", assigned_topic)) %>%
+  select(assigned_topic, AWS, AWS_freq, non_AWS, non_AWS_freq) %>%
+  left_join(topic_man_dt_k0_2)
+
+
+topic_dt_k0_4 <- topic_dt_k0_3 %>% 
+    mutate(AWS_freq = paste0(round((AWS_freq*100), 2), "%"),
+          non_AWS_freq = paste0(round((non_AWS_freq*100), 2), "%"),
+          AWS = formatC(AWS, big.mark = ","),
+          non_AWS = formatC(non_AWS, big.mark = ","),
+          man_freq = paste0(round((man_freq*100), 2), "%"),
+          man_count = formatC(man_count, big.mark = ","))
+
+```
+
+```{r topic-summary-table-k0, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+
+kable(topic_dt_k0_4,  booktabs = TRUE, longtable = TRUE, 
+      caption = "Count and Distribution of Topics -- k0",
+      col.names = c("Topic Number", "AWS Speeches", "Percent of AWS Speeches",
+                    "Non-AWS Speeches", "Percent of non-AWS Speeches",
+                    "Male MP Speeches", "Percent of Male MP Speeches"),
+      align = c("l","r","r","r","r","r","r")) %>%
+    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
+                                    "striped"), full_width = TRUE )
+```
+
+
+```{r k0-topic-pyramid, echo=FALSE, fig.height=9, fig.cap="\\label{k0-topic-pyramid-pllot}k0 Pyramid Chart"}
+
+topic_dt_k0_5 <- topic_dt_k0_3 %>% 
+  select(-man_count, -man_freq, -non_AWS, -AWS) %>%
+  gather("aws_status", "perc", -assigned_topic) %>%
+   mutate(assigned_topic = factor(assigned_topic, 
+                                   levels=c("Topic1", "Topic2", "Topic3",
+                                    "Topic4", "Topic5", "Topic6",
+                                    "Topic7", "Topic8", "Topic9",
+                                    "Topic10", "Topic11", "Topic12",
+                                    "Topic13", "Topic14", "Topic15",
+                                    "Topic16", "Topic17", "Topic18",
+                                    "Topic19", "Topic20", "Topic21",
+                                    "Topic22", "Topic23", "Topic24",
+                                    "Topic25", "Topic26", "Topic27",
+                                    "Topic28", "Topic29", "Topic30",
+                                    "Topic31", "Topic32", "Topic33",
+                                    "Topic34", "Topic35", "Topic36",
+                                    "Topic37", "Topic38", "Topic39",
+                                    "Topic40", "Topic41", "Topic42",
+                                    "Topic43", "Topic44", "Topic45",
+                                    "Topic46", "Topic47", "Topic48",
+                                    "Topic49", "Topic50", "Topic51",
+                                    "Topic52", "Topic53", "Topic54",
+                                    "Topic55", "Topic56", "Topic57",
+                                    "Topic58", "Topic59", "Topic60",
+                                    "Topic61", "Topic62", "Topic63",
+                                    "Topic64", "Topic65", "Topic66",
+                                    "Topic67", "Topic68", "Topic69",
+                                    "Topic71", "Topic72", "Topic73",
+                                    "Topic74", "Topic75", "Topic76", 
+                                    "Topic77", "Topic78", "Topic79", 
+                                    "Topic80", "Topic81", "Topic82",
+                                    "Topic83", "Topic84")))#,
+  #        assigned_topic = recode(assigned_topic, "Topic 1" = "Ministers",
+  #                                "Topic 2" = "Elections",
+  #                                "Topic 3" = "Northern Ireland",
+  #                                "Topic 4" = "Personal finance",
+  #                                 "Topic 5" = "committees",
+  #                                 "Topic 6" = "development",
+  #                                 "Topic 7" = "petitions",
+  #                                 "Topic 8" = "agreement",
+  #                                 "Topic 9" = "market competition",
+  #                                 "Topic 10" = "gender",
+  #                                 "Topic 11" = "energy",
+  #                                 "Topic 12" = "post-office",
+  #                                 "Topic 13" = "regions",
+  #                                 "Topic 14" = "pensions and disability",
+  #                                 "Topic 15" = "unemployment",
+  #                                 "Topic 16" = "education",
+  #                                 "Topic 17" = "other",
+  #                                 "Topic 18" = "inquiries",
+  #                                 "Topic 19" = "business",
+  #                                 "Topic 20" = "wales",
+  #                                 "Topic 21" = "social care",
+  #                                 "Topic 22" = "pay",
+  #                                 "Topic 23" = "amendments",
+  #                                 "Topic 24" = "reports",
+  #                                 "Topic 25" = "deicisons",
+  #                                 "Topic 26" = "floods",
+  #                                 "Topic 27" = "spending",
+  #                                 "Topic 28" = "culture",
+  #                                 "Topic 29" = "single parents",
+  #                                 "Topic 30" = "voeters",
+  #                                 "Topic 31" = "point",
+  #                                 "Topic 32" = "member replies",
+  #                                 "Topic 33" = "EU",
+  #                                 "Topic 34" = "higher education",
+  #                                 "Topic 35" = "local authorities",
+  #                                 "Topic 36" = "disbility",
+  #                                 "Topic 37" = "fishing",
+  #                                 "Topic 38" = "justice",
+  #                                 "Topic 39" = "international",
+  #                                 "Topic 40" = "hillsborough disaster",
+  #                                 "Topic 41" = "policy development",
+  #                                 "Topic 42" = "crime",
+  #                                 "Topic 43" = "housing",
+  #                                 "Topic 44" = "questions",
+  #                                 "Topic 45" = "health research",
+  #                                 "Topic 46" = "badger cull",
+  #                                 "Topic 47" = "defence",
+  #                                 "Topic 48" = "immigration detention",
+  #                                 "Topic 49" = "police",
+  #                                 "Topic 50" = "NHS care",
+  #                                 "Topic 51" = "tax",
+  #                                 "Topic 52" = "time",
+  #                                 "Topic 53" = "NHS staffing",
+  #                                 "Topic 54" = "bills",
+  #                                 "Topic 55" = "economic sectors",
+  #                                 "Topic 56" = "disease",
+  #                                 "Topic 57" = "regions",
+  #                                 "Topic 58" = "legal aid",
+  #                                 "Topic 59" = "youth employment",
+  #                                 "Topic 60" = "tax evasion",
+  #                                 "Topic 61" = "scotland",
+  #                                 "Topic 62" = "human trafficing ",
+  #                                 "Topic 63" = "retail sector",
+  #                                 "Topic 64" = "debate",
+  #                                 "Topic 65" = "foster care",
+  #                                 "Topic 66" = "transport",
+  #                                 "Topic 67" = "changes over time",
+  #                                 "Topic 68" = "support",
+  #                                 "Topic 84" = "Other"))
+
+topic_dt_k0_5$perc[is.na(topic_dt_k0_5$perc)] <- 0
+
+p_k0_pyramid <- ggplot(data = topic_dt_k0_5, 
+                        aes(x = assigned_topic, y = perc, fill = aws_status)) +
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "non_AWS_freq"),
+           stat = "identity" ) + 
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "AWS_freq"),
+           stat = "identity", aes(y = -perc) ) + 
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "AWS_freq"),
+           stat = "identity", aes(color = aws_status),
+           alpha = 0, color = "#641A80") + 
+    geom_bar(data = filter(topic_dt_k0_5, aws_status == "non_AWS_freq"),
+           stat = "identity", aes(color = aws_status, y = -perc),
+           alpha = 0, color = "#F76F5C") + 
+  scale_y_continuous(breaks = seq(-0.075, 0.075, 0.025), 
+                     labels = paste0(
+                       as.character(c(seq(7.5, 0, -2.5), seq(2.5, 7.5, 2.5))), "%")) + 
+  coord_flip(ylim = c(-0.075, 0.075)) + 
+  scale_fill_viridis_d(labels = c("AWS", "non-AWS"),
+                       begin = 0.3, end = 0.7, option = "magma", name = "") + 
+  labs(x = "Topic", y = "Percentage of Speeches") + 
+  theme(legend.position = "bottom")
+
+ggsave("p_k0_pyramid.svg", plot = p_k0_pyramid,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k0_pyramid
+```
+
+```{r k0-topic-bar, echo=FALSE, fig.cap="\\label{k0-topic-bar-plot}k0 Bar Chart"}
+p_k0_bar <- ggplot(data = topic_dt_k0_5,
+                    aes(x = assigned_topic, y = perc, fill = aws_status)) +
+  geom_bar(data = topic_dt_k0_5, stat = "identity", position = "dodge") + 
+  scale_y_continuous(breaks = c(0, 0.025, 0.05, 0.075),
+                     labels = scales::percent) + 
+  scale_fill_viridis_d(labels = c("AWS", "non-AWS"),
+                       begin = 0.3, end = 0.7, option = "magma", name = "") + 
+  labs(x = "Topic", y = "Percentage of Speeches") + 
+  theme(legend.position = "bottom", 
+        axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggsave("p_k0_bar.svg", plot = p_k0_bar,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k0_bar
+```
+
+```{r top-n-topics-k0, eval=FALSE, include=FALSE}
+
+aws_top10 <- top_n(topic_dt3, 10, AWS)
+non_aws_top10 <- top_n(topic_dt3, 10, non_AWS)
+
+cor.test(topic_dt3$non_AWS_freq, topic_dt3$man_freq, na.rm = TRUE)
+
+topic_dt5 <- topic_dt3 %>% select(assigned_topic, AWS_freq,
+                                  non_AWS_freq, man_freq)
+
+df <- table(topic_dt5)
+
+# run test
+mantelhaen.test(topic_dt3$assigned_topic)
+
+```
+
+```{r stm-topic-words-k0, message=FALSE, warning=FALSE, include=FALSE}
+library(tidyr)
+topic_words <- labelTopics(topic_model_k0, n = 20, frexweight = 0.5)
+
+topic_words_highest <- tibble::as_tibble(topic_words[[1]])
+
+topic_words_highest <- topic_words_highest %>% unite(V1:V10, sep = ", ") %>%
+  rename("highest" = "V1:V10")
+
+topic_words_highest$topic <- paste0("Topic ", row.names(topic_words_highest))
+
+topic_words_frex <- tibble::as_tibble(topic_words[[2]])
+
+topic_words_frex <- topic_words_frex %>% unite(V1:V10, sep = ", ") %>%
+  rename("FREX" = "V1:V10")
+
+topic_words_frex$topic <- paste0("Topic ", row.names(topic_words_frex))
+
+topic_words2 <- topic_words_highest %>% left_join(topic_words_frex) %>% 
+  select(topic, everything())
+```
+
+
+#### Word Occurences
+
+The table below shows the ten most common words in each topic, and the ten words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016].
+
+```{r topic-words-table-k0, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+
+kable(topic_words2,  booktabs = TRUE, longtable = TRUE, 
+      caption = "Words in topic - k0",
+      col.names = c("Topic Number", "Top Ten Words", "Top Ten FREX")) %>%
+    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
+                                    "striped"), full_width = TRUE ) %>% 
+  column_spec(2:3, width = "6cm")
+
+```
+
+
+### Full topic model summary - k0
+
+
+```{r topic-model-k0-summary, echo=FALSE, message=FALSE}
+summary(topic_model_k0)
+```
+
+### Full topic model estimate summary - k0
+
+```{r topic-model-k0-est-summary, echo=FALSE, message=FALSE}
+summary(prep_k0)
+```
+
+

@@ -70,6 +70,33 @@ head(test6)
 
 
 
+```{r lab-desc-stats, eval=FALSE, include=FALSE}
+elections <- as.POSIXct(c("1997-05-01", "2001-06-07", "2005-05-05", 
+               "2010-05-06", "2015-05-07", "2017-06-07"), tz = "UTC")
+
+labour_intakes <- lab_speech %>% 
+  filter(house_start_date %in% elections) %>% 
+  group_by(house_start_date, mnis_id) %>% 
+  summarise() %>% 
+  group_by(house_start_date) %>% 
+  summarise(total=n()) 
+
+labour_intakes_women <- lab_speech %>% 
+  filter(house_start_date %in% elections, gender=="Female") %>% 
+  group_by(house_start_date, mnis_id) %>% 
+  summarise() %>% 
+  group_by(house_start_date) %>% 
+  summarise(women=n()) 
+
+labour_intakes <- labour_intakes %>% left_join(labour_intakes_women)
+labour_intakes$perc_women <- (labour_intakes$women/labour_intakes$total)*100
+
+```
+
+
+
+
+
 
 Existing work on this topic has either compared women and men, or tracked changes in a single woman [@jones2016] or group of women. 
 
