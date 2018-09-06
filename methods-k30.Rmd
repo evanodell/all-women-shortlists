@@ -4,6 +4,8 @@ author: "Evan Odell"
 date: "06/09/2018"
 output: html_document
 ---
+
+### Shortlists vs Non-Shortlists - K30
 ```{r STM-classification-k30, eval=FALSE, include=FALSE}
 library(stm)
 library(readr)
@@ -694,7 +696,7 @@ plotQuote(thought29, width = 30, main = "Topic 3")
 
 #### Word Occurences
 
-The table below shows the ten most common words in each topic, and the ten words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016].
+The table below shows the twenty most common words in each topic, and the twenty words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016].
 
 ```{r topic-words-table-k30, echo=FALSE, results = 'asis'}
 library(knitr)
