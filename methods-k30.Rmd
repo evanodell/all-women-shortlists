@@ -1,0 +1,746 @@
+---
+title: "methods-k30"
+author: "Evan Odell"
+date: "06/09/2018"
+output: html_document
+---
+```{r STM-classification-k30, eval=FALSE, include=FALSE}
+library(stm)
+library(readr)
+
+lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+
+set.seed(402)
+#topic_model_k30 seed = 9957388
+topic_model_k30 <- stm(lab_corpus_fem_stm$documents, 
+                       vocab = lab_corpus_fem_stm$vocab, 
+                       K = 60, prevalence = ~short_list, 
+                       seed = 9957388,
+                       data = lab_corpus_fem_stm$meta,
+                       verbose = TRUE, init.type = "Spectral")
+
+write_rds(topic_model_k30, "topic_model_k30.rds")
+```
+
+```{r STM-men-women-match-k30, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+topic_model_k30 <- read_rds("topic_model_k30.rds")
+
+lab_corpus <- read_rds("lab_corpus.rds")
+
+#topic_model2 <- read_rds("stm-topic-model2.rds")
+
+lab_corpus_man <- corpus_subset(lab_corpus, gender=="Male")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+
+rm(lab_corpus)
+#ndoc(lab_corpus_fem)
+
+lab_corpus_man_stm <- dfm(lab_corpus_man, remove_punct = TRUE,
+                           remove = parliament_stopwords, verbose = TRUE) %>%
+  convert(to = "stm", docvars = NULL)
+
+#lab_corpus_man_stm$meta$short_list <- as.factor(lab_corpus_man_stm$meta$short_list)
+
+write_rds(lab_corpus_man_stm, "lab_corpus_man_stm.rds")
+
+new_man_k30 <- alignCorpus(new=lab_corpus_man_stm, old.vocab=topic_model_k30$vocab)
+
+#new_man <- asSTMCorpus(new_man)
+
+topic_model_man <- fitNewDocuments(model = topic_model_k30, 
+                                   documents = new_man_k30$documents,
+                                   newData = new_man_k30$meta, 
+                                   prevalence = ~short_list, verbose = TRUE)
+write_rds(topic_model_man_k30, "topic_model_man.rds")
+write_rds(new_man_k30, "new_man_k30.rds")
+
+
+#summary(topic_model_man)
+
+#x <- topicCorr(topic_model_man)
+```
+
+```{r corr_creation-k30, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+topic_model_k30 <- read_rds("topic_model_k30.rds")
+
+lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+
+corr_topic_k30 <- topicCorr(topic_model_k30, method = "huge", verbose = FALSE)
+
+prep_k30 <- estimateEffect(1:30 ~ short_list, topic_model_k30, 
+                       meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
+
+write_rds(corr_topic_k30, "corr_topic_k30.rds")
+
+write_rds(prep_k30, "prep_k30.rds")
+```
+
+```{r stm-analysis-k30, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k30-network}Fruchterman-Reingold plot of K30 Network"}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+#library(tidystm)
+
+lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+
+topic_model_k30 <- read_rds("topic_model_k30.rds")
+
+corr_topic_k30 <- read_rds("corr_topic_k30.rds")
+
+prep_k30 <- read_rds("prep_k30.rds")
+
+prep_df_k30 <- summary(prep_k30)[[3]]
+
+prep_df_k30 <- as.data.frame(do.call(rbind, prep_df_k30))
+
+prep_df_k30$topic <- rep(1:30, each = 2)
+
+prep_df_k30$type <- row.names(prep_df_k30)
+
+prep_df_k30$type <- gsub("\\.[0-9][0-9]", "", prep_df_k30$type)
+
+prep_df_k30$type <- gsub("\\.[0-9]", "", prep_df_k30$type)
+
+prep_df_k30$type <- gsub("\\.$", "", prep_df_k30$type)
+
+prep_df_k30_coeff <- prep_df_k30 %>% filter(type == "short_listTRUE")
+
+vlabels=NULL
+layout=NULL
+
+topics <- 1:nrow(corr_topic_k30$posadj)
+  
+x <- corr_topic_k30$posadj[topics, topics]
+  
+g <- igraph::graph.adjacency(x, mode="directed", weighted=TRUE, diag=FALSE)
+igraph::E(g)$size <- 1
+igraph::E(g)$lty <- 2
+igraph::E(g)$color <- "black"
+igraph::V(g)$label <- topics
+
+plotcord_k30 <- data.frame(layout_with_fr(g))
+  
+edgelist_k30 <- get.edgelist(g)
+
+#convert to a four column edge data frame with source and destination coordinates
+edges_k30 <- data.frame(plotcord_k30[edgelist_k30[,1],],
+                        plotcord_k30[edgelist_k30[,2],])
+colnames(edges_k30) <- c("X1","Y1","X2","Y2")
+
+plotcord_k30$topic <- as.numeric(row.names(plotcord_k30))
+  
+plotcord_k30 <- plotcord_k30 %>% left_join(prep_df_k30_coeff)
+
+lab_corpus_fem_stm$meta$eo_id <- docnames(lab_corpus_fem_stm$documents)
+
+topic_dt_k30 <- make.dt(topic_model_k30, lab_corpus_fem_stm$meta)
+
+topic_dt_k30$assigned_topic <- colnames(topic_dt_k30[,2:31])[max.col(topic_dt_k30[,2:31],ties.method="random")]
+
+topic_dt_k30$assigned_topic <- as.factor(topic_dt_k30$assigned_topic)
+
+## Reordering x$assigned_topic
+topic_dt_k30$assigned_topic <- factor(topic_dt_k30$assigned_topic, 
+                           levels=c("Topic1", "Topic2", "Topic3", 
+                                    "Topic4", "Topic5", "Topic6",
+                                    "Topic7", "Topic8", "Topic9",
+                                    "Topic10", "Topic11", "Topic12", 
+                                    "Topic13", "Topic14", "Topic15", 
+                                    "Topic16", "Topic17", "Topic18", 
+                                    "Topic19", "Topic20", "Topic21", 
+                                    "Topic22", "Topic23", "Topic24", 
+                                    "Topic25", "Topic26", "Topic27", 
+                                    "Topic28", "Topic29", "Topic30"))
+
+topic_dt_k30_2 <- topic_dt_k30 %>% group_by(assigned_topic) %>%
+  summarise(count = n()) %>%
+  mutate(freq = count/sum(count) )
+
+plotcord_k30$assigned_topic <- paste0("Topic", plotcord_k30$topic)
+
+plotcord_k30 <- plotcord_k30 %>% left_join(topic_dt_k30_2)
+
+p_network_k30 <- ggplot() + 
+  geom_segment(aes(x = X1, y = Y1, xend = X2, yend = Y2),
+               data = edges_k30, size = 0.5, colour = "grey") +
+  geom_point(data = plotcord_k30, 
+             aes(X1, X2, colour = Estimate, size = freq)) + 
+  geom_text(aes(X1, X2, label = topic), hjust = "center", vjust = "top",
+            size = 5, data = plotcord_k30) + 
+  scale_colour_viridis(breaks = c(max(plotcord_k30$Estimate),
+                                  min(plotcord_k30$Estimate)), 
+                       labels = c("More AWS", "More non-AWS"),
+                       name = NULL, option = "plasma") + 
+  scale_size(guide = "none") + 
+  theme_void() + 
+  theme(legend.position = "bottom",
+    axis.text.x = element_blank(), axis.title.x = element_blank(),
+    axis.text.y = element_blank(),axis.title.y = element_blank(),
+    axis.ticks = element_blank())
+
+ggsave("p_network_k30.svg", plot = p_network_k30,
+         path="plots", device = "svg", width = 20, height = 20, units = "cm")
+  
+p_network_k30
+```
+
+```{r stm-excl-coh-k30, echo=FALSE, fig.cap="\\label{k30-coherence}Coherence of K30 Topic Models"}
+
+library(ggrepel)
+
+sem_test_k30 <- semanticCoherence(topic_model_k30, lab_corpus_fem_stm$documents)
+
+exc_test_k30 <- exclusivity(topic_model_k30)
+
+sem_exc_k30 <- tibble::tibble(topic = 1:30, sem_test_k30, exc_test_k30)
+
+p_sem_exc_k30 <- ggplot(sem_exc_k30, aes(y=exc_test_k30, x = sem_test_k30)) + 
+  geom_point() + 
+  geom_label_repel(aes(label = topic)) +
+  coord_cartesian(xlim = c(-200,0), ylim = c(9.4, 10)) + 
+  labs(x="Semantic Coherence", y = "Exclusivity")
+
+  ggsave("p_sem_exc_k30.svg", plot = p_sem_exc_k30,
+         path="plots", device = "svg", width = 20, height = 20, units = "cm")
+p_sem_exc_k30
+```
+
+
+
+In all but five topics (gender, immigration, international, children and the environment) the model found p values of < 0.01, and in every topic except the aforemention and "people", p values of < 0.001.
+
+```{r estimate-table-k30, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+library(knitr)
+library(kableExtra)
+library(dplyr)
+
+row.names(prep_df_k30) <- NULL
+prep_df_k30$type <- gsub("X.Intercept", "Intercept", prep_df_k30$type)
+prep_df_k30$type <- gsub("short_listTRUE", "Shortlist", prep_df_k30$type)
+
+prep_df_k30 <- prep_df_k30 %>% rename(
+  "p" = "Pr(>|t|)"
+)
+
+prep_df_k30$stars <- case_when(prep_df_k30$p < 0.001 ~ "***", 
+                               prep_df_k30$p < 0.01 ~ "**",
+                               prep_df_k30$p < 0.05 ~ "*", 
+                               TRUE ~ "")
+
+prep_df_k30_2 <- prep_df_k30 %>% select(type, Estimate,
+                                        `Std. Error`, `t value`, p, stars) %>%
+  mutate(p = pixiedust::pval_string(p,  digits = 4))
+
+kable(prep_df_k30_2, booktabs = TRUE, longtable = TRUE, 
+      caption = "Topic Estimates",
+      col.names = c("", "Estimate", "Standard Error",
+                    "t value", "Pr(>|t|)", ""),
+      align = c("l","r","r","r","r", "l")) %>%
+  kable_styling(latex_options = c("HOLD_position",  "repeat_header",
+                                    "striped"), full_width = TRUE ) %>%
+   group_rows(index = c("Topic 1 -- Bills" = 2,
+                        "Topic 2 -- Consultations" = 2,
+                        "Topic 3 -- Members" = 2,
+                        "Topic 4 -- Gender" = 2,
+                        "Topic 5 -- Civic society" = 2,
+                        "Topic 6 -- International" = 2,
+                        "Topic 7 -- Disability" = 2,
+                        "Topic 8 -- Rural Issues" = 2,
+                        "Topic 9 -- Immigration" = 2,
+                        "Topic 10 -- Health Care" = 2,
+                        "Topic 11 -- Parties" = 2,
+                        "Topic 12 -- Constituencies" = 2,
+                        "Topic 13 -- Security" = 2,
+                        "Topic 14 -- Investment" = 2,
+                        "Topic 15 -- Youth" = 2,
+                        "Topic 16 -- Energy" = 2,
+                        "Topic 17 -- Local authorities" = 2,
+                        "Topic 18 -- People" = 2,
+                        "Topic 19 -- Education" = 2,
+                        "Topic 20 -- Transport" = 2,
+                        "Topic 21 -- Housing" = 2,
+                        "Topic 22 -- Tax" = 2,
+                        "Topic 23 -- Police" = 2,
+                        "Topic 24 -- Media" = 2,
+                        "Topic 25 -- Families" = 2,
+                        "Topic 26 -- Environment" = 2,
+                        "Topic 27 -- Ministers" = 2,
+                        "Topic 28 -- Regions" = 2,
+                        "Topic 29 -- Pensions" = 2,
+                        "Topic 30 -- Technology" = 2))
+```
+
+
+```{r topic-diversity-k30, echo=FALSE}
+library(knitr)
+library(kableExtra)
+library(dplyr)
+#head(topic_dt_k30)
+
+#summary(topic_dt_k30$mnis_id)
+
+topic_dt_k30_div <- topic_dt_k30 %>% 
+  mutate(assigned_topic = gsub("Topic", "Topic ", assigned_topic)) %>% 
+  group_by(assigned_topic, mnis_id) %>%
+  tally() %>% ungroup() %>% 
+  group_by(assigned_topic)  %>%
+  summarise(distinct_n5 = sum(n >= 5),
+            distinct = n()) %>%
+  select(assigned_topic, distinct, distinct_n5) %>%
+   mutate(assigned_topic = recode(assigned_topic,
+                                  "Topic 1" = "Bills",
+                                  "Topic 2" = "Consultations",
+                                  "Topic 3" = "Members",
+                                  "Topic 4" = "Gender",
+                                  "Topic 5" = "Civic society",
+                                  "Topic 6" = "International",
+                                  "Topic 7" = "Disability",
+                                  "Topic 8" = "Rural Issues",
+                                  "Topic 9" = "Immigration",
+                                  "Topic 10" = "Health Care",
+                                  "Topic 11" = "Parties",
+                                  "Topic 12" = "Constituencies",
+                                  "Topic 13" = "Security",
+                                  "Topic 14" = "Investment",
+                                  "Topic 15" = "Youth",
+                                  "Topic 16" = "Energy",
+                                  "Topic 17" = "Local authorities",
+                                  "Topic 18" = "People",
+                                  "Topic 19" = "Education",
+                                  "Topic 20" = "Transport",
+                                  "Topic 21" = "Housing",
+                                  "Topic 22" = "Tax",
+                                  "Topic 23" = "Police",
+                                  "Topic 24" = "Media",
+                                  "Topic 25" = "Families",
+                                  "Topic 26" = "Environment",
+                                  "Topic 27" = "Ministers",
+                                  "Topic 28" = "Regions",
+                                  "Topic 29" = "Pensions",
+                                  "Topic 30" = "Technology"))
+
+topic_dt_k30_div$prop <- topic_dt_k30_div$distinct_n5/topic_dt_k30_div$distinct
+
+kable(topic_dt_k30_div[1:3],  booktabs = TRUE, longtable = TRUE, 
+      caption = "Distribution of Topics Among Female Labour MPs -- K30",
+      col.names = c("Topic", "One or more speeches", "Five or more speeches"),
+      align = c("l","r","r")) %>%
+    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
+                                    "striped"), full_width = TRUE )
+```
+
+There is no topic that every single female Labour MP has discussed at least once. The most widely used is the topic "People", which out of `r sum(lab_nums$distinct[lab_nums$gender=="Female"])` female Labour MPs in the dataset, `r scales::percent(topic_dt_k30_div$distinct[topic_dt_k30_div$assigned_topic=="People"])`  made at least one speech in that topic. `r scales::percent(topic_dt_k30_div$prop[topic_dt_k30_div$assigned_topic=="People"])` of those MPs made five or more speeches about "People".
+
+
+```{r topic-dt-man-creation-k30, include=FALSE}
+library(scales)
+library(tidyr)
+
+topic_model_man_k30 <- read_rds("topic_model_man_k30.rds")
+new_man_k30 <- read_rds("new_man_k30.rds")
+
+new_man_k30$meta$eo_id <- docnames(new_man_k30$documents)
+
+topic_man_dt_k30 <- make.dt(topic_model_man_k30, new_man_k30$meta)
+
+topic_man_dt_k30$assigned_topic <- colnames(topic_man_dt_k30[,2:31])[max.col(topic_man_dt_k30[,2:31],ties.method="random")]
+
+topic_man_dt_k30$assigned_topic <- as.factor(topic_man_dt_k30$assigned_topic)
+
+## Reordering x$assigned_topic
+topic_man_dt_k30$assigned_topic <- factor(topic_man_dt_k30$assigned_topic, 
+                           levels=c("Topic1", "Topic2", "Topic3", 
+                                    "Topic4", "Topic5", "Topic6",
+                                    "Topic7", "Topic8", "Topic9",
+                                    "Topic10", "Topic11", "Topic12", 
+                                    "Topic13", "Topic14", "Topic15", 
+                                    "Topic16", "Topic17", "Topic18", 
+                                    "Topic19", "Topic20", "Topic21", 
+                                    "Topic22", "Topic23", "Topic24", 
+                                    "Topic25", "Topic26", "Topic27", 
+                                    "Topic28", "Topic29", "Topic30"))
+
+topic_man_dt_k30_2 <- topic_man_dt_k30 %>% group_by(assigned_topic) %>%
+  summarise(man_count = n()) %>%
+  mutate(man_freq = man_count/sum(man_count, na.rm = TRUE),
+         assigned_topic = gsub("Topic", "Topic ", assigned_topic))
+
+```
+
+```{r topic-dt3-creation-k30, include=FALSE}
+topic_dt_k30_3 <- topic_dt_k30 %>% group_by(assigned_topic, short_list) %>%
+  summarise(count = n()) %>%
+  ungroup() %>%
+  spread(key = "short_list", value = "count") %>%
+  rename("AWS" = "TRUE", "non_AWS" = "FALSE") %>%
+  mutate(AWS_freq = AWS/sum(AWS, na.rm = TRUE),
+         non_AWS_freq = non_AWS/sum(non_AWS, na.rm = TRUE),
+         assigned_topic = gsub("Topic", "Topic ", assigned_topic)) %>%
+  select(assigned_topic, AWS, AWS_freq, non_AWS, non_AWS_freq) %>%
+  left_join(topic_man_dt_k30_2)
+
+topic_dt_k30_4 <- topic_dt_k30_3 %>% 
+    mutate(AWS_freq = paste0(round((AWS_freq*100),2), "%"),
+          non_AWS_freq = paste0(round((non_AWS_freq*100),2), "%"),
+          AWS = formatC(AWS, big.mark = ","),
+          non_AWS = formatC(non_AWS, big.mark = ","),
+          man_freq = paste0(round((man_freq*100),2), "%"),
+          man_count = formatC(man_count, big.mark = ","),
+        assigned_topic = recode(assigned_topic,
+                                "Topic 1" = "Bills",
+                                "Topic 2" = "Consultations",
+                                "Topic 3" = "Members",
+                                "Topic 4" = "Gender",
+                                "Topic 5" = "Civic society",
+                                 "Topic 6" = "International",
+                                 "Topic 7" = "Disability",
+                                 "Topic 8" = "Rural Issues",
+                                "Topic 9" = "Immigration",
+                                "Topic 10" = "Health Care",
+                                "Topic 11" = "Parties",
+                                "Topic 12" = "Constituencies",
+                                "Topic 13" = "Security",
+                                "Topic 14" = "Investment",
+                                "Topic 15" = "Youth",
+                                "Topic 16" = "Energy",
+                                 "Topic 17" = "Local authorities",
+                                 "Topic 18" = "People",
+                                 "Topic 19" = "Education",
+                                 "Topic 20" = "Transport",
+                                 "Topic 21" = "Housing",
+                                 "Topic 22" = "Tax",
+                                 "Topic 23" = "Police",
+                                 "Topic 24" = "Media",
+                                 "Topic 25" = "Families",
+                                "Topic 26" = "Environment",
+                                "Topic 27" = "Ministers",
+                                "Topic 28" = "Regions",
+                                "Topic 29" = "Pensions",
+                                "Topic 30" = "Technology")
+          )
+
+```
+
+```{r topic-summary-table-k30, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+
+kable(topic_dt_k30_4,  booktabs = TRUE, longtable = TRUE, 
+      caption = "Count and Distribution of Topics -- K30",
+      col.names = c("Topic Number", "AWS Speeches", "Percent of AWS Speeches",
+                    "Non-AWS Speeches", "Percent of non-AWS Speeches",
+                    "Male MP Speeches", "Percent of Male MP Speeches"),
+      align = c("l","r","r","r","r","r","r")) %>%
+    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
+                                    "striped"), full_width = TRUE )
+```
+
+
+```{r k30-topic-pyramid, echo=FALSE, fig.height=9, fig.cap="\\label{k30-topic-pyramid-plot}K30 Pyramid Chart"}
+
+topic_dt_k30_3$prop <- topic_dt_k30_3$AWS_freq/topic_dt_k30_3$non_AWS_freq
+
+topic_dt_k30_5 <- topic_dt_k30_3 %>% 
+  select(assigned_topic, AWS_freq, non_AWS_freq) %>%
+  gather("aws_status", "perc", -assigned_topic) %>%
+  mutate(assigned_topic = factor(assigned_topic, 
+                                 levels=c("Topic 1", "Topic 2", "Topic 3",
+                                          "Topic 4", "Topic 5", "Topic 6",
+                                          "Topic 7", "Topic 8", "Topic 9",
+                                          "Topic 10", "Topic 11", "Topic 12", 
+                                          "Topic 13", "Topic 14", "Topic 15", 
+                                          "Topic 16", "Topic 17", "Topic 18", 
+                                          "Topic 19", "Topic 20", "Topic 21", 
+                                          "Topic 22", "Topic 23", "Topic 24", 
+                                          "Topic 25", "Topic 26", "Topic 27", 
+                                          "Topic 28", "Topic 29", "Topic 30")),
+          assigned_topic = recode(assigned_topic,
+         "Topic 1" = "Bills",
+                                "Topic 2" = "Consultations",
+                                "Topic 3" = "Members",
+                                "Topic 4" = "Gender",
+                                "Topic 5" = "Civic society",
+                                 "Topic 6" = "International",
+                                 "Topic 7" = "Disability",
+                                 "Topic 8" = "Rural Issues",
+                                "Topic 9" = "Immigration",
+                                "Topic 10" = "Health Care",
+                                "Topic 11" = "Parties",
+                                "Topic 12" = "Constituencies",
+                                "Topic 13" = "Security",
+                                "Topic 14" = "Investment",
+                                "Topic 15" = "Youth",
+                                "Topic 16" = "Energy",
+                                 "Topic 17" = "Local authorities",
+                                 "Topic 18" = "People",
+                                 "Topic 19" = "Education",
+                                 "Topic 20" = "Transport",
+                                 "Topic 21" = "Housing",
+                                 "Topic 22" = "Tax",
+                                 "Topic 23" = "Police",
+                                 "Topic 24" = "Media",
+                                 "Topic 25" = "Families",
+                                "Topic 26" = "Environment",
+                                "Topic 27" = "Ministers",
+                                "Topic 28" = "Regions",
+                                "Topic 29" = "Pensions",
+                                "Topic 30" = "Technology")
+         )
+
+topic_dt_k30_5$perc[is.na(topic_dt_k30_5$perc)] <- 0
+
+p_k30_pyramid <- ggplot(data = topic_dt_k30_5, 
+                        aes(x = assigned_topic, y = perc, fill = aws_status)) +
+  geom_bar(data = filter(topic_dt_k30_5, aws_status == "non_AWS_freq"),
+           stat = "identity" ) + 
+  geom_bar(data = filter(topic_dt_k30_5, aws_status == "AWS_freq"),
+           stat = "identity", aes(y = -perc)) + 
+  geom_bar(data = filter(topic_dt_k30_5, aws_status == "AWS_freq"),
+           stat = "identity", aes(color = aws_status),
+           alpha = 0, color = "#641A80") + 
+  geom_bar(data = filter(topic_dt_k30_5, aws_status == "non_AWS_freq"),
+           stat = "identity", aes(color = aws_status, y = -perc),
+           alpha = 0, color = "#F76F5C") + 
+  scale_y_continuous(breaks = seq(-0.125, 0.125, 0.025), 
+                     labels = paste0(
+                       as.character(c(seq(12.5, 0, -2.5),
+                                      seq(2.5, 12.5, 2.5))), "%")) + 
+  coord_flip(ylim = c(-0.125, 0.125)) + 
+  scale_fill_viridis_d(labels = c("AWS", "non-AWS"),
+                       begin = 0.3, end = 0.7, option = "magma", name = "") + 
+  labs(x = "Topic", y = "Percentage of Speeches") + 
+  theme(legend.position = "bottom")
+
+ggsave("p_k30_pyramid.svg", plot = p_k30_pyramid,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k30_pyramid
+```
+
+
+```{r k30-topic-bar, echo=FALSE, fig.cap="\\label{k30-topic-bar-plot}K30 Bar Chart"}
+p_k30_bar <- ggplot(data = topic_dt_k30_5,
+                    aes(x = assigned_topic, y = perc, fill = aws_status)) +
+  geom_bar(stat = "identity", position = "dodge") + 
+  scale_y_continuous(breaks = c(0, 0.025, 0.05, 0.075, 0.1, 0.125),
+                     labels = scales::percent) + 
+  scale_fill_viridis_d(labels = c("AWS", "non-AWS"),
+                       begin = 0.3, end = 0.7, option = "magma", name = "") + 
+  labs(x = "Topic", y = "Percentage of Speeches") + 
+  theme(legend.position = "bottom", 
+        axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggsave("p_k30_bar.svg", plot = p_k30_bar,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k30_bar
+```
+
+
+```{r top-n-topics-k30, eval=FALSE, include=FALSE}
+
+aws_top10 <- top_n(topic_dt_k30_3, 10, AWS)
+non_aws_top10 <- top_n(topic_dt_k30_3, 10, non_AWS)
+
+cor.test(topic_dt_k30_3$non_AWS_freq, topic_dt_k30_3$man_freq, na.rm = TRUE)
+
+topic_dt_k30_5 <- topic_dt_k30_3 %>% select(assigned_topic, AWS_freq, non_AWS_freq, man_freq)
+
+df <- table(topic_dt_k30_5)
+
+# run test
+#mantelhaen.test(topic_dt_k30_3$assigned_topic)
+
+```
+
+```{r stm-topic-words-k30, message=FALSE, warning=FALSE, include=FALSE, results='asis'}
+library(tidyr)
+topic_words <- labelTopics(topic_model_k30, n = 20, frexweight = 0.5)
+
+topic_words_highest <- tibble::as_tibble(topic_words[[1]])
+
+topic_words_highest <- topic_words_highest %>% unite(V1:V10, sep = ", ") %>%
+  rename("highest" = "V1:V10")
+
+topic_words_highest$topic <- paste0("Topic ", row.names(topic_words_highest))
+
+topic_words_frex <- tibble::as_tibble(topic_words[[2]])
+
+topic_words_frex <- topic_words_frex %>% unite(V1:V10, sep = ", ") %>%
+  rename("FREX" = "V1:V10")
+
+topic_words_frex$topic <- paste0("Topic ", row.names(topic_words_frex))
+
+topic_words2 <- topic_words_highest %>% left_join(topic_words_frex) %>% 
+  select(topic, everything())
+```
+
+AWS are -- proportionally -- more likely than non-AWS MPs to discuss Topics 29 (parliament), 7 (disability) and 24 (media). They are proportionally less likely to mention Topics 15 (justice), 2 (consultations) and 9 (disease). See Figure \ref{k30-topic-proportion} for more details. Perhaps surprisingly, AWS MPs are slightly less likely to mention gender issues (Topic 3), although the difference is not statistically significant (see [the appendix][Full topic model estimate summary - K30] for details).
+
+```{r k30-topic-proportion, echo=FALSE, fig.cap="\\label{k30-topic-proportion}K30 Topic Proportions"}
+topic_dt_k30_3$prop <- topic_dt_k30_3$AWS_freq/topic_dt_k30_3$non_AWS_freq
+
+topic_dt_k30_6 <- topic_dt_k30_3 %>% 
+  select(assigned_topic, prop) %>%
+  mutate(assigned_topic = factor(assigned_topic, 
+                                 levels=c("Topic 1", "Topic 2", "Topic 3",
+                                          "Topic 4", "Topic 5", "Topic 6",
+                                          "Topic 7", "Topic 8", "Topic 9",
+                                          "Topic 10", "Topic 11", "Topic 12", 
+                                          "Topic 13", "Topic 14", "Topic 15", 
+                                          "Topic 16", "Topic 17", "Topic 18", 
+                                          "Topic 19", "Topic 20", "Topic 21", 
+                                          "Topic 22", "Topic 23", "Topic 24", 
+                                          "Topic 25", "Topic 26", "Topic 27", 
+                                          "Topic 28", "Topic 29", "Topic 30")),
+          assigned_topic = recode(assigned_topic,
+                                  "Topic 1" = "Bills",
+                                  "Topic 2" = "Consultations",
+                                  "Topic 3" = "Members",
+                                  "Topic 4" = "Gender",
+                                  "Topic 5" = "Civic society",
+                                  "Topic 6" = "International",
+                                  "Topic 7" = "Disability",
+                                  "Topic 8" = "Rural Issues",
+                                  "Topic 9" = "Immigration",
+                                  "Topic 10" = "Health Care",
+                                  "Topic 11" = "Parties",
+                                  "Topic 12" = "Constituencies",
+                                  "Topic 13" = "Security",
+                                  "Topic 14" = "Investment",
+                                  "Topic 15" = "Youth",
+                                  "Topic 16" = "Energy",
+                                  "Topic 17" = "Local authorities",
+                                  "Topic 18" = "People",
+                                  "Topic 19" = "Education",
+                                  "Topic 20" = "Transport",
+                                  "Topic 21" = "Housing",
+                                  "Topic 22" = "Tax",
+                                  "Topic 23" = "Police",
+                                  "Topic 24" = "Media",
+                                  "Topic 25" = "Families",
+                                  "Topic 26" = "Environment",
+                                  "Topic 27" = "Ministers",
+                                  "Topic 28" = "Regions",
+                                  "Topic 29" = "Pensions",
+                                  "Topic 30" = "Technology"),
+         assigned_topic = as.character(assigned_topic),
+         prop = if_else(prop < 1, 
+                        (1 - prop) * -1, 
+                        prop - 1)) %>%
+  arrange(prop)
+
+topic_dt_k30_6$assigned_topic <- reorder(topic_dt_k30_6$assigned_topic, topic_dt_k30_6$prop)
+
+p_k30_prop <- ggplot(data = topic_dt_k30_6, 
+                     aes(x = assigned_topic,
+                         y = prop, fill = prop)) +
+  geom_bar(stat = "identity") + 
+  scale_y_continuous() + 
+  scale_fill_viridis_c(name = "") + 
+  coord_flip() + 
+  labs(x = "Topic", 
+       y = "Proportion of speeches made by AWS MPs (right side)\nrelative to non-AWS MPs (left side)") + 
+  theme(legend.position = "bottom")
+
+ggsave("p_k30_prop.svg", plot = p_k30_prop,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k30_prop
+```
+
+```{r eval=FALSE, include=FALSE}
+
+#lab_corpus_fem$documents$texts
+
+lab_corpus_fem2 <- lab_corpus_fem %>% corpus_subset(docnames(lab_corpus_fem) %in% docnames(lab_corpus_fem_stm$documents))
+
+# lab_corpus_fem_stm$meta$eo_id <- docnames(lab_corpus_fem_stm$documents)
+
+## AWS
+thought29 <- findThoughts(topic_model_k30, texts=lab_corpus_fem2$documents$texts,
+                       topics=29, n=3)
+
+thought7 <- findThoughts(topic_model_k30, texts=lab_corpus_fem2$documents$texts,
+                       topics=7, n=3)
+
+thought24 <- findThoughts(topic_model_k30, texts=lab_corpus_fem2$documents$texts,
+                       topics=24, n=3)
+
+plotQuote(thought29, width = 30, main = "Topic 3")
+```
+
+
+#### Word Occurences
+
+The table below shows the ten most common words in each topic, and the ten words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016].
+
+```{r topic-words-table-k30, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+
+kable(topic_words2, booktabs = TRUE, longtable = TRUE, 
+      col.names = c("Topic Number", "Top Ten Words", "Top Ten FREX"),
+      caption = "Words in Topic - K30") %>%
+    kable_styling(latex_options = c("HOLD_position", "repeat_header",
+                                    "striped"), full_width = TRUE ) %>% 
+  column_spec(2:3, width = "6cm")
+```
+
+```{r tidy-text-testing-k30, eval=FALSE, include=FALSE}
+library(tidytext)
+test3 <- tidytext::tidy(topic_model_k30, matrix = "gamma",
+                        document_names = rownames(topic_model_k30))
+
+
+test4 <- test3  %>%
+  group_by(document) %>%
+  top_n(1, gamma) %>%
+  ungroup() %>%
+  arrange(document, -gamma)
+
+test5 <- tidytext::tidy(topic_model_k30, matrix = "beta")
+
+test6 <- test5  %>%
+  group_by(topic) %>%
+  top_n(5, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+head(test6)
+```
+
+
+### Full topic model summary - K30
+
+```{r topic-model-k30-summary, echo=FALSE, message=FALSE}
+summary(topic_model_k30)
+```
+
+### Full topic model estimate summary - K30
+
+```{r topic-model2-k30-est-summary, echo=FALSE, message=FALSE}
+summary(prep_k30)
+```
+

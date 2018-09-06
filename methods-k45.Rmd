@@ -163,9 +163,11 @@ topic_dt_k45$assigned_topic <- factor(topic_dt_k45$assigned_topic,
                                     "Topic40", "Topic41", "Topic42",
                                     "Topic43", "Topic44", "Topic45"))
 
-topic_dt_k45_2 <- topic_dt_k45 %>% group_by(assigned_topic) %>%
-  summarise(count = n()) %>%
-  mutate(freq = count/sum(count) )
+topic_dt_k45_2 <- topic_dt_k45 %>% 
+  group_by(assigned_topic)  %>% 
+  summarise(count = n(),
+            mean_word_count = mean(word_count)) %>%
+  mutate(freq = count/sum(count))
 
 plotcord_k45$assigned_topic <- paste0("Topic", plotcord_k45$topic)
 
@@ -234,7 +236,7 @@ prep_df_k45$stars <- case_when(prep_df_k45$`Pr(>|t|)` < 0.001 ~ "***",
 # }
 
 kable(prep_df_k45,  booktabs = TRUE, longtable = TRUE, 
-      caption = "Count and Distribution of Topics -- k45",
+      caption = "Estimate Effects -- k45",
       col.names = c("Estimate", "Standard Error", "t value",
                     "P", "Topic",
                     "Type", "Stars"),
@@ -265,6 +267,82 @@ ggsave("p_sem_exc_k45.svg", plot = p_sem_exc_k45, path="plots", device = "svg", 
 
 p_sem_exc_k45
 ```
+
+
+
+```{r topic-diversity-k45, echo=FALSE}
+library(knitr)
+library(kableExtra)
+library(dplyr)
+#head(topic_dt_k30)
+
+#summary(topic_dt_k30$mnis_id)
+
+topic_dt_k45_div <- topic_dt_k45 %>% 
+  mutate(assigned_topic = gsub("Topic", "Topic ", assigned_topic)) %>% 
+  group_by(assigned_topic, mnis_id) %>%
+  tally() %>% ungroup() %>% 
+  group_by(assigned_topic)  %>%
+  summarise(distinct_n5 = sum(n >= 5),
+            distinct = n()) %>%
+  select(assigned_topic, distinct, distinct_n5) %>%
+   mutate(assigned_topic = recode(assigned_topic,
+                                  "Topic 1" = "Business",
+                                  "Topic 2" = "Roads",
+                                  "Topic 3" = "Members",
+                                  "Topic 4" = "Gender",
+                                  "Topic 5" = "Housing",
+                                  "Topic 6" = "Questions",
+                                  "Topic 7" = "Technology",
+                                  "Topic 8" = "Food and farming",
+                                  "Topic 9" = "Animals",
+                                  "Topic 10" = "Disease",
+                                  "Topic 11" = "Parties",
+                                  "Topic 12" = "Health Care",
+                                  "Topic 13" = "Disasters",
+                                  "Topic 14" = "Energy",
+                                  "Topic 15" = "Volunteering",
+                                  "Topic 16" = "Infrastructure",
+                                  "Topic 17" = "Local authorities",
+                                  "Topic 18" = "Universities and Skills",
+                                  "Topic 19" = "Schools",
+                                  "Topic 20" = "Transport",
+                                  "Topic 21" = "Police",
+                                  "Topic 22" = "Budgets and tax",
+                                  "Topic 23" = "Drugs",
+                                  "Topic 24" = "Culture and sport",
+                                  "Topic 25" = "Children and familie",
+                                  "Topic 26" = "Planning and land-use",
+                                  "Topic 27" = "Security",
+                                  "Topic 28" = "Elections",
+                                  "Topic 29" = "Benefits and pensions",
+                                  "Topic 30" = "Call to action",
+                                  "Topic 31" = "Reports",
+                                  "Topic 32" = "Disability",
+                                  "Topic 33" = "Amendments",
+                                  "Topic 34" = "Justice",
+                                  "Topic 35" = "Military intervention",
+                                  "Topic 36" = "Financial system",
+                                  "Topic 37" = "Debate",
+                                  "Topic 38" = "Public bodies",
+                                  "Topic 39" = "Devolution",
+                                  "Topic 40" = "Bills",
+                                  "Topic 41" = "European Union",
+                                  "Topic 42" = "Environment",
+                                  "Topic 43" = "Constituency",
+                                  "Topic 44" = "Responses",
+                                  "Topic 45" = "Interventions"))
+
+topic_dt_k45_div$prop <- topic_dt_k45_div$distinct_n5/topic_dt_k45_div$distinct
+
+kable(topic_dt_k45_div[1:3],  booktabs = TRUE, longtable = TRUE, 
+      caption = "Distribution of Topics Among Female Labour MPs -- k45",
+      col.names = c("Topic", "One or more speeches", "Five or more speeches"),
+      align = c("l","r","r")) %>%
+    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
+                                    "striped"), full_width = TRUE )
+```
+
 
 ```{r topic-dt-man-creation-k45, include=FALSE}
 library(scales)
@@ -452,6 +530,100 @@ kable(topic_words2,  booktabs = TRUE, longtable = TRUE,
                                     "striped"), full_width = TRUE ) %>% 
   column_spec(2:3, width = "6cm")
 
+```
+
+
+
+```{r k45-topic-proportion, echo=FALSE, fig.height=7, fig.cap="\\label{k45-topic-proportion}k45 Topic Proportions"}
+topic_dt_k45_3$prop <- topic_dt_k45_3$AWS_freq/topic_dt_k45_3$non_AWS_freq
+
+topic_dt_k45_6 <- topic_dt_k45_3 %>% 
+  select(assigned_topic, prop) %>%
+  mutate(assigned_topic = factor(assigned_topic, 
+                                 levels=c("Topic 1", "Topic 2", "Topic 3",
+                                          "Topic 4", "Topic 5", "Topic 6",
+                                          "Topic 7", "Topic 8", "Topic 9",
+                                          "Topic 10", "Topic 11", "Topic 12", 
+                                          "Topic 13", "Topic 14", "Topic 15", 
+                                          "Topic 16", "Topic 17", "Topic 18", 
+                                          "Topic 19", "Topic 20", "Topic 21", 
+                                          "Topic 22", "Topic 23", "Topic 24", 
+                                          "Topic 25", "Topic 26", "Topic 27", 
+                                          "Topic 28", "Topic 29", "Topic 30",
+                                          "Topic 31", "Topic 32", "Topic 33",
+                                          "Topic 34", "Topic 35", "Topic 36",
+                                          "Topic 37", "Topic 38", "Topic 39",
+                                          "Topic 40", "Topic 41", "Topic 42",
+                                          "Topic 43", "Topic 44", "Topic 45")),
+          assigned_topic = recode(assigned_topic,
+                                  "Topic 1" = "Business",
+                                  "Topic 2" = "Roads",
+                                  "Topic 3" = "Members",
+                                  "Topic 4" = "Gender",
+                                  "Topic 5" = "Housing",
+                                  "Topic 6" = "Questions",
+                                  "Topic 7" = "Technology",
+                                  "Topic 8" = "Food and farming",
+                                  "Topic 9" = "Animals",
+                                  "Topic 10" = "Disease",
+                                  "Topic 11" = "Parties",
+                                  "Topic 12" = "Health Care",
+                                  "Topic 13" = "Disasters",
+                                  "Topic 14" = "Energy",
+                                  "Topic 15" = "Volunteering",
+                                  "Topic 16" = "Infrastructure",
+                                  "Topic 17" = "Local authorities",
+                                  "Topic 18" = "Universities and Skills",
+                                  "Topic 19" = "Schools",
+                                  "Topic 20" = "Transport",
+                                  "Topic 21" = "Police",
+                                  "Topic 22" = "Budgets and tax",
+                                  "Topic 23" = "Drugs",
+                                  "Topic 24" = "Culture and sport",
+                                  "Topic 25" = "Children and familie",
+                                  "Topic 26" = "Planning and land-use",
+                                  "Topic 27" = "Security",
+                                  "Topic 28" = "Elections",
+                                  "Topic 29" = "Benefits and pensions",
+                                  "Topic 30" = "Call to action",
+                                  "Topic 31" = "Reports",
+                                  "Topic 32" = "Disability",
+                                  "Topic 33" = "Amendments",
+                                  "Topic 34" = "Justice",
+                                  "Topic 35" = "Military intervention",
+                                  "Topic 36" = "Financial system",
+                                  "Topic 37" = "Debate",
+                                  "Topic 38" = "Public bodies",
+                                  "Topic 39" = "Devolution",
+                                  "Topic 40" = "Bills",
+                                  "Topic 41" = "European Union",
+                                  "Topic 42" = "Environment",
+                                  "Topic 43" = "Constituency",
+                                  "Topic 44" = "Responses",
+                                  "Topic 45" = "Interventions"),
+         assigned_topic = as.character(assigned_topic),
+         prop = if_else(prop < 1, 
+                        (1 - prop) * -1, 
+                        prop - 1)) %>%
+  arrange(prop)
+
+topic_dt_k45_6$assigned_topic <- reorder(topic_dt_k45_6$assigned_topic, topic_dt_k45_6$prop)
+
+p_k45_prop <- ggplot(data = topic_dt_k45_6, 
+                     aes(x = assigned_topic,
+                         y = prop, fill = prop)) +
+  geom_bar(stat = "identity") + 
+  scale_y_continuous() + 
+  scale_fill_viridis_c(name = "") + 
+  coord_flip() + 
+  labs(x = "Topic", 
+       y = "Proportion of speeches made by AWS MPs (right side)\nrelative to non-AWS MPs (left side)") + 
+  theme(legend.position = "bottom")
+
+ggsave("p_k45_prop.svg", plot = p_k45_prop,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k45_prop
 ```
 
 
