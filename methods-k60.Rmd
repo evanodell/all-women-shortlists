@@ -11,7 +11,7 @@ output: html_document
 library(stm)
 library(readr)
 
-lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
 set.seed(402)
 #topic_model_k30 seed = 9957388
@@ -22,7 +22,7 @@ topic_model_k60 <- stm(lab_corpus_fem_stm$documents,
                     data = lab_corpus_fem_stm$meta,
                     verbose = TRUE, init.type = "Spectral")
 
-write_rds(topic_model_k60, "topic_model_k60.rds")
+write_rds(topic_model_k60, "data/topic_model_k60.rds")
 ```
 
 
@@ -35,9 +35,9 @@ library(igraph)
 library(ggplot2)
 library(quanteda)
 
-topic_model_k60 <- read_rds("topic_model_k60.rds")
+topic_model_k60 <- read_rds("data/topic_model_k60.rds")
 
-lab_corpus_man_stm <- read_rds("lab_corpus_man_stm.rds")
+lab_corpus_man_stm <- read_rds("data/lab_corpus_man_stm.rds")
 
 new_man_k60 <- alignCorpus(new=lab_corpus_man_stm, old.vocab=topic_model_k60$vocab)
 
@@ -47,8 +47,9 @@ topic_model_man_k60 <- fitNewDocuments(model = topic_model_k60,
                                    documents = new_man_k60$documents,
                                    newData = new_man_k60$meta, 
                                    prevalence = ~short_list, verbose = TRUE)
-write_rds(topic_model_man_k60, "topic_model_man_k60.rds")
-write_rds(new_man_k60, "new_man_k60.rds")
+
+write_rds(topic_model_man_k60, "data/topic_model_man_k60.rds")
+write_rds(new_man_k60, "data/new_man_k60.rds")
 #summary(topic_model_man_k30)
 ```
 
@@ -62,18 +63,18 @@ library(igraph)
 library(ggplot2)
 library(quanteda)
 #library(tidystm)
-topic_model_k60 <- read_rds("topic_model_k60.rds")
+topic_model_k60 <- read_rds("data/topic_model_k60.rds")
 
-lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
 corr_topic_K60 <- topicCorr(topic_model_k60, method = "huge", verbose = FALSE)
 
 prep_K60 <- estimateEffect(1:60 ~ short_list, topic_model_k60, 
                        meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
 
-write_rds(corr_topic_K60, "corr_topic_K60.rds")
+write_rds(corr_topic_K60, "data/corr_topic_K60.rds")
 
-write_rds(prep_K60, "prep_K60.rds")
+write_rds(prep_K60, "data/prep_K60.rds")
 ```
 
 ```{r stm-analysis-K60, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{K60-network}Fruchterman-Reingold plot of K60 Network"}
@@ -86,13 +87,13 @@ library(ggplot2)
 library(quanteda)
 #library(tidystm)
 
-corr_topic_K60 <- read_rds("corr_topic_K60.rds")
+corr_topic_K60 <- read_rds("data/corr_topic_K60.rds")
 
-prep_K60 <- read_rds("prep_K60.rds")
+prep_K60 <- read_rds("data/prep_K60.rds")
 
-lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
-topic_model_k60 <- read_rds("topic_model_k60.rds")
+topic_model_k60 <- read_rds("data/topic_model_k60.rds")
 
 prep_df_K60 <- summary(prep_K60)[[3]]
 
@@ -186,7 +187,8 @@ p_network_K60 <- ggplot() +
   scale_colour_viridis(breaks = c(max(plotcord_K60$Estimate),
                                   min(plotcord_K60$Estimate)), 
                        labels = c("More AWS", "More non-AWS"),
-                       name=NULL, option = "plasma") + 
+                       name=NULL, option = "plasma",
+                       end = 0.85, begin = 0.15) + 
   scale_size(guide = "none") + 
   theme_void() + 
   theme(legend.position = "bottom",
@@ -276,8 +278,8 @@ p_sem_exc_K60
 library(scales)
 library(tidyr)
 
-topic_model_man <- read_rds("topic_model_man_k60.rds")
-new_man <- read_rds("new_man_k60.rds")
+topic_model_man <- read_rds("data/topic_model_man_k60.rds")
+new_man <- read_rds("data/new_man_k60.rds")
 
 new_man$meta$eo_id <- docnames(new_man$documents)
 

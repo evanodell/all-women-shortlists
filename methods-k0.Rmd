@@ -18,7 +18,7 @@ library(quanteda.corpora)
 library(topicmodels)
 library(readr)
 
-lab_corpus <- read_rds("lab_corpus.rds")
+lab_corpus <- read_rds("data/lab_corpus.rds")
 
 lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
 
@@ -54,7 +54,7 @@ kresult <- searchK(lab_corpus_fem_stm$documents,
 library(stm)
 library(readr)
 
-lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
 set.seed(402)
 #topic_model_k0 seed = 9957388
@@ -66,7 +66,7 @@ topic_model_k0 <- stm(lab_corpus_fem_stm$documents,
                     data = lab_corpus_fem_stm$meta,
                     verbose = TRUE, init.type = "Spectral")
 
-write_rds(topic_model_k0, "topic_model_k0.rds")
+write_rds(topic_model_k0, "data/topic_model_k0.rds")
 
 ```
 
@@ -81,9 +81,9 @@ library(igraph)
 library(ggplot2)
 library(quanteda)
 
-topic_model_k0 <- read_rds("topic_model_k0.rds")
+topic_model_k0 <- read_rds("data/topic_model_k0.rds")
 
-lab_corpus_man_stm <- read_rds("lab_corpus_man_stm.rds")
+lab_corpus_man_stm <- read_rds("data/lab_corpus_man_stm.rds")
 
 new_man_k0 <- alignCorpus(new=lab_corpus_man_stm, old.vocab=topic_model_k0$vocab)
 
@@ -93,8 +93,9 @@ topic_model_man_k0 <- fitNewDocuments(model = topic_model_k0,
                                    documents = new_man_k0$documents,
                                    newData = new_man_k0$meta, 
                                    prevalence = ~short_list, verbose = TRUE)
-write_rds(topic_model_man_k0, "topic_model_man_k0.rds")
-write_rds(new_man_k0, "new_man_k0.rds")
+
+write_rds(topic_model_man_k0, "data/topic_model_man_k0.rds")
+write_rds(new_man_k0, "data/new_man_k0.rds")
 #summary(topic_model_man_k30)
 ```
 
@@ -109,18 +110,18 @@ library(igraph)
 library(ggplot2)
 library(quanteda)
 #library(tidystm)
-topic_model_k0 <- read_rds("topic_model_k0.rds")
+topic_model_k0 <- read_rds("data/topic_model_k0.rds")
 
-lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
 corr_topic_k0 <- topicCorr(topic_model_k0, method = "huge", verbose = FALSE)
 
 prep_k0 <- estimateEffect(1:84 ~ short_list, topic_model_k0, 
                        meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
 
-write_rds(corr_topic_k0, "corr_topic_k0.rds")
+write_rds(corr_topic_k0, "data/corr_topic_k0.rds")
 
-write_rds(prep_k0, "prep_k0.rds")
+write_rds(prep_k0, "data/prep_k0.rds")
 ```
 
 ```{r stm-analysis-k0, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k0-network}Fruchterman-Reingold plot of k0 Network"}
@@ -133,13 +134,13 @@ library(ggplot2)
 library(quanteda)
 #library(tidystm)
 
-corr_topic_k0 <- read_rds("corr_topic_k0.rds")
+corr_topic_k0 <- read_rds("data/corr_topic_k0.rds")
 
-prep_k0 <- read_rds("prep_k0.rds")
+prep_k0 <- read_rds("data/prep_k0.rds")
 
-lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
-topic_model_k0 <- read_rds("topic_model_k0.rds")
+topic_model_k0 <- read_rds("data/topic_model_k0.rds")
 
 prep_df_k0 <- summary(prep_k0)[[3]]
 
@@ -242,7 +243,8 @@ p_network_k0 <- ggplot() +
   scale_colour_viridis(breaks = c(max(plotcord_k0$Estimate),
                                   min(plotcord_k0$Estimate)), 
                        labels = c("More AWS", "More non-AWS"),
-                       name=NULL, option = "plasma") + 
+                       name=NULL, option = "plasma",
+                       end = 0.85, begin = 0.15) + 
   scale_size(guide = "none") + 
   theme_void() + 
   theme(legend.position = "bottom",
@@ -332,8 +334,8 @@ p_sem_exc_k0
 library(scales)
 library(tidyr)
 
-topic_model_man_k0 <- read_rds("topic_model_man_k0.rds")
-new_man_k0 <- read_rds("new_man_k0.rds")
+topic_model_man_k0 <- read_rds("data/topic_model_man_k0.rds")
+new_man_k0 <- read_rds("data/new_man_k0.rds")
 
 new_man_k0$meta$eo_id <- docnames(new_man_k0$documents)
 

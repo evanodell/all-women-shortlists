@@ -10,7 +10,7 @@ output: html_document
 library(stm)
 library(readr)
 
-lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
 set.seed(402)
 #topic_model_k30 seed = 9957388
@@ -21,7 +21,7 @@ topic_model_k30 <- stm(lab_corpus_fem_stm$documents,
                        data = lab_corpus_fem_stm$meta,
                        verbose = TRUE, init.type = "Spectral")
 
-write_rds(topic_model_k30, "topic_model_k30.rds")
+write_rds(topic_model_k30, "data/topic_model_k30.rds")
 ```
 
 ```{r STM-men-women-match-k30, eval=FALSE, include=FALSE}
@@ -32,11 +32,11 @@ library(dplyr)
 library(igraph)
 library(ggplot2)
 library(quanteda)
-topic_model_k30 <- read_rds("topic_model_k30.rds")
+topic_model_k30 <- read_rds("data/topic_model_k30.rds")
 
-lab_corpus <- read_rds("lab_corpus.rds")
+lab_corpus <- read_rds("data/lab_corpus.rds")
 
-#topic_model2 <- read_rds("stm-topic-model2.rds")
+#topic_model2 <- read_rds("data/stm-topic-model2.rds")
 
 lab_corpus_man <- corpus_subset(lab_corpus, gender=="Male")
 
@@ -53,7 +53,7 @@ lab_corpus_man_stm <- dfm(lab_corpus_man, remove_punct = TRUE,
 
 #lab_corpus_man_stm$meta$short_list <- as.factor(lab_corpus_man_stm$meta$short_list)
 
-write_rds(lab_corpus_man_stm, "lab_corpus_man_stm.rds")
+write_rds(lab_corpus_man_stm, "data/lab_corpus_man_stm.rds")
 
 new_man_k30 <- alignCorpus(new=lab_corpus_man_stm, old.vocab=topic_model_k30$vocab)
 
@@ -63,13 +63,9 @@ topic_model_man <- fitNewDocuments(model = topic_model_k30,
                                    documents = new_man_k30$documents,
                                    newData = new_man_k30$meta, 
                                    prevalence = ~short_list, verbose = TRUE)
-write_rds(topic_model_man_k30, "topic_model_man.rds")
-write_rds(new_man_k30, "new_man_k30.rds")
 
-
-#summary(topic_model_man)
-
-#x <- topicCorr(topic_model_man)
+write_rds(topic_model_man_k30, "data/topic_model_man.rds")
+write_rds(new_man_k30, "data/new_man_k30.rds")
 ```
 
 ```{r corr_creation-k30, eval=FALSE, include=FALSE}
@@ -80,18 +76,18 @@ library(dplyr)
 library(igraph)
 library(ggplot2)
 library(quanteda)
-topic_model_k30 <- read_rds("topic_model_k30.rds")
+topic_model_k30 <- read_rds("data/topic_model_k30.rds")
 
-lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
 corr_topic_k30 <- topicCorr(topic_model_k30, method = "huge", verbose = FALSE)
 
 prep_k30 <- estimateEffect(1:30 ~ short_list, topic_model_k30, 
                        meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
 
-write_rds(corr_topic_k30, "corr_topic_k30.rds")
+write_rds(corr_topic_k30, "data/corr_topic_k30.rds")
 
-write_rds(prep_k30, "prep_k30.rds")
+write_rds(prep_k30, "data/prep_k30.rds")
 ```
 
 ```{r stm-analysis-k30, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k30-network}Fruchterman-Reingold plot of K30 Network"}
@@ -104,13 +100,13 @@ library(ggplot2)
 library(quanteda)
 #library(tidystm)
 
-lab_corpus_fem_stm <- read_rds("lab_corpus_fem_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
-topic_model_k30 <- read_rds("topic_model_k30.rds")
+topic_model_k30 <- read_rds("data/topic_model_k30.rds")
 
-corr_topic_k30 <- read_rds("corr_topic_k30.rds")
+corr_topic_k30 <- read_rds("data/corr_topic_k30.rds")
 
-prep_k30 <- read_rds("prep_k30.rds")
+prep_k30 <- read_rds("data/prep_k30.rds")
 
 prep_df_k30 <- summary(prep_k30)[[3]]
 
@@ -193,7 +189,8 @@ p_network_k30 <- ggplot() +
   scale_colour_viridis(breaks = c(max(plotcord_k30$Estimate),
                                   min(plotcord_k30$Estimate)), 
                        labels = c("More AWS", "More non-AWS"),
-                       name = NULL, option = "plasma") + 
+                       name = NULL, option = "plasma",
+                       end = 0.85, begin = 0.15) + 
   scale_size(guide = "none") + 
   theme_void() + 
   theme(legend.position = "bottom",
@@ -359,8 +356,8 @@ There is no topic that every single female Labour MP has discussed at least once
 library(scales)
 library(tidyr)
 
-topic_model_man_k30 <- read_rds("topic_model_man_k30.rds")
-new_man_k30 <- read_rds("new_man_k30.rds")
+topic_model_man_k30 <- read_rds("data/topic_model_man_k30.rds")
+new_man_k30 <- read_rds("data/new_man_k30.rds")
 
 new_man_k30$meta$eo_id <- docnames(new_man_k30$documents)
 
