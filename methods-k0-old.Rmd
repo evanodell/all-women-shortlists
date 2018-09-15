@@ -54,20 +54,75 @@ kresult <- searchK(lab_corpus_fem_stm$documents,
 library(stm)
 library(readr)
 
-lab_corpus_stm <- read_rds("data/lab_corpus_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
 set.seed(402)
-#topic_model_k30 seed = 9957388
-topic_model_k0_m <- stm(lab_corpus_stm$documents, 
-                       vocab = lab_corpus_stm$vocab, 
-                       K = 0, prevalence = ~short_list+gender, 
-                       seed = 9957388,
-                       data = lab_corpus_stm$meta,
-                       verbose = TRUE, init.type = "Spectral")
+#topic_model_k0 seed = 9957388
 
-write_rds(topic_model_k0_m, "data/topic_model_k0_m.rds")
+topic_model_k0 <- stm(lab_corpus_fem_stm$documents, 
+                    vocab = lab_corpus_fem_stm$vocab, 
+                    K = 0, prevalence = ~short_list, 
+                    seed = 9957388,
+                    data = lab_corpus_fem_stm$meta,
+                    verbose = TRUE, init.type = "Spectral")
+
+write_rds(topic_model_k0, "data/topic_model_k0.rds")
+
 ```
 
+
+THIS NEEDS TO BE RUN
+```{r STM-men-women-match-k0, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+
+topic_model_k0 <- read_rds("data/topic_model_k0.rds")
+
+lab_corpus_man_stm <- read_rds("data/lab_corpus_man_stm.rds")
+
+new_man_k0 <- alignCorpus(new=lab_corpus_man_stm, old.vocab=topic_model_k0$vocab)
+
+#new_man_k0 <- asSTMCorpus(new_man_k0)
+
+topic_model_man_k0 <- fitNewDocuments(model = topic_model_k0, 
+                                   documents = new_man_k0$documents,
+                                   newData = new_man_k0$meta, 
+                                   prevalence = ~short_list, verbose = TRUE)
+
+write_rds(topic_model_man_k0, "data/topic_model_man_k0.rds")
+write_rds(new_man_k0, "data/new_man_k0.rds")
+#summary(topic_model_man_k30)
+```
+
+
+
+```{r corr_creation-k0, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+#library(tidystm)
+topic_model_k0 <- read_rds("data/topic_model_k0.rds")
+
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
+
+corr_topic_k0 <- topicCorr(topic_model_k0, method = "huge", verbose = FALSE)
+
+prep_k0 <- estimateEffect(1:84 ~ short_list, topic_model_k0, 
+                       meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
+
+write_rds(corr_topic_k0, "data/corr_topic_k0.rds")
+
+write_rds(prep_k0, "data/prep_k0.rds")
+```
 
 ```{r stm-analysis-k0, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k0-network}Fruchterman-Reingold plot of k0 Network"}
 library(readr)
@@ -79,13 +134,13 @@ library(ggplot2)
 library(quanteda)
 #library(tidystm)
 
-corr_topic_k0 <- read_rds("data/corr_topic_k0_m.rds")
+corr_topic_k0 <- read_rds("data/corr_topic_k0.rds")
 
-prep_k0 <- read_rds("data/prep_k0_m.rds")
+prep_k0 <- read_rds("data/prep_k0.rds")
 
 lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
-topic_model_k0 <- read_rds("data/topic_model_k0_m.rds")
+topic_model_k0 <- read_rds("data/topic_model_k0.rds")
 
 prep_df_k0 <- summary(prep_k0)[[3]]
 
@@ -273,6 +328,59 @@ p_sem_exc_k0 <- ggplot(sem_exc_k0, aes(y=exc_test_k0, x = sem_test_k0)) +
 ggsave("p_sem_exc_k0.svg", plot = p_sem_exc_k0, path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 p_sem_exc_k0
+```
+
+```{r topic-dt-man-creation-k0, include=FALSE}
+library(scales)
+library(tidyr)
+
+topic_model_man_k0 <- read_rds("data/topic_model_man_k0.rds")
+new_man_k0 <- read_rds("data/new_man_k0.rds")
+
+new_man_k0$meta$eo_id <- docnames(new_man_k0$documents)
+
+topic_man_dt_k0 <- make.dt(topic_model_man_k0, new_man_k0$meta)
+
+topic_man_dt_k0$assigned_topic <- colnames(topic_man_dt_k0[,2:85])[max.col(topic_man_dt_k0[,2:85],ties.method="random")]
+
+topic_man_dt_k0$assigned_topic <- as.factor(topic_man_dt_k0$assigned_topic)
+
+## Reordering x$assigned_topic
+ topic_man_dt_k0$assigned_topic <- factor(topic_man_dt_k0$assigned_topic)#, 
+#                             levels=c("Topic1", "Topic2", "Topic3",
+#                                     "Topic4", "Topic5", "Topic6",
+#                                     "Topic7", "Topic8", "Topic9",
+#                                     "Topic10", "Topic11", "Topic12",
+#                                     "Topic13", "Topic14", "Topic15",
+#                                     "Topic16", "Topic17", "Topic18",
+#                                     "Topic19", "Topic20", "Topic21",
+#                                     "Topic22", "Topic23", "Topic24",
+#                                     "Topic25", "Topic26", "Topic27",
+#                                     "Topic28", "Topic29", "Topic30",
+#                                     "Topic31", "Topic32", "Topic33",
+#                                     "Topic34", "Topic35", "Topic36",
+#                                     "Topic37", "Topic38", "Topic39",
+#                                     "Topic40", "Topic41", "Topic42",
+#                                     "Topic43", "Topic44", "Topic45",
+#                                     "Topic46", "Topic47", "Topic48",
+#                                     "Topic49", "Topic50", "Topic51",
+#                                     "Topic52", "Topic53", "Topic54",
+#                                     "Topic55", "Topic56", "Topic57",
+#                                     "Topic58", "Topic59", "Topic60",
+#                                     "Topic61", "Topic62", "Topic63",
+#                                     "Topic64", "Topic65", "Topic66",
+#                                     "Topic67", "Topic68", "Topic69",
+#                                     "Topic71", "Topic72", "Topic73",
+#                                     "Topic74", "Topic75", "Topic76", 
+#                                     "Topic77", "Topic78", "Topic79", 
+#                                     "Topic80", "Topic81", "Topic82",
+#                                     "Topic83", "Topic84")
+
+topic_man_dt_k0_2 <- topic_man_dt_k0 %>% group_by(assigned_topic) %>%
+  summarise(man_count = n()) %>%
+  mutate(man_freq = man_count/sum(man_count, na.rm = TRUE),
+         assigned_topic = gsub("Topic", "Topic ", assigned_topic))
+
 ```
 
 ```{r topic-dt3-creation-k0, include=FALSE}

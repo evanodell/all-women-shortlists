@@ -11,20 +11,71 @@ output: html_document
 library(stm)
 library(readr)
 
-lab_corpus_stm <- read_rds("data/lab_corpus_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
 set.seed(402)
 #topic_model_k30 seed = 9957388
-topic_model_k60_m <- stm(lab_corpus_stm$documents, 
-                       vocab = lab_corpus_stm$vocab, 
-                       K = 60, prevalence = ~short_list+gender, 
-                       seed = 9957388,
-                       data = lab_corpus_stm$meta,
-                       verbose = TRUE, init.type = "Spectral")
+topic_model_k60 <- stm(lab_corpus_fem_stm$documents, 
+                    vocab = lab_corpus_fem_stm$vocab, 
+                    K = 60, prevalence = ~short_list, 
+                    seed = 9957388,
+                    data = lab_corpus_fem_stm$meta,
+                    verbose = TRUE, init.type = "Spectral")
 
-write_rds(topic_model_k60_m, "data/topic_model_k60_m.rds")
+write_rds(topic_model_k60, "data/topic_model_k60.rds")
 ```
 
+
+```{r STM-men-women-match-k60, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+
+topic_model_k60 <- read_rds("data/topic_model_k60.rds")
+
+lab_corpus_man_stm <- read_rds("data/lab_corpus_man_stm.rds")
+
+new_man_k60 <- alignCorpus(new=lab_corpus_man_stm, old.vocab=topic_model_k60$vocab)
+
+#new_man_k60 <- asSTMCorpus(new_man_k60)
+
+topic_model_man_k60 <- fitNewDocuments(model = topic_model_k60, 
+                                   documents = new_man_k60$documents,
+                                   newData = new_man_k60$meta, 
+                                   prevalence = ~short_list, verbose = TRUE)
+
+write_rds(topic_model_man_k60, "data/topic_model_man_k60.rds")
+write_rds(new_man_k60, "data/new_man_k60.rds")
+#summary(topic_model_man_k30)
+```
+
+
+```{r corr_creation-K60, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+#library(tidystm)
+topic_model_k60 <- read_rds("data/topic_model_k60.rds")
+
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
+
+corr_topic_K60 <- topicCorr(topic_model_k60, method = "huge", verbose = FALSE)
+
+prep_K60 <- estimateEffect(1:60 ~ short_list, topic_model_k60, 
+                       meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
+
+write_rds(corr_topic_K60, "data/corr_topic_K60.rds")
+
+write_rds(prep_K60, "data/prep_K60.rds")
+```
 
 ```{r stm-analysis-K60, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{K60-network}Fruchterman-Reingold plot of K60 Network"}
 library(readr)
@@ -36,13 +87,13 @@ library(ggplot2)
 library(quanteda)
 #library(tidystm)
 
-corr_topic_K60 <- read_rds("data/corr_topic_K60_m.rds")
+corr_topic_K60 <- read_rds("data/corr_topic_K60.rds")
 
-prep_K60 <- read_rds("data/prep_K60_m.rds")
+prep_K60 <- read_rds("data/prep_K60.rds")
 
 lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
-topic_model_k60 <- read_rds("data/topic_model_k60_m.rds")
+topic_model_k60 <- read_rds("data/topic_model_k60.rds")
 
 prep_df_K60 <- summary(prep_K60)[[3]]
 

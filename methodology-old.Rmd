@@ -1963,64 +1963,155 @@ round(party_accuracy$overall[[1]], 4)
 
 Using topic models to classify text is widely used in social sciences [@grimmer2013], as, when combined with the large volume of plain text data available, it allows for a rapid and consistent method of analysis . Topic modelling and other statistic methods of textual analysis are not a substitute for reading the texts themselves, but can augment other analysis or -- as in this case -- analyse and classify larger amounts of text than would be feasible using human coders [@grimmer2013]. Topic models classify a series of documents (in this case individual speeches) into one of a given number of topics, identifying terms that are common in some documents but rare in others. When developing topic models, there is a trade-off between high precision in the classification of each document with broader topics when using smaller numbers of topics, or lower precision in individual speech classification with more finely-grained topics when using larger numbers of topics. @grimmer2013 also highlight the importance of validating unsurpervised topic models when applied to new sets of texts. 
 
-The R package `stm` [@roberts2018] implements a structured topic model (STM) [@roberts2016; @arora2013]. An STM incorporates data about the writer or speaker into the topic classification algorithm. This differs from traditional topic modelling methods using latent variables to identify topics [e.g. with latent Dirichlet allocation @blei2003], and then comparing proportions of each topic to one or more external variables. STM allows us to incorporate the variables we are interested in to the topic model itself using a generalised linear model; i.e. the proportion of speechs classified as belonging to each topic can vary as a function of the AWS and gender variables.
+The R package `stm` [@roberts2018] implements a structured topic model (STM) [@roberts2016; @arora2013]. An STM incorporates data about the writer or speaker into the topic classification algorithm. This differs from traditional topic modelling methods using latent variables to identify topics [e.g. with latent Dirichlet allocation @blei2003], and then comparing proportions of each topic to one or more external variables. STM allows us to incorporate the variables we are interested in to the topic model itself using a generalised linear model; i.e. the proportion of speechs classified as belonging to each topic can vary as a function of the AWS variable.
 
-We incorporated the AWS status of speakers and their gender as covariates into our topic model, using all speeches by Labour MPs.
+We incorporated the AWS status of speakers into our topic model, using all speeches by female Labour MPs, with their AWS status as a covariate in classifying topics. We then matched these topics to speechs by male Labour MPs. 
 
  <!--We then used `stm`'s implementation of Latent Dirichlet Allocation [@blei2003]-->
 
-```{r topic-model-selection-plot, echo=FALSE, fig.cap="\\label{topic-model-selection}Topic Model Selection"}
-library(readr)
-library(tidyr)
-library(ggplot2)
-library(purrr)
+In addition to the structured topic model presented below, we produced three additional  STM implementations, with different numbers of topics (_K_), 
 
-topic_model_k0 <- read_rds("data/topic_model_k0_m.rds")
+The first implementation used an algorithm developed by @lee2014c, implemented in the `stm` package [@roberts2018], to estimate the number of topics across all speeches made by female Labour MPs, using the "spectral" method developed by @arora2013, implemented by @roberts2018. The resulting topic model has 84 topics, across 81,651 documents and a dictionary of 119,586 words. However, the topic quality with _K_ = 84 is poor, and several topics have poor semantic coherence (see Figure \ref{k0-coherence}, and the [appendix][Shortlists vs Non-Shortlists - K0]), or contain only one or two speeches.
 
-#labelTopics(topic_model_k0)
-
-k_models <- read_rds("data/k_models.rds")
-
-k_result <- k_models %>%
-  transmute(K,
-            `Lower bound` = lbound,
-            Residuals = map_dbl(check_residuals, "dispersion"),
-            `Semantic coherence` = map_dbl(semantic_coherence, mean),
-            `Held-out likelihood` = map_dbl(eval_heldout, "expected.heldout")) %>%
-  gather(Metric, Value, -K)
-
-p_k_result <- ggplot(k_result, aes(K, Value, color = Metric)) +
-  geom_line(size = 1.5, alpha = 0.7, show.legend = FALSE) +
-  scale_colour_viridis_d() + 
-  scale_x_continuous(breaks = c(30, 45, 60, 66, 80, 100)) + 
-  facet_wrap(~Metric, scales = "free_y") +
-  labs(x = expression(italic("K")),
-       y = NULL)
-
-ggsave("p_k_result.svg", plot = p_k_result, path="plots", device = "svg",
-       width = 20, height = 20, units = "cm")
-
-p_k_result
-```
-
-
-To identify the best number of topics, we created six topic models with different numbers of topics (_K_). We created models with 30, 45, 60, 80 and 100 topics, and used an algorithm developed by @lee2014c, implemented in the `stm` package [@roberts2018], which resulted in _K_ = 66. As seen in Figure \ref{topic-model-selection}, the algorithm from @lee2014c appears to produce the best result, a topic model with `r formatC(topic_model_k0$settings$dim$K, , big.mark = ",")` topics, across `r formatC(topic_model_k0$settings$dim$N, , big.mark = ",")` speeches with a dictionary of `r formatC(topic_model_k0$settings$dim$V, , big.mark = ",")` words. All models were created using the "spectral" method developed by @arora2013, implemented by @roberts2018. One of the topics -- Topic 66 -- was identified as a possibly topic, but was never the most likely topic in the matrix of number of documents by number of topics -- labelled $\theta$ by @roberts2018, and so while it is included in the model, assignment of single topics to speeches uses the highest $\theta$ for each speech.
-
-
-
-<!--
-The first implementation used , . The resulting topic model has 84 topics, across 81,651 documents and a dictionary of 119,586 words. However, the topic quality with _K_ = 84 is poor, and several topics have poor semantic coherence (see Figure \ref{k0-coherence}, and the [appendix][Shortlists vs Non-Shortlists - K0]), or contain only one or two speeches.
--->
 
 -  refer to other papers that use these kinds of methods - Grimmer, King, Quinn, etc
 
-### Shortlists vs Non-Shortlists
+### Shortlists vs Non-Shortlists - K45
 
-<!-- As seen in the word lists in the [appendix][Shortlists vs Non-Shortlists - K0], there is relatively scattershot semantic coherence, although exclusivity is high, when using the 84 topic models suggested by Lee and Mimno's [-@lee2014c] algorithm. We therefore re-ran the analysis, using 45 topic models, which resulted in increased semantic coherence, albeit with slightly lower exclusivity, as illustrated in Figure \ref{k45-coherence}. The lower number of models also makes hand-coding of the content of topics more straightforward. The _K_ = 45 topic model has 81,651 documents and uses a dictionary of 119,586 words, like the _K_ = 84 model. Models with [_K_ = 30][Shortlists vs Non-Shortlists - K30] and [_K_ = 60][Shortlists vs Non-Shortlists - K60] were also produced and are available in the appendix. -->
+As seen in the word lists in the [appendix][Shortlists vs Non-Shortlists - K0], there is relatively scattershot semantic coherence, although exclusivity is high, when using the 84 topic models suggested by Lee and Mimno's [-@lee2014c] algorithm. We therefore re-ran the analysis, using 45 topic models, which resulted in increased semantic coherence, albeit with slightly lower exclusivity, as illustrated in Figure \ref{k45-coherence}. The lower number of models also makes hand-coding of the content of topics more straightforward. The _K_ = 45 topic model has 81,651 documents and uses a dictionary of 119,586 words, like the _K_ = 84 model. Models with [_K_ = 30][Shortlists vs Non-Shortlists - K30] and [_K_ = 60][Shortlists vs Non-Shortlists - K60] were also produced and are available in the appendix.
 
-We created a Fruchterman-Reingold [@fruchterman1991] diagram (Figure \ref{k0-network}) to show the connections between different topics. Larger vertices indicate more common topics, and the plot uses a colour scale to indicate the proportion of speeches classed in that topic made by AWS and non-AWS female Labour MPs. The space between vertices indicate the closeness or distance of two topics. E.g. closer vertices represent topics with more overlapping words than more distant topics. (There are no women with speeches in topic 66?)
+We created a Fruchterman-Reingold [@fruchterman1991] diagram to show the connections between different topics. Larger vertices indicate more common topics, and the plot uses a colour scale to indicate the proportion of speeches classed in that topic made by AWS and non-AWS female Labour MPs. The space between vertices indicate the closeness or distance of two topics. E.g. closer vertices represent topics with more overlapping words than more distant topics.
 
-```{r stm-analysis-k0, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k0-network}Fruchterman-Reingold plot of k0 Network"}
+```{r STM-classification-prep, eval=FALSE, include=FALSE}
+library(stm)
+library(quanteda)
+library(quanteda.corpora)
+library(readr)
+
+lab_corpus <- read_rds("data/lab_corpus.rds")
+
+lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+rm(lab_corpus)
+#ndoc(lab_corpus_fem)
+
+lab_corpus_fem_stm <- dfm(lab_corpus_fem, remove_punct = TRUE,
+                           remove = parliament_stopwords, verbose = TRUE) %>%
+  convert(to = "stm", docvars = NULL)
+
+lab_corpus_fem_stm$meta$short_list <- as.factor(lab_corpus_fem_stm$meta$short_list)
+
+#lab_corpus_fem_stm$meta$post_name <- as.factor(lab_corpus_fem_stm$meta$post_name)
+
+write_rds(lab_corpus_fem_stm, "data/lab_corpus_fem_stm.rds")
+```
+
+```{r STM-searchk, eval=FALSE, include=FALSE}
+
+library(stm)
+library(readr)
+library(purrr)
+library(dplyr)
+library(tibble)
+
+lab_corpus_stm <- read_rds("data/lab_corpus_stm.rds")
+
+
+model_check <- data_frame(K = c(30, 50, 75, 100)) %>%
+  mutate(topic_model = ~stm(documents = lab_corpus_stm$documents, 
+                          vocab = lab_corpus_stm$vocab, K = .,
+                          prevalence = ~short_list+gender, 
+                          data = lab_corpus_stm$meta,
+                          verbose = TRUE))
+
+
+search_results_m <- searchK(documents = lab_corpus_stm$documents, 
+                          vocab = lab_corpus_stm$vocab, 
+                          K = c(30, 50, 75, 100),
+                          prevalence = ~short_list+gender, 
+                          data = lab_corpus_stm$meta,
+                          verbose = TRUE)
+
+write_rds(search_results_m, "data/search_results_m.rds")
+
+search_results_m
+```
+
+
+
+
+```{r STM-classification-k45, eval=FALSE, include=FALSE}
+library(stm)
+library(readr)
+
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
+
+set.seed(402)
+#topic_model_k30 seed = 9957388
+topic_model_k45 <- stm(lab_corpus_fem_stm$documents, 
+                    vocab = lab_corpus_fem_stm$vocab, 
+                    K = 45, prevalence = ~short_list, 
+                    seed = 9957388,
+                    data = lab_corpus_fem_stm$meta,
+                    verbose = TRUE, init.type = "Spectral")
+
+write_rds(topic_model_k45, "data/topic_model_k45.rds")
+```
+
+```{r STM-men-women-match-k45, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+
+topic_model_k45 <- read_rds("data/topic_model_k45.rds")
+
+lab_corpus_man_stm <- read_rds("data/lab_corpus_man_stm.rds")
+
+new_man_k45 <- alignCorpus(new=lab_corpus_man_stm, old.vocab=topic_model_k45$vocab)
+
+#new_man_k45 <- asSTMCorpus(new_man_k45)
+
+topic_model_man_k45 <- fitNewDocuments(model = topic_model_k45, 
+                                   documents = new_man_k45$documents,
+                                   newData = new_man_k45$meta, 
+                                   prevalence = ~short_list, verbose = TRUE)
+
+write_rds(topic_model_man_k45, "data/topic_model_man_k45.rds")
+write_rds(new_man_k45, "data/new_man_k45.rds")
+#summary(topic_model_man_k30)
+```
+
+```{r corr_creation-k45, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+#library(tidystm)
+topic_model_k45 <- read_rds("data/topic_model_k45.rds")
+
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
+
+corr_topic_k45 <- topicCorr(topic_model_k45, method = "huge", verbose = FALSE)
+
+prep_k45 <- estimateEffect(1:45 ~ short_list, topic_model_k45, 
+                       meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
+
+write_rds(corr_topic_k45, "data/corr_topic_k45.rds")
+
+write_rds(prep_k45, "data/prep_k45.rds")
+```
+
+```{r stm-analysis-k45, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k45-network}Fruchterman-Reingold plot of k45 Network"}
 library(readr)
 library(stm)
 library(viridis)
@@ -2030,38 +2121,38 @@ library(ggplot2)
 library(quanteda)
 #library(tidystm)
 
-corr_topic_k0 <- read_rds("data/corr_topic_k0_m.rds")
+corr_topic_k45 <- read_rds("data/corr_topic_k45.rds")
 
-prep_k0 <- read_rds("data/prep_k0_m.rds")
+prep_k45 <- read_rds("data/prep_k45.rds")
 
-lab_corpus_stm <- read_rds("data/lab_corpus_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
-prep_df_k0 <- summary(prep_k0)[[3]]
+topic_model_k45 <- read_rds("data/topic_model_k45.rds")
 
-prep_df_k0 <- as.data.frame(do.call(rbind, prep_df_k0))
+prep_df_k45 <- summary(prep_k45)[[3]]
 
-prep_df_k0$topic <- NA
+prep_df_k45 <- as.data.frame(do.call(rbind, prep_df_k45))
 
-prep_df_k0$topic <- rep(1:66, each = 3)
+prep_df_k45$topic <- NA
 
-prep_df_k0$type <- row.names(prep_df_k0)
+prep_df_k45$topic <- rep(1:45, each = 2)
 
-prep_df_k0$type <- gsub("\\.[0-9][0-9]", "", prep_df_k0$type)
+prep_df_k45$type <- row.names(prep_df_k45)
 
-prep_df_k0$type <- gsub("\\.[0-9]", "", prep_df_k0$type)
+prep_df_k45$type <- gsub("\\.[0-9][0-9]", "", prep_df_k45$type)
 
-prep_df_k0$type <- gsub("\\.$", "", prep_df_k0$type)
+prep_df_k45$type <- gsub("\\.[0-9]", "", prep_df_k45$type)
 
-prep_df_k0_fem  <- prep_df_k0 %>% filter(type != "genderMale")
+prep_df_k45$type <- gsub("\\.$", "", prep_df_k45$type)
 
-prep_df_k0_coeff <- prep_df_k0 %>% filter(type == "short_listTRUE")
+prep_df_k45_coeff <- prep_df_k45 %>% filter(type == "short_listTRUE")
 
 vlabels=NULL
 layout=NULL
 
-topics <- 1:nrow(corr_topic_k0$posadj)
+topics <- 1:nrow(corr_topic_k45$posadj)
   
-x <- corr_topic_k0$posadj[topics, topics]
+x <- corr_topic_k45$posadj[topics, topics]
   
 g <- igraph::graph.adjacency(x, mode="directed", weighted=TRUE, diag=FALSE)
 igraph::E(g)$size <- 1
@@ -2069,32 +2160,29 @@ igraph::E(g)$lty <- 2
 igraph::E(g)$color <- "black"
 igraph::V(g)$label <- topics
 
-plotcord_k0 <- data.frame(layout_with_fr(g))
+plotcord_k45 <- data.frame(layout_with_fr(g))
   
-edgelist_k0 <- get.edgelist(g)
+edgelist_k45 <- get.edgelist(g)
 
 #convert to a four column edge data frame with source and destination coordinates
-edges_k0 <- data.frame(plotcord_k0[edgelist_k0[,1],], 
-                    plotcord_k0[edgelist_k0[,2],])
-colnames(edges_k0) <- c("X1","Y1","X2","Y2")
+edges_k45 <- data.frame(plotcord_k45[edgelist_k45[,1],], 
+                    plotcord_k45[edgelist_k45[,2],])
+colnames(edges_k45) <- c("X1","Y1","X2","Y2")
 
-plotcord_k0$topic <- as.numeric(row.names(plotcord_k0))
+plotcord_k45$topic <- as.numeric(row.names(plotcord_k45))
   
-plotcord_k0 <- plotcord_k0 %>% left_join(prep_df_k0_coeff)
+plotcord_k45 <- plotcord_k45 %>% left_join(prep_df_k45_coeff)
 
-lab_corpus_stm$meta$eo_id <- docnames(lab_corpus_stm$documents)
+lab_corpus_fem_stm$meta$eo_id <- docnames(lab_corpus_fem_stm$documents)
 
-topic_dt_k0 <- make.dt(topic_model_k0, lab_corpus_stm$meta)
+topic_dt_k45 <- make.dt(topic_model_k45, lab_corpus_fem_stm$meta)
 
-set.seed(24)
-topic_dt_k0$assigned_topic <- colnames(topic_dt_k0[,2:67])[max.col(topic_dt_k0[,2:67],ties.method="random")]
+topic_dt_k45$assigned_topic <- colnames(topic_dt_k45[,2:46])[max.col(topic_dt_k45[,2:46],ties.method="random")]
 
-topic_dt_k0$assigned_topic <- as.factor(topic_dt_k0$assigned_topic)
-
-#x <- topic_dt_k0 %>% filter(assigned_topic == "Topic66")
+topic_dt_k45$assigned_topic <- as.factor(topic_dt_k45$assigned_topic)
 
 ## Reordering x$assigned_topic
-topic_dt_k0$assigned_topic <- factor(topic_dt_k0$assigned_topic, 
+topic_dt_k45$assigned_topic <- factor(topic_dt_k45$assigned_topic, 
                            levels=c("Topic1", "Topic2", "Topic3",
                                     "Topic4", "Topic5", "Topic6",
                                     "Topic7", "Topic8", "Topic9",
@@ -2109,32 +2197,26 @@ topic_dt_k0$assigned_topic <- factor(topic_dt_k0$assigned_topic,
                                     "Topic34", "Topic35", "Topic36",
                                     "Topic37", "Topic38", "Topic39",
                                     "Topic40", "Topic41", "Topic42",
-                                    "Topic43", "Topic44", "Topic45",
-                                    "Topic46", "Topic47", "Topic48",
-                                    "Topic49", "Topic50", "Topic51",
-                                    "Topic52", "Topic53", "Topic54",
-                                    "Topic55", "Topic56", "Topic57",
-                                    "Topic58", "Topic59", "Topic60",
-                                    "Topic61", "Topic62", "Topic63",
-                                    "Topic64", "Topic65", "Topic66"))
+                                    "Topic43", "Topic44", "Topic45"))
 
-topic_dt_k0_2 <- topic_dt_k0 %>% filter(gender == "Female") %>% 
-  group_by(assigned_topic) %>%
-  summarise(count = n()) %>%
-  mutate(freq = count/sum(count) )
+topic_dt_k45_2 <- topic_dt_k45 %>% 
+  group_by(assigned_topic)  %>% 
+  summarise(count = n(),
+            mean_word_count = mean(word_count)) %>%
+  mutate(freq = count/sum(count))
 
-plotcord_k0$assigned_topic <- paste0("Topic", plotcord_k0$topic)
+plotcord_k45$assigned_topic <- paste0("Topic", plotcord_k45$topic)
 
-plotcord_k0 <- plotcord_k0 %>% left_join(topic_dt_k0_2)
+plotcord_k45 <- plotcord_k45 %>% left_join(topic_dt_k45_2)
 
-p_network_k0 <- ggplot() + 
+p_network_k45 <- ggplot() + 
   geom_segment(aes(x=X1, y=Y1, xend = X2, yend = Y2),
-               data=edges_k0, size = 0.5, colour="grey") +
-  geom_point(data = plotcord_k0, aes(X1, X2, colour = Estimate, size = freq)) + 
+               data=edges_k45, size = 0.5, colour="grey") +
+  geom_point(data = plotcord_k45, aes(X1, X2, colour = Estimate, size = freq)) + 
   geom_text(aes(X1, X2, label=topic), hjust="center", vjust="top",
-            size = 5, data = plotcord_k0) + 
-  scale_colour_viridis(breaks = c(max(plotcord_k0$Estimate),
-                                  min(plotcord_k0$Estimate)), 
+            size = 5, data = plotcord_k45) + 
+  scale_colour_viridis(breaks = c(max(plotcord_k45$Estimate),
+                                  min(plotcord_k45$Estimate)), 
                        labels = c("More AWS", "More non-AWS"),
                        name=NULL, option = "plasma",
                        end = 0.85, begin = 0.15) + 
@@ -2147,71 +2229,372 @@ p_network_k0 <- ggplot() +
     axis.title.x = element_blank(), 
     axis.title.y = element_blank())
 
-ggsave("p_network_k0.svg", plot = p_network_k0, path="plots", device = "svg", width = 20, height = 20, units = "cm")
+ggsave("p_network_k45.svg", plot = p_network_k45, path="plots", 
+       device = "svg", width = 20, height = 20, units = "cm")
 
-p_network_k0
+p_network_k45
 ```
 
 
-```{r estimate-table-k0, eval=FALSE, include=FALSE}
+The `stm` package includes the `estimateEffect` function to create a regression model (Table \ref{estimate-table-k45}) using individual documents (speeches) as individual observations, with the number of documents fitting each topic as the dependent variable and model covariates (AWS status) as independent variables. 
+
+```{r estimate-table-k45, echo=FALSE, fig.cap="\\label{estimate-table-k45}"}
 library(knitr)
 library(kableExtra)
 library(dplyr)
 
-row.names(prep_df_k0) <- NULL
-prep_df_k0$type <- gsub("X.Intercept", "Intercept", prep_df_k0$type)
-prep_df_k0$type <- gsub("short_listTRUE", "Shortlist", prep_df_k0$type)
+row.names(prep_df_k45) <- NULL
+prep_df_k45$type <- gsub("X.Intercept", "Intercept", prep_df_k45$type)
+prep_df_k45$type <- gsub("short_listTRUE", "Shortlist", prep_df_k45$type)
 
-prep_df_k0$stars <- case_when(prep_df_k0$`Pr(>|t|)` < 0.001 ~ "***", 
-                               prep_df_k0$`Pr(>|t|)` < 0.01 ~ "**",
-                               prep_df_k0$`Pr(>|t|)` < 0.05 ~ "*", 
+
+prep_df_k45 <- prep_df_k45 %>% rename(
+  "p" = "Pr(>|t|)"
+)
+
+prep_df_k45$stars <- case_when(prep_df_k45$p < 0.001 ~ "***", 
+                               prep_df_k45$p < 0.01 ~ "**",
+                               prep_df_k45$p < 0.05 ~ "*", 
                                TRUE ~ "")
 
+prep_df_k45_2 <- prep_df_k45 %>% select(type, Estimate,
+                                        `Std. Error`, `t value`, p, stars) %>%
+  mutate(p = pixiedust::pval_string(p,  digits = 4))
 
-kable(prep_df_k0,  booktabs = TRUE, longtable = TRUE, 
-      caption = "Count and Distribution of Topics -- k0",
-      col.names = c("Estimate", "Standard Error", "t value",
-                    "P", "Topic",
-                    "Type", "Stars"),
-      align = c("l","r","r","r","r","r")) %>%
+kable(prep_df_k45_2,  booktabs = TRUE, longtable = TRUE, 
+      caption = "Estimate Effects -- k45",
+      col.names = c("", "Estimate", "Standard Error",
+                    "t value", "Pr(>|t|)", ""),
+      align = c("l","r","r","r","r", "l")) %>%
     kable_styling(latex_options = c("HOLD_position",  "repeat_header",
-                                    "striped"), full_width = TRUE )
+                                    "striped"), full_width = TRUE ) %>%
+  group_rows(index = c("Topic 1 -- Business" = 2,
+                        "Topic 2 -- Roads" = 2,
+                        "Topic 3 -- Members" = 2,
+                        "Topic 4 -- Gender" = 2,
+                        "Topic 5 -- Housing" = 2,
+                        "Topic 6 -- Questions" = 2,
+                        "Topic 7 -- Technology" = 2,
+                        "Topic 8 -- Food & farming" = 2,
+                        "Topic 9 -- Animals" = 2,
+                        "Topic 10 -- Disease" = 2,
+                        "Topic 11 -- Parties" = 2,
+                        "Topic 12 -- Health Care" = 2,
+                        "Topic 13 -- Disasters" = 2,
+                        "Topic 14 -- Energy" = 2,
+                        "Topic 15 -- Volunteering" = 2,
+                        "Topic 16 -- Infrastructure" = 2,
+                        "Topic 17 -- Local authorities" = 2,
+                        "Topic 18 -- Universities & skills" = 2,
+                        "Topic 19 -- Schools" = 2,
+                        "Topic 20 -- Transport" = 2,
+                        "Topic 21 -- Police" = 2,
+                        "Topic 22 -- Budgets & tax" = 2,
+                        "Topic 23 -- Drugs" = 2,
+                        "Topic 24 -- Culture & sport" = 2,
+                        "Topic 25 -- Children & familiesies" = 2,
+                        "Topic 26 -- Planning & land-use" = 2,
+                        "Topic 27 -- Security" = 2,
+                        "Topic 28 -- Elections" = 2,
+                        "Topic 29 -- Benefits & pensions" = 2,
+                        "Topic 30 -- Call to action" = 2,
+                        "Topic 31 -- Reports" = 2,
+                        "Topic 32 -- Disability" = 2,
+                        "Topic 33 -- Amendments" = 2,
+                        "Topic 34 -- Justice" = 2,
+                        "Topic 35 -- Military intervention" = 2,
+                        "Topic 36 -- Financial system" = 2,
+                        "Topic 37 -- Debate" = 2,
+                        "Topic 38 -- Public bodies" = 2,
+                        "Topic 39 -- Devolution" = 2,
+                        "Topic 40 -- Bills" = 2,
+                        "Topic 41 -- European Union" = 2,
+                        "Topic 42 -- Environment" = 2,
+                        "Topic 43 -- Constituency" = 2,
+                        "Topic 44 -- Responses" = 2,
+                        "Topic 45 -- Interventions" = 2))
 ```
 
 
-```{r topic-dt3-creation-k0, include=FALSE}
-topic_dt_k0_3 <- topic_dt_k0 %>%
-  mutate(short_list_g = paste0(short_list, "_", gender)) %>%
-  group_by(assigned_topic, short_list_g) %>%
+```{r estimate-table-subsets-k45, include=FALSE}
+prep_df_k45_sig_check <- prep_df_k45 %>% 
+   mutate(topic = recode(topic,
+                         "1" = "Business",
+                         "2" = "Roads",
+                         "3" = "Members",
+                         "4" = "Gender",
+                         "5" = "Housing",
+                        "6" = "Questions",
+                        "7" = "Technology",
+                        "8" = "Food & farming",
+                        "9" = "Animals",
+                        "10" = "Disease",
+                        "11" = "Parties",
+                        "12" = "Health Care",
+                        "13" = "Disasters",
+                        "14" = "Energy",
+                        "15" = "Volunteering",
+                        "16" = "Infrastructure",
+                        "17" = "Local authorities",
+                        "18" = "Universities & skills",
+                        "19" = "Schools",
+                        "20" = "Transport",
+                        "21" = "Police",
+                        "22" = "Budgets & tax",
+                        "23" = "Drugs",
+                        "24" = "Culture & sport",
+                        "25" = "Children & familiesies",
+                        "26" = "Planning & land-use",
+                        "27" = "Security",
+                        "28" = "Elections",
+                        "29" = "Benefits & pensions",
+                        "30" = "Call to action",
+                        "31" = "Reports",
+                        "32" = "Disability",
+                        "33" = "Amendments",
+                        "34" = "Justice",
+                        "35" = "Military intervention",
+                        "36" = "Financial system",
+                        "37" = "Debate",
+                        "38" = "Public bodies",
+                        "39" = "Devolution",
+                        "40" = "Bills",
+                        "41" = "European Union",
+                        "42" = "Environment",
+                        "43" = "Constituency",
+                        "44" = "Responses",
+                        "45" = "Interventions"))
+
+prep_df_k45_no_sig <- prep_df_k45_sig_check %>%
+  filter(type == "Shortlist" & p >= 0.05)
+
+prep_df_k45_sig_1_5 <- prep_df_k45_sig_check %>%
+  filter(type == "Shortlist" & p < 0.05 & p >= 0.001)
+
+```
+
+
+In all but `r nrow(prep_df_k45_no_sig)` topics (`r prep_df_k45_no_sig$topic`) the model found _p_ values of < 0.05, and in every topic except the aforemention and `r prep_df_k45_sig_1_5$topic`, _p_ values of < 0.001.
+
+
+```{r stm-excl-coh-k45, echo=FALSE, fig.cap="\\label{k45-coherence}Coherence of k45 Topic Models"}
+
+library(ggrepel)
+
+sem_test_k45 <- semanticCoherence(topic_model_k45, lab_corpus_fem_stm$documents)
+
+exc_test_k45 <- exclusivity(topic_model_k45)
+
+sem_exc_k45 <- tibble::tibble(topic = 1:45, sem_test_k45, exc_test_k45)
+
+p_sem_exc_k45 <- ggplot(sem_exc_k45, aes(y=exc_test_k45, x = sem_test_k45)) + 
+  geom_point() + 
+  geom_label_repel(aes(label = topic)) +
+  #coord_cartesian(xlim = c(-200,0), ylim = c(9.4, 10)) + 
+  labs(x="Semantic Coherence", y = "Exclusivity")
+
+ggsave("p_sem_exc_k45.svg", plot = p_sem_exc_k45, path="plots", 
+       device = "svg", width = 20, height = 20, units = "cm")
+
+p_sem_exc_k45
+```
+
+
+
+```{r topic-diversity-k45, echo=FALSE}
+library(knitr)
+library(kableExtra)
+library(dplyr)
+#head(topic_dt_k30)
+
+#summary(topic_dt_k30$mnis_id)
+
+topic_dt_k45_div <- topic_dt_k45 %>% 
+  mutate(assigned_topic = gsub("Topic", "Topic ", assigned_topic)) %>% 
+  group_by(assigned_topic, mnis_id) %>%
+  tally() %>% ungroup() %>% 
+  group_by(assigned_topic)  %>%
+  summarise(distinct_n5 = sum(n >= 5),
+            distinct = n()) %>%
+  ungroup() %>%
+  select(assigned_topic, distinct, distinct_n5) %>%
+   mutate(assigned_topic = factor(assigned_topic,
+                                  levels=c("Topic 1", "Topic 2", "Topic 3",
+                                    "Topic 4", "Topic 5", "Topic 6",
+                                    "Topic 7", "Topic 8", "Topic 9",
+                                    "Topic 10", "Topic 11", "Topic 12",
+                                    "Topic 13", "Topic 14", "Topic 15",
+                                    "Topic 16", "Topic 17", "Topic 18",
+                                    "Topic 19", "Topic 20", "Topic 21",
+                                    "Topic 22", "Topic 23", "Topic 24",
+                                    "Topic 25", "Topic 26", "Topic 27",
+                                    "Topic 28", "Topic 29", "Topic 30",
+                                    "Topic 31", "Topic 32", "Topic 33",
+                                    "Topic 34", "Topic 35", "Topic 36",
+                                    "Topic 37", "Topic 38", "Topic 39",
+                                    "Topic 40", "Topic 41", "Topic 42",
+                                    "Topic 43", "Topic 44", "Topic 45")),
+     assigned_topic = recode(assigned_topic,
+                                  "Topic 1" = "Business (Topic 1)",
+                                  "Topic 2" = "Roads (Topic 2)",
+                                  "Topic 3" = "Members (Topic 3)",
+                                  "Topic 4" = "Gender (Topic 4)",
+                                  "Topic 5" = "Housing (Topic 5)",
+                                  "Topic 6" = "Questions (Topic 6)",
+                                  "Topic 7" = "Technology (Topic 7)",
+                                  "Topic 8" = "Food & farming (Topic 8)",
+                                  "Topic 9" = "Animals (Topic 9)",
+                                  "Topic 10" = "Disease (Topic 10)",
+                                  "Topic 11" = "Parties (Topic 11)",
+                                  "Topic 12" = "Health Care (Topic 12)",
+                                  "Topic 13" = "Disasters (Topic 13)",
+                                  "Topic 14" = "Energy (Topic 14)",
+                                  "Topic 15" = "Volunteering (Topic 15)",
+                                  "Topic 16" = "Infrastructure (Topic 16)",
+                                  "Topic 17" = "Local authorities (Topic 17)",
+                                  "Topic 18" = "Universities & skills (Topic 18)",
+                                  "Topic 19" = "Schools (Topic 19)",
+                                  "Topic 20" = "Transport (Topic 20)",
+                                  "Topic 21" = "Police (Topic 21)",
+                                  "Topic 22" = "Budgets & tax (Topic 22)",
+                                  "Topic 23" = "Drugs (Topic 23)",
+                                  "Topic 24" = "Culture & sport (Topic 24)",
+                                  "Topic 25" = "Children & families (Topic 25)",
+                                  "Topic 26" = "Planning & land-use (Topic 26)",
+                                  "Topic 27" = "Security (Topic 27)",
+                                  "Topic 28" = "Elections (Topic 28)",
+                                  "Topic 29" = "Benefits & pensions (Topic 29)",
+                                  "Topic 30" = "Call to action (Topic 30)",
+                                  "Topic 31" = "Reports (Topic 31)",
+                                  "Topic 32" = "Disability (Topic 32)",
+                                  "Topic 33" = "Amendments (Topic 33)",
+                                  "Topic 34" = "Justice (Topic 34)",
+                                  "Topic 35" = "Military intervention (Topic 35)",
+                                  "Topic 36" = "Financial system (Topic 36)",
+                                  "Topic 37" = "Debate (Topic 37)",
+                                  "Topic 38" = "Public bodies (Topic 38)",
+                                  "Topic 39" = "Devolution (Topic 39)",
+                                  "Topic 40" = "Bills (Topic 40)",
+                                  "Topic 41" = "European Union (Topic 41)",
+                                  "Topic 42" = "Environment (Topic 42)",
+                                  "Topic 43" = "Constituency (Topic 43)",
+                                  "Topic 44" = "Responses (Topic 44)",
+                                  "Topic 45" = "Interventions (Topic 45)")) %>%
+  arrange(assigned_topic)
+
+kable(topic_dt_k45_div,  booktabs = TRUE, longtable = TRUE, 
+      caption = "Distribution of Topics Among Female Labour MPs -- K45",
+      col.names = c("Topic", "One or more speeches", "Five or more speeches"),
+      align = c("l","r","r")) %>%
+    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
+                                    "striped"), full_width = TRUE )
+
+topic_dt_k45_div$prop <- topic_dt_k45_div$distinct_n5/topic_dt_k45_div$distinct
+```
+
+
+```{r topic-dt-man-creation-k45, include=FALSE}
+library(scales)
+library(tidyr)
+
+topic_model_man <- read_rds("data/topic_model_man_k45.rds")
+new_man <- read_rds("data/new_man_k45.rds")
+
+new_man$meta$eo_id <- docnames(new_man$documents)
+
+topic_man_dt_k45 <- make.dt(topic_model_man, new_man$meta)
+
+topic_man_dt_k45$assigned_topic <- colnames(topic_man_dt_k45[,2:46])[max.col(topic_man_dt_k45[,2:46],ties.method="random")]
+
+topic_man_dt_k45$assigned_topic <- as.factor(topic_man_dt_k45$assigned_topic)
+
+## Reordering x$assigned_topic
+# topic_man_dt_k45$assigned_topic <- factor(topic_man_dt_k45$assigned_topic)#, 
+
+
+topic_man_dt_k45_2 <- topic_man_dt_k45 %>% group_by(assigned_topic) %>%
+  summarise(man_count = n()) %>%
+  mutate(man_freq = man_count/sum(man_count, na.rm = TRUE),
+         assigned_topic = gsub("Topic", "Topic ", assigned_topic))
+
+```
+
+```{r topic-dt3-creation-k45, include=FALSE}
+topic_dt_k45_3 <- topic_dt_k45 %>%
+  group_by(assigned_topic, short_list) %>%
   summarise(count = n()) %>%
   ungroup() %>%
-  spread(key = "short_list_g", value = "count") %>%
-   rename("AWS" = "TRUE_Female", "non_AWS" = "FALSE_Female",
-          "man_count" = "FALSE_Male") %>%
-   mutate(AWS_freq = AWS/sum(AWS, na.rm = TRUE),
-          non_AWS_freq = non_AWS/sum(non_AWS, na.rm = TRUE),
-          man_freq = man_count/sum(man_count, na.rm = TRUE),
-          assigned_topic = gsub("Topic", "Topic ", assigned_topic))
+  spread(key = "short_list", value = "count") %>%
+  rename("AWS" = "TRUE", "non_AWS" = "FALSE") %>%
+  mutate(AWS_freq = AWS/sum(AWS, na.rm = TRUE),
+         non_AWS_freq = non_AWS/sum(non_AWS, na.rm = TRUE),
+         assigned_topic = gsub("Topic", "Topic ", assigned_topic)) %>%
+  select(assigned_topic, AWS, AWS_freq, non_AWS, non_AWS_freq) %>%
+  left_join(topic_man_dt_k45_2)
 
 
-topic_dt_k0_4 <- topic_dt_k0_3 %>%
+topic_dt_k45_4 <- topic_dt_k45_3 %>% 
     mutate(AWS_freq = paste0(round((AWS_freq*100), 2), "%"),
           non_AWS_freq = paste0(round((non_AWS_freq*100), 2), "%"),
           AWS = formatC(AWS, big.mark = ","),
           non_AWS = formatC(non_AWS, big.mark = ","),
           man_freq = paste0(round((man_freq*100), 2), "%"),
-          man_count = formatC(man_count, big.mark = ",")) %>%
-  select(assigned_topic, AWS, AWS_freq, non_AWS, non_AWS_freq, man_count, man_freq)
+          man_count = formatC(man_count, big.mark = ","),
+     assigned_topic = recode(assigned_topic,
+                                  "Topic 1" = "Business (Topic 1)",
+                                  "Topic 2" = "Roads (Topic 2)",
+                                  "Topic 3" = "Members (Topic 3)",
+                                  "Topic 4" = "Gender (Topic 4)",
+                                  "Topic 5" = "Housing (Topic 5)",
+                                  "Topic 6" = "Questions (Topic 6)",
+                                  "Topic 7" = "Technology (Topic 7)",
+                                  "Topic 8" = "Food & farming (Topic 8)",
+                                  "Topic 9" = "Animals (Topic 9)",
+                                  "Topic 10" = "Disease (Topic 10)",
+                                  "Topic 11" = "Parties (Topic 11)",
+                                  "Topic 12" = "Health Care (Topic 12)",
+                                  "Topic 13" = "Disasters (Topic 13)",
+                                  "Topic 14" = "Energy (Topic 14)",
+                                  "Topic 15" = "Volunteering (Topic 15)",
+                                  "Topic 16" = "Infrastructure (Topic 16)",
+                                  "Topic 17" = "Local authorities (Topic 17)",
+                                  "Topic 18" = "Universities & skills (Topic 18)",
+                                  "Topic 19" = "Schools (Topic 19)",
+                                  "Topic 20" = "Transport (Topic 20)",
+                                  "Topic 21" = "Police (Topic 21)",
+                                  "Topic 22" = "Budgets & tax (Topic 22)",
+                                  "Topic 23" = "Drugs (Topic 23)",
+                                  "Topic 24" = "Culture & sport (Topic 24)",
+                                  "Topic 25" = "Children & families (Topic 25)",
+                                  "Topic 26" = "Planning & land-use (Topic 26)",
+                                  "Topic 27" = "Security (Topic 27)",
+                                  "Topic 28" = "Elections (Topic 28)",
+                                  "Topic 29" = "Benefits & pensions (Topic 29)",
+                                  "Topic 30" = "Call to action (Topic 30)",
+                                  "Topic 31" = "Reports (Topic 31)",
+                                  "Topic 32" = "Disability (Topic 32)",
+                                  "Topic 33" = "Amendments (Topic 33)",
+                                  "Topic 34" = "Justice (Topic 34)",
+                                  "Topic 35" = "Military intervention (Topic 35)",
+                                  "Topic 36" = "Financial system (Topic 36)",
+                                  "Topic 37" = "Debate (Topic 37)",
+                                  "Topic 38" = "Public bodies (Topic 38)",
+                                  "Topic 39" = "Devolution (Topic 39)",
+                                  "Topic 40" = "Bills (Topic 40)",
+                                  "Topic 41" = "European Union (Topic 41)",
+                                  "Topic 42" = "Environment (Topic 42)",
+                                  "Topic 43" = "Constituency (Topic 43)",
+                                  "Topic 44" = "Responses (Topic 44)",
+                                  "Topic 45" = "Interventions (Topic 45)"))
 
 ```
 
-
-```{r topic-summary-table-k0, echo=FALSE, results = 'asis'}
+```{r topic-summary-table-k45, echo=FALSE, results = 'asis'}
 library(knitr)
 library(kableExtra)
 
-kable(topic_dt_k0_4, booktabs = TRUE, longtable = TRUE, 
-      caption = "Count and Distribution of Topics -- k0",
+kable(topic_dt_k45_4,  booktabs = TRUE, longtable = TRUE, 
+      caption = "Count and Distribution of Topics -- k45",
       col.names = c("Topic Number", "AWS Speeches", "Percent of AWS Speeches",
                     "Non-AWS Speeches", "Percent of non-AWS Speeches",
                     "Male MP Speeches", "Percent of Male MP Speeches"),
@@ -2221,12 +2604,12 @@ kable(topic_dt_k0_4, booktabs = TRUE, longtable = TRUE,
 ```
 
 
-```{r k0-topic-pyramid, echo=FALSE, fig.height=9, fig.cap="\\label{k0-topic-pyramid-pllot}k0 Pyramid Chart"}
+```{r k45-topic-pyramid, echo=FALSE, fig.height=9, fig.cap="\\label{k45-topic-pyramid-plot}k45 Pyramid Chart"}
 
-topic_dt_k0_5 <- topic_dt_k0_3 %>% 
+topic_dt_k45_5 <- topic_dt_k45_3 %>% 
   select(-man_count, -man_freq, -non_AWS, -AWS) %>%
   gather("aws_status", "perc", -assigned_topic) %>%
-   mutate(assigned_topic = factor(assigned_topic, 
+   mutate(assigned_topic = factor(assigned_topic,
                                    levels=c("Topic 1", "Topic 2", "Topic 3",
                                     "Topic 4", "Topic 5", "Topic 6",
                                     "Topic 7", "Topic 8", "Topic 9",
@@ -2241,202 +2624,338 @@ topic_dt_k0_5 <- topic_dt_k0_3 %>%
                                     "Topic 34", "Topic 35", "Topic 36",
                                     "Topic 37", "Topic 38", "Topic 39",
                                     "Topic 40", "Topic 41", "Topic 42",
-                                    "Topic 43", "Topic 44", "Topic 45",
-                                    "Topic 46", "Topic 47", "Topic 48",
-                                    "Topic 49", "Topic 50", "Topic 51",
-                                    "Topic 52", "Topic 53", "Topic 54",
-                                    "Topic 55", "Topic 56", "Topic 57",
-                                    "Topic 58", "Topic 59", "Topic 60",
-                                    "Topic 61", "Topic 62", "Topic 63",
-                                    "Topic 64", "Topic 65", "Topic 66")))#,
-  #        assigned_topic = recode(assigned_topic, "Topic 1" = "Ministers",
-  #                                "Topic 2" = "Elections",
-  #                                "Topic 3" = "Northern Ireland",
-  #                                "Topic 4" = "Personal finance",
-  #                                 "Topic 5" = "committees",
-  #                                 "Topic 6" = "development",
-  #                                 "Topic 7" = "petitions",
-  #                                 "Topic 8" = "agreement",
-  #                                 "Topic 9" = "market competition",
-  #                                 "Topic 10" = "gender",
-  #                                 "Topic 11" = "energy",
-  #                                 "Topic 12" = "post-office",
-  #                                 "Topic 13" = "regions",
-  #                                 "Topic 14" = "pensions and disability",
-  #                                 "Topic 15" = "unemployment",
-  #                                 "Topic 16" = "education",
-  #                                 "Topic 17" = "other",
-  #                                 "Topic 18" = "inquiries",
-  #                                 "Topic 19" = "business",
-  #                                 "Topic 20" = "wales",
-  #                                 "Topic 21" = "social care",
-  #                                 "Topic 22" = "pay",
-  #                                 "Topic 23" = "amendments",
-  #                                 "Topic 24" = "reports",
-  #                                 "Topic 25" = "deicisons",
-  #                                 "Topic 26" = "floods",
-  #                                 "Topic 27" = "spending",
-  #                                 "Topic 28" = "culture",
-  #                                 "Topic 29" = "single parents",
-  #                                 "Topic 30" = "voeters",
-  #                                 "Topic 31" = "point",
-  #                                 "Topic 32" = "member replies",
-  #                                 "Topic 33" = "EU",
-  #                                 "Topic 34" = "higher education",
-  #                                 "Topic 35" = "local authorities",
-  #                                 "Topic 36" = "disbility",
-  #                                 "Topic 37" = "fishing",
-  #                                 "Topic 38" = "justice",
-  #                                 "Topic 39" = "international",
-  #                                 "Topic 40" = "hillsborough disaster",
-  #                                 "Topic 41" = "policy development",
-  #                                 "Topic 42" = "crime",
-  #                                 "Topic 43" = "housing",
-  #                                 "Topic 44" = "questions",
-  #                                 "Topic 45" = "health research",
-  #                                 "Topic 46" = "badger cull",
-  #                                 "Topic 47" = "defence",
-  #                                 "Topic 48" = "immigration detention",
-  #                                 "Topic 49" = "police",
-  #                                 "Topic 50" = "NHS care",
-  #                                 "Topic 51" = "tax",
-  #                                 "Topic 52" = "time",
-  #                                 "Topic 53" = "NHS staffing",
-  #                                 "Topic 54" = "bills",
-  #                                 "Topic 55" = "economic sectors",
-  #                                 "Topic 56" = "disease",
-  #                                 "Topic 57" = "regions",
-  #                                 "Topic 58" = "legal aid",
-  #                                 "Topic 59" = "youth employment",
-  #                                 "Topic 60" = "tax evasion",
-  #                                 "Topic 61" = "scotland",
-  #                                 "Topic 62" = "human trafficing ",
-  #                                 "Topic 63" = "retail sector",
-  #                                 "Topic 64" = "debate",
-  #                                 "Topic 65" = "foster care",
-  #                                 "Topic 66" = "transport",
-  #                                 "Topic 67" = "changes over time",
-  #                                 "Topic 68" = "support",
-  #                                 "Topic 84" = "Other"))
+                                    "Topic 43", "Topic 44", "Topic 45")),
+           assigned_topic = recode(assigned_topic,
+                                  "Topic 1" = "Business (Topic 1)",
+                                  "Topic 2" = "Roads (Topic 2)",
+                                  "Topic 3" = "Members (Topic 3)",
+                                  "Topic 4" = "Gender (Topic 4)",
+                                  "Topic 5" = "Housing (Topic 5)",
+                                  "Topic 6" = "Questions (Topic 6)",
+                                  "Topic 7" = "Technology (Topic 7)",
+                                  "Topic 8" = "Food & farming (Topic 8)",
+                                  "Topic 9" = "Animals (Topic 9)",
+                                  "Topic 10" = "Disease (Topic 10)",
+                                  "Topic 11" = "Parties (Topic 11)",
+                                  "Topic 12" = "Health Care (Topic 12)",
+                                  "Topic 13" = "Disasters (Topic 13)",
+                                  "Topic 14" = "Energy (Topic 14)",
+                                  "Topic 15" = "Volunteering (Topic 15)",
+                                  "Topic 16" = "Infrastructure (Topic 16)",
+                                  "Topic 17" = "Local authorities (Topic 17)",
+                                  "Topic 18" = "Universities & skills (Topic 18)",
+                                  "Topic 19" = "Schools (Topic 19)",
+                                  "Topic 20" = "Transport (Topic 20)",
+                                  "Topic 21" = "Police (Topic 21)",
+                                  "Topic 22" = "Budgets & tax (Topic 22)",
+                                  "Topic 23" = "Drugs (Topic 23)",
+                                  "Topic 24" = "Culture & sport (Topic 24)",
+                                  "Topic 25" = "Children & families (Topic 25)",
+                                  "Topic 26" = "Planning & land-use (Topic 26)",
+                                  "Topic 27" = "Security (Topic 27)",
+                                  "Topic 28" = "Elections (Topic 28)",
+                                  "Topic 29" = "Benefits & pensions (Topic 29)",
+                                  "Topic 30" = "Call to action (Topic 30)",
+                                  "Topic 31" = "Reports (Topic 31)",
+                                  "Topic 32" = "Disability (Topic 32)",
+                                  "Topic 33" = "Amendments (Topic 33)",
+                                  "Topic 34" = "Justice (Topic 34)",
+                                  "Topic 35" = "Military intervention (Topic 35)",
+                                  "Topic 36" = "Financial system (Topic 36)",
+                                  "Topic 37" = "Debate (Topic 37)",
+                                  "Topic 38" = "Public bodies (Topic 38)",
+                                  "Topic 39" = "Devolution (Topic 39)",
+                                  "Topic 40" = "Bills (Topic 40)",
+                                  "Topic 41" = "European Union (Topic 41)",
+                                  "Topic 42" = "Environment (Topic 42)",
+                                  "Topic 43" = "Constituency (Topic 43)",
+                                  "Topic 44" = "Responses (Topic 44)",
+                                  "Topic 45" = "Interventions (Topic 45)"))#,
 
-topic_dt_k0_5$perc[is.na(topic_dt_k0_5$perc)] <- 0
+topic_dt_k45_5$perc[is.na(topic_dt_k45_5$perc)] <- 0
 
-p_k0_pyramid <- ggplot(data = topic_dt_k0_5, 
+p_k45_pyramid <- ggplot(data = topic_dt_k45_5, 
                         aes(x = assigned_topic, y = perc, fill = aws_status)) +
-  geom_bar(data = filter(topic_dt_k0_5, aws_status == "non_AWS_freq"),
+  geom_bar(data = filter(topic_dt_k45_5, aws_status == "non_AWS_freq"),
            stat = "identity" ) + 
-  geom_bar(data = filter(topic_dt_k0_5, aws_status == "AWS_freq"),
+  geom_bar(data = filter(topic_dt_k45_5, aws_status == "AWS_freq"),
            stat = "identity", aes(y = -perc) ) + 
-  geom_bar(data = filter(topic_dt_k0_5, aws_status == "AWS_freq"),
+  geom_bar(data = filter(topic_dt_k45_5, aws_status == "AWS_freq"),
            stat = "identity", aes(color = aws_status),
-           alpha = 0, color = "#641A80", show.legend=FALSE) + 
-  geom_bar(data = filter(topic_dt_k0_5, aws_status == "non_AWS_freq"),
+           alpha = 0, color = "#641A80") + 
+    geom_bar(data = filter(topic_dt_k45_5, aws_status == "non_AWS_freq"),
            stat = "identity", aes(color = aws_status, y = -perc),
-           alpha = 0, color = "#F76F5C", show.legend=FALSE) + 
-  scale_y_continuous(breaks = seq(-0.075, 0.075, 0.025), 
+           alpha = 0, color = "#F76F5C") + 
+  scale_y_continuous(breaks = seq(-0.1, 0.1, 0.025), 
                      labels = paste0(
-                       as.character(c(seq(7.5, 0, -2.5),
-                                      seq(2.5, 7.5, 2.5))), "%")) + 
-  coord_flip(ylim = c(-0.075, 0.075)) + 
+                       as.character(c(seq(10, 0, -2.5), seq(2.5, 10, 2.5))), "%")) + 
+  coord_flip(ylim = c(-0.1, 0.1)) + 
   scale_fill_viridis_d(labels = c("AWS", "non-AWS"),
                        begin = 0.3, end = 0.7, option = "magma", name = "") + 
   labs(x = "Topic", y = "Percentage of Speeches") + 
   theme(legend.position = "bottom")
 
-ggsave("p_k0_pyramid.svg", plot = p_k0_pyramid,
+ggsave("p_k45_pyramid.svg", plot = p_k45_pyramid,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
-p_k0_pyramid
+p_k45_pyramid
 ```
 
-```{r k0-topic-bar, echo=FALSE, fig.cap="\\label{k0-topic-bar-plot}k0 Bar Chart"}
 
-topic_dt_k0_6 <- topic_dt_k0_3 %>% 
-  select(-man_count, -non_AWS, -AWS) %>%
-  gather("aws_status", "perc", -assigned_topic) %>%
-   mutate(assigned_topic = factor(assigned_topic, 
-                                   levels=c("Topic 1", "Topic 2", "Topic 3",
-                                    "Topic 4", "Topic 5", "Topic 6",
-                                    "Topic 7", "Topic 8", "Topic 9",
-                                    "Topic 10", "Topic 11", "Topic 12",
-                                    "Topic 13", "Topic 14", "Topic 15",
-                                    "Topic 16", "Topic 17", "Topic 18",
-                                    "Topic 19", "Topic 20", "Topic 21",
-                                    "Topic 22", "Topic 23", "Topic 24",
-                                    "Topic 25", "Topic 26", "Topic 27",
-                                    "Topic 28", "Topic 29", "Topic 30",
-                                    "Topic 31", "Topic 32", "Topic 33",
-                                    "Topic 34", "Topic 35", "Topic 36",
-                                    "Topic 37", "Topic 38", "Topic 39",
-                                    "Topic 40", "Topic 41", "Topic 42",
-                                    "Topic 43", "Topic 44", "Topic 45",
-                                    "Topic 46", "Topic 47", "Topic 48",
-                                    "Topic 49", "Topic 50", "Topic 51",
-                                    "Topic 52", "Topic 53", "Topic 54",
-                                    "Topic 55", "Topic 56", "Topic 57",
-                                    "Topic 58", "Topic 59", "Topic 60",
-                                    "Topic 61", "Topic 62", "Topic 63",
-                                    "Topic 64", "Topic 65", "Topic 66")))#,
+Figure \ref{k45-topic-pyramid-plot} is a pyramid plot, showing the percentage of speeches classed in each topic of AWS and non-AWS MPs. 
 
-
-p_k0_bar <- ggplot(data = topic_dt_k0_6,
+```{r k45-topic-bar, echo=FALSE, fig.cap="\\label{k45-topic-bar-plot}k45 Bar Chart"}
+p_k45_bar <- ggplot(data = topic_dt_k45_5,
                     aes(x = assigned_topic, y = perc, fill = aws_status)) +
-  geom_bar(stat = "identity", position = "dodge") + 
+  geom_bar(data = topic_dt_k45_5, stat = "identity", position = "dodge") + 
   scale_y_continuous(breaks = c(0, 0.025, 0.05, 0.075),
                      labels = scales::percent) + 
-  scale_fill_viridis_d(labels = c("AWS", "Non-AWS", "Men"),
+  scale_fill_viridis_d(labels = c("AWS", "non-AWS"),
                        begin = 0.3, end = 0.7, option = "magma", name = "") + 
   labs(x = "Topic", y = "Percentage of Speeches") + 
   theme(legend.position = "bottom", 
         axis.text.x = element_text(angle = 90, hjust = 1))
 
-ggsave("p_k0_bar.svg", plot = p_k0_bar,
+ggsave("p_k45_bar.svg", plot = p_k45_bar,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
-p_k0_bar
+p_k45_bar
 ```
 
-```{r stm-topic-words-k0, message=FALSE, warning=FALSE, include=FALSE}
+```{r stm-topic-words-k45, message=FALSE, warning=FALSE, include=FALSE}
 library(tidyr)
-topic_words <- labelTopics(topic_model_k0, n = 20, frexweight = 0.5)
+topic_words <- labelTopics(topic_model_k45, n = 20, frexweight = 0.5)
 
 topic_words_highest <- tibble::as_tibble(topic_words[[1]])
 
-topic_words_highest <- topic_words_highest %>% unite(V1:V20, sep = ", ") %>%
-  rename("highest" = "V1:V20")
+topic_words_highest <- topic_words_highest %>% unite(V1:V10, sep = ", ") %>%
+  rename("highest" = "V1:V10")
 
 topic_words_highest$topic <- paste0("Topic ", row.names(topic_words_highest))
 
 topic_words_frex <- tibble::as_tibble(topic_words[[2]])
 
-topic_words_frex <- topic_words_frex %>% unite(V1:V20, sep = ", ") %>%
-  rename("FREX" = "V1:V20")
+topic_words_frex <- topic_words_frex %>% unite(V1:V10, sep = ", ") %>%
+  rename("FREX" = "V1:V10")
 
 topic_words_frex$topic <- paste0("Topic ", row.names(topic_words_frex))
 
 topic_words2 <- topic_words_highest %>% left_join(topic_words_frex) %>% 
-  select(topic, everything())
+  select(topic, everything()) %>%
+  mutate(topic = recode(topic,
+                        "Topic 1" = "Business (Topic 1)",
+                        "Topic 2" = "Roads (Topic 2)",
+                                  "Topic 3" = "Members (Topic 3)",
+                                  "Topic 4" = "Gender (Topic 4)",
+                                  "Topic 5" = "Housing (Topic 5)",
+                                  "Topic 6" = "Questions (Topic 6)",
+                                  "Topic 7" = "Technology (Topic 7)",
+                                  "Topic 8" = "Food & farming (Topic 8)",
+                                  "Topic 9" = "Animals (Topic 9)",
+                                  "Topic 10" = "Disease (Topic 10)",
+                                  "Topic 11" = "Parties (Topic 11)",
+                                  "Topic 12" = "Health Care (Topic 12)",
+                                  "Topic 13" = "Disasters (Topic 13)",
+                                  "Topic 14" = "Energy (Topic 14)",
+                                  "Topic 15" = "Volunteering (Topic 15)",
+                                  "Topic 16" = "Infrastructure (Topic 16)",
+                                  "Topic 17" = "Local authorities (Topic 17)",
+                                  "Topic 18" = "Universities & skills (Topic 18)",
+                                  "Topic 19" = "Schools (Topic 19)",
+                                  "Topic 20" = "Transport (Topic 20)",
+                                  "Topic 21" = "Police (Topic 21)",
+                                  "Topic 22" = "Budgets & tax (Topic 22)",
+                                  "Topic 23" = "Drugs (Topic 23)",
+                                  "Topic 24" = "Culture & sport (Topic 24)",
+                                  "Topic 25" = "Children & families (Topic 25)",
+                                  "Topic 26" = "Planning & land-use (Topic 26)",
+                                  "Topic 27" = "Security (Topic 27)",
+                                  "Topic 28" = "Elections (Topic 28)",
+                                  "Topic 29" = "Benefits & pensions (Topic 29)",
+                                  "Topic 30" = "Call to action (Topic 30)",
+                                  "Topic 31" = "Reports (Topic 31)",
+                                  "Topic 32" = "Disability (Topic 32)",
+                                  "Topic 33" = "Amendments (Topic 33)",
+                                  "Topic 34" = "Justice (Topic 34)",
+                                  "Topic 35" = "Military intervention (Topic 35)",
+                                  "Topic 36" = "Financial system (Topic 36)",
+                                  "Topic 37" = "Debate (Topic 37)",
+                                  "Topic 38" = "Public bodies (Topic 38)",
+                                  "Topic 39" = "Devolution (Topic 39)",
+                                  "Topic 40" = "Bills (Topic 40)",
+                                  "Topic 41" = "European Union (Topic 41)",
+                                  "Topic 42" = "Environment (Topic 42)",
+                                  "Topic 43" = "Constituency (Topic 43)",
+                                  "Topic 44" = "Responses (Topic 44)",
+                                  "Topic 45" = "Interventions (Topic 45)"))
 ```
+
 
 #### Word Occurences
 
-The table below shows the twenty most common words in each topic, and the ten words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016].
+The table below shows the twenty most common words in each topic, and the twenty words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016].
 
-```{r topic-words-table-k0, echo=FALSE, results = 'asis'}
+```{r topic-words-table-k45, echo=FALSE, results = 'asis'}
 library(knitr)
 library(kableExtra)
 
 kable(topic_words2,  booktabs = TRUE, longtable = TRUE, 
-      caption = "Words in topic - k0",
-      col.names = c("Topic Number", "Top Twenty Words", "Top Twenty FREX")) %>%
+      caption = "Words in topic - k45",
+      col.names = c("Topic Number", "Top Ten Words", "Top Ten FREX")) %>%
     kable_styling(latex_options = c("HOLD_position",  "repeat_header",
-                                    "striped"), full_width = TRUE ) %>% 
-  column_spec(2:3, width = "6cm")
+                                    "striped"), full_width = TRUE )
 
 ```
 
 
+
+```{r k45-topic-proportion, echo=FALSE, fig.height=7, fig.cap="\\label{k45-topic-proportion}k45 Topic Proportions"}
+topic_dt_k45_3$prop <- topic_dt_k45_3$AWS_freq/topic_dt_k45_3$non_AWS_freq
+
+topic_dt_k45_6 <- topic_dt_k45_3 %>% 
+  select(assigned_topic, prop) %>%
+  mutate(assigned_topic = factor(assigned_topic, 
+                                 levels=c("Topic 1", "Topic 2", "Topic 3",
+                                          "Topic 4", "Topic 5", "Topic 6",
+                                          "Topic 7", "Topic 8", "Topic 9",
+                                          "Topic 10", "Topic 11", "Topic 12", 
+                                          "Topic 13", "Topic 14", "Topic 15", 
+                                          "Topic 16", "Topic 17", "Topic 18", 
+                                          "Topic 19", "Topic 20", "Topic 21", 
+                                          "Topic 22", "Topic 23", "Topic 24", 
+                                          "Topic 25", "Topic 26", "Topic 27", 
+                                          "Topic 28", "Topic 29", "Topic 30",
+                                          "Topic 31", "Topic 32", "Topic 33",
+                                          "Topic 34", "Topic 35", "Topic 36",
+                                          "Topic 37", "Topic 38", "Topic 39",
+                                          "Topic 40", "Topic 41", "Topic 42",
+                                          "Topic 43", "Topic 44", "Topic 45")),
+          assigned_topic = recode(assigned_topic,
+                                  "Topic 1" = "Business",
+                                  "Topic 2" = "Roads",
+                                  "Topic 3" = "Members",
+                                  "Topic 4" = "Gender",
+                                  "Topic 5" = "Housing",
+                                  "Topic 6" = "Questions",
+                                  "Topic 7" = "Technology",
+                                  "Topic 8" = "Food & farming",
+                                  "Topic 9" = "Animals",
+                                  "Topic 10" = "Disease",
+                                  "Topic 11" = "Parties",
+                                  "Topic 12" = "Health Care",
+                                  "Topic 13" = "Disasters",
+                                  "Topic 14" = "Energy",
+                                  "Topic 15" = "Volunteering",
+                                  "Topic 16" = "Infrastructure",
+                                  "Topic 17" = "Local authorities",
+                                  "Topic 18" = "Universities & skills",
+                                  "Topic 19" = "Schools",
+                                  "Topic 20" = "Transport",
+                                  "Topic 21" = "Police",
+                                  "Topic 22" = "Budgets & tax",
+                                  "Topic 23" = "Drugs",
+                                  "Topic 24" = "Culture & sport",
+                                  "Topic 25" = "Children & familiesies",
+                                  "Topic 26" = "Planning & land-use",
+                                  "Topic 27" = "Security",
+                                  "Topic 28" = "Elections",
+                                  "Topic 29" = "Benefits & pensions",
+                                  "Topic 30" = "Call to action",
+                                  "Topic 31" = "Reports",
+                                  "Topic 32" = "Disability",
+                                  "Topic 33" = "Amendments",
+                                  "Topic 34" = "Justice",
+                                  "Topic 35" = "Military intervention",
+                                  "Topic 36" = "Financial system",
+                                  "Topic 37" = "Debate",
+                                  "Topic 38" = "Public bodies",
+                                  "Topic 39" = "Devolution",
+                                  "Topic 40" = "Bills",
+                                  "Topic 41" = "European Union",
+                                  "Topic 42" = "Environment",
+                                  "Topic 43" = "Constituency",
+                                  "Topic 44" = "Responses",
+                                  "Topic 45" = "Interventions"),
+         assigned_topic = as.character(assigned_topic),
+         prop = if_else(prop < 1, 
+                        (1 - prop) * -1, 
+                        prop - 1)) %>%
+  arrange(prop)
+
+topic_dt_k45_6$assigned_topic <- reorder(topic_dt_k45_6$assigned_topic, topic_dt_k45_6$prop)
+
+p_k45_prop <- ggplot(data = topic_dt_k45_6, 
+                     aes(x = assigned_topic,
+                         y = prop, fill = prop)) +
+  geom_bar(stat = "identity") + 
+  scale_y_continuous() + 
+  scale_fill_viridis_c(name = "") + 
+  coord_flip() + 
+  labs(x = "Topic", 
+       y = "Proportion of speeches made by AWS MPs (right side)\nrelative to non-AWS MPs (left side)") + 
+  theme(legend.position = "bottom")
+
+ggsave("p_k45_prop.svg", plot = p_k45_prop,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k45_prop
+```
+
 ### Manual Validation
+
+As STM is an unsupervised model, we used several different validation strategies to ensure the topics themselves are both interesting and relevant [@grimmer2013]. @quinn2010 suggest that topics are valid if they correspond to external events. Figure \ref{k45-military-intervention-validity} shows the number of speeches by female Labour MPs on the "Military Intervention" topic, with a spike in 2003 (at the start of the Iraq War), another spike in 2008 and 2009, as the bulk of British troops left Iraq, a small spike in 2011 coinciding with UK participation in NATO's military intervention in Libya, and debate in 2014--2016 over UK participation in military interventions in the Syrian Civil War. Figure \ref{k45-housing-validity} shows the increased importance of housing in UK politics, with the number of speeches rising alongside UK housing prices.
+
+```{r validation-prep, include=FALSE}
+library(lubridate)
+library(ggplot2)
+
+head(topic_dt_k45)
+
+topic_dt_k45_valid <- topic_dt_k45 %>% 
+  group_by(assigned_topic, year) %>%
+  summarise(count = n())
+
+test41 <- topic_dt_k45_valid %>% filter(assigned_topic == "Topic41")
+
+plot41 <- ggplot(aes(x=year, y = count), data = test41) +
+  geom_point()
+
+test44 <- topic_dt_k45_valid %>% filter(assigned_topic == "Topic44")
+
+plot44 <- ggplot(aes(x=year, y = count), data = test44) +
+  geom_point()
+
+plot44
+
+test28 <- topic_dt_k45_valid %>% filter(assigned_topic == "Topic28")
+
+plot28 <- ggplot(aes(x=year, y = count), data = test28) +
+  geom_point()
+
+plot28
+```
+
+
+```{r intervention-plot, echo=FALSE,fig.cap="\\label{k45-military-intervention-validity}Number of Speeches in \"Military Intervention\" Topic per Year"}
+test35 <- topic_dt_k45_valid %>% filter(assigned_topic == "Topic35")
+
+plot35 <- ggplot(aes(x=year, y = count), data = test35) +
+  geom_line()
+
+plot35
+```
+
+
+
+```{r housing-plot, echo=FALSE,fig.cap="\\label{k45-housing-validity}Number of Speeches in \"Housing\" Topic per Year"}
+
+test5 <- topic_dt_k45_valid %>% filter(assigned_topic == "Topic5")
+
+plot5 <- ggplot(aes(x=year, y = count), data = test5) +
+  geom_line()
+
+plot5
+```
 
 # Discussion
 
@@ -2465,6 +2984,35 @@ On 4th April 2001, Betty Williams, member for Conwy from 1997--2010, raised the 
 
 # Appendix
 
+## K45
+
+
+```{r child = 'methods-k45.Rmd'}
+```
+
+
+
+
+
+
+## K30
+
+```{r child = 'methods-k30.Rmd'}
+```
+
+
+## K60
+
+```{r child = 'methods-k60.Rmd'}
+```
+
+
+## K0
+
+```{r child = 'methods-k0.Rmd'}
+```
+
+
 ## AWS References to Constituents in Context
 
 A random selection of 2% of all references to "my constituency", "my constituent" and "my constituents", by AWS MPs, in context. 
@@ -2474,8 +3022,7 @@ A random selection of 2% of all references to "my constituency", "my constituent
 lab_corpus <- read_rds("data/lab_corpus.rds")
 
 lab_corpus_fem_sl <- corpus_subset(lab_corpus, gender == "Female" &
-                                short_list == TRUE) %>% 
-  corpus(remove = c(" n ", "\\", " \\ n", "n"))
+                                short_list == TRUE)
 
 set.seed(191)
 constit_kwic <- kwic(lab_corpus_fem_sl, phrase("my constit*"),

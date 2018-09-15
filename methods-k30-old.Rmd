@@ -10,18 +10,84 @@ output: html_document
 library(stm)
 library(readr)
 
-lab_corpus_stm <- read_rds("data/lab_corpus_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
 set.seed(402)
 #topic_model_k30 seed = 9957388
-topic_model_k30_m <- stm(lab_corpus_stm$documents, 
-                       vocab = lab_corpus_stm$vocab, 
-                       K = 30, prevalence = ~short_list+gender, 
+topic_model_k30 <- stm(lab_corpus_fem_stm$documents, 
+                       vocab = lab_corpus_fem_stm$vocab, 
+                       K = 60, prevalence = ~short_list, 
                        seed = 9957388,
-                       data = lab_corpus_stm$meta,
+                       data = lab_corpus_fem_stm$meta,
                        verbose = TRUE, init.type = "Spectral")
 
-write_rds(topic_model_k30_m, "data/topic_model_k30_m.rds")
+write_rds(topic_model_k30, "data/topic_model_k30.rds")
+```
+
+```{r STM-men-women-match-k30, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+topic_model_k30 <- read_rds("data/topic_model_k30.rds")
+
+lab_corpus <- read_rds("data/lab_corpus.rds")
+
+#topic_model2 <- read_rds("data/stm-topic-model2.rds")
+
+lab_corpus_man <- corpus_subset(lab_corpus, gender=="Male")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+
+rm(lab_corpus)
+#ndoc(lab_corpus_fem)
+
+lab_corpus_man_stm <- dfm(lab_corpus_man, remove_punct = TRUE,
+                           remove = parliament_stopwords, verbose = TRUE) %>%
+  convert(to = "stm", docvars = NULL)
+
+#lab_corpus_man_stm$meta$short_list <- as.factor(lab_corpus_man_stm$meta$short_list)
+
+write_rds(lab_corpus_man_stm, "data/lab_corpus_man_stm.rds")
+
+new_man_k30 <- alignCorpus(new=lab_corpus_man_stm, old.vocab=topic_model_k30$vocab)
+
+#new_man <- asSTMCorpus(new_man)
+
+topic_model_man <- fitNewDocuments(model = topic_model_k30, 
+                                   documents = new_man_k30$documents,
+                                   newData = new_man_k30$meta, 
+                                   prevalence = ~short_list, verbose = TRUE)
+
+write_rds(topic_model_man_k30, "data/topic_model_man.rds")
+write_rds(new_man_k30, "data/new_man_k30.rds")
+```
+
+```{r corr_creation-k30, eval=FALSE, include=FALSE}
+library(readr)
+library(stm)
+library(viridis)
+library(dplyr)
+library(igraph)
+library(ggplot2)
+library(quanteda)
+topic_model_k30 <- read_rds("data/topic_model_k30.rds")
+
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
+
+corr_topic_k30 <- topicCorr(topic_model_k30, method = "huge", verbose = FALSE)
+
+prep_k30 <- estimateEffect(1:30 ~ short_list, topic_model_k30, 
+                       meta = lab_corpus_fem_stm$meta, uncertainty = "Global")
+
+write_rds(corr_topic_k30, "data/corr_topic_k30.rds")
+
+write_rds(prep_k30, "data/prep_k30.rds")
 ```
 
 ```{r stm-analysis-k30, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k30-network}Fruchterman-Reingold plot of K30 Network"}
@@ -34,13 +100,13 @@ library(ggplot2)
 library(quanteda)
 #library(tidystm)
 
-lab_corpus_stm <- read_rds("data/lab_corpus_stm.rds")
+lab_corpus_fem_stm <- read_rds("data/lab_corpus_fem_stm.rds")
 
-topic_model_k30 <- read_rds("data/topic_model_k30_m.rds")
+topic_model_k30 <- read_rds("data/topic_model_k30.rds")
 
-corr_topic_k30 <- read_rds("data/corr_topic_k30_m.rds")
+corr_topic_k30 <- read_rds("data/corr_topic_k30.rds")
 
-prep_k30 <- read_rds("data/prep_k30_m.rds")
+prep_k30 <- read_rds("data/prep_k30.rds")
 
 prep_df_k30 <- summary(prep_k30)[[3]]
 
@@ -285,6 +351,41 @@ kable(topic_dt_k30_div[1:3],  booktabs = TRUE, longtable = TRUE,
 
 There is no topic that every single female Labour MP has discussed at least once. The most widely used is the topic "People", which out of `r sum(lab_nums$distinct[lab_nums$gender=="Female"])` female Labour MPs in the dataset, `r scales::percent(topic_dt_k30_div$distinct[topic_dt_k30_div$assigned_topic=="People"])`  made at least one speech in that topic. `r scales::percent(topic_dt_k30_div$prop[topic_dt_k30_div$assigned_topic=="People"])` of those MPs made five or more speeches about "People".
 
+
+```{r topic-dt-man-creation-k30, include=FALSE}
+library(scales)
+library(tidyr)
+
+topic_model_man_k30 <- read_rds("data/topic_model_man_k30.rds")
+new_man_k30 <- read_rds("data/new_man_k30.rds")
+
+new_man_k30$meta$eo_id <- docnames(new_man_k30$documents)
+
+topic_man_dt_k30 <- make.dt(topic_model_man_k30, new_man_k30$meta)
+
+topic_man_dt_k30$assigned_topic <- colnames(topic_man_dt_k30[,2:31])[max.col(topic_man_dt_k30[,2:31],ties.method="random")]
+
+topic_man_dt_k30$assigned_topic <- as.factor(topic_man_dt_k30$assigned_topic)
+
+## Reordering x$assigned_topic
+topic_man_dt_k30$assigned_topic <- factor(topic_man_dt_k30$assigned_topic, 
+                           levels=c("Topic1", "Topic2", "Topic3", 
+                                    "Topic4", "Topic5", "Topic6",
+                                    "Topic7", "Topic8", "Topic9",
+                                    "Topic10", "Topic11", "Topic12", 
+                                    "Topic13", "Topic14", "Topic15", 
+                                    "Topic16", "Topic17", "Topic18", 
+                                    "Topic19", "Topic20", "Topic21", 
+                                    "Topic22", "Topic23", "Topic24", 
+                                    "Topic25", "Topic26", "Topic27", 
+                                    "Topic28", "Topic29", "Topic30"))
+
+topic_man_dt_k30_2 <- topic_man_dt_k30 %>% group_by(assigned_topic) %>%
+  summarise(man_count = n()) %>%
+  mutate(man_freq = man_count/sum(man_count, na.rm = TRUE),
+         assigned_topic = gsub("Topic", "Topic ", assigned_topic))
+
+```
 
 ```{r topic-dt3-creation-k30, include=FALSE}
 topic_dt_k30_3 <- topic_dt_k30 %>% group_by(assigned_topic, short_list) %>%
