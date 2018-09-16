@@ -47,347 +47,7 @@ Data in Table 1 is from House of Commons Library reports [@kelly2016; @audickas2
 
 <!--## Corpus creation -->
 
-```{r government-jobs, eval=FALSE, include=FALSE}
-library(listviewer)
-library(httr)
-library(dplyr)
 
-gov <- GET("http://data.parliament.uk/membersdataplatform/services/mnis/Department/0/Government/All/", accept_json())
-
-s <- mnis::tidy_bom(gov)
-
-d <- jsonlite::fromJSON(s)
-
-x <- d$Department$Posts$Post
-
-post_names <- c()
-
-for (i in 1:length( d$Department$Posts$Post$Name)) {
-  
-  post_names[i] <- d$Department$Posts$Post$Name[[i]]
-  
-}
-
-for (i in 1:length(post_names)) {
-  if (class(x$PostHolders$PostHolder[[i]])=="NULL") { 
-    } else {
-  
-  x$PostHolders$PostHolder[[i]]$post_name <- post_names[i]
-  x$PostHolders$PostHolder[[i]]$LayingMinisterName <- as.character(x$PostHolders$PostHolder[[i]]$LayingMinisterName)
-    x$PostHolders$PostHolder[[i]]$LayingMinisterName <- NULL
-  x$PostHolders$PostHolder[[i]]$Member$CurrentStatus <- NULL
-  x$PostHolders$PostHolder[[i]]$Member$DateOfDeath <- NULL
-  x$PostHolders$PostHolder[[i]]$Member$HouseEndDate <- NULL
-  x$PostHolders$PostHolder[[i]]$HouseEndDate <- NULL
-  x$PostHolders$PostHolder[[i]]$Member$Party <- x$PostHolders$PostHolder[[i]]$Member$Party$`#text`
-
-  if (length(x$PostHolders$PostHolder[[i]]$EndDate) > 1) {
-    x$PostHolders$PostHolder[[i]]$EndDate <- as.character(x$PostHolders$PostHolder[[i]]$EndDate[1])
-  }
-  
-  
-   x$PostHolders$PostHolder[[i]]$Member$LayingMinisterName <- NULL
-    x$PostHolders$PostHolder[[i]]$Member$HouseEndDate <- NULL
-   
-  mem_df <- as.data.frame(x$PostHolders$PostHolder[[i]]$Member)
-  
-  x$PostHolders$PostHolder[[i]]$Member <- NULL
-  
-  mem_df <- lapply(mem_df, as.character)
-
-  mem_df$LayingMinisterName <- NULL
-  
-  mem_df$HouseEndDate <- NULL
-  
-  x$PostHolders$PostHolder[[i]] <- bind_cols(as.data.frame(x$PostHolders$PostHolder[[i]]), mem_df)
-    }
-}
-
-government_posts <- bind_rows(x$PostHolders$PostHolder)
-
-names(government_posts) <- snakecase::to_snake_case(names(government_posts))
-
-government_posts$member_id <- if_else(is.na(government_posts$member_id),
-                                      government_posts$x_member_id,
-                                      government_posts$member_id)
-
-government_posts$type <- "Government"
-
-government_posts$end_date <- if_else(
-  government_posts$member_id=="439" & 
-    government_posts$post_name=="Secretary of State for Education & skills", 
-  "2006-05-05", government_posts$end_date)
-
-```
-
-```{r opposition-jobs, eval=FALSE, include=FALSE}
-library(listviewer)
-library(httr)
-
-opp <- GET("http://data.parliament.uk/membersdataplatform/services/mnis/Department/0/Opposition/All/", accept_json())
-
-s <- mnis::tidy_bom(opp)
-
-d <- jsonlite::fromJSON(s)
-
-x <- d$Department$Posts$Post
-
-post_names <- c()
-
-for (i in 1:length( d$Department$Posts$Post$Name)) {
-  
-  post_names[i] <- d$Department$Posts$Post$Name[[i]]
-  
-}
-
-for (i in 1:length(post_names)) {
-  if (class(x$PostHolders$PostHolder[[i]])=="NULL") { 
-    } else {
-  
-  x$PostHolders$PostHolder[[i]]$post_name <- post_names[i]
-  x$PostHolders$PostHolder[[i]]$Member$CurrentStatus <- NULL
-  x$PostHolders$PostHolder[[i]]$Member$DateOfDeath <- NULL
-  x$PostHolders$PostHolder[[i]]$Member$HouseEndDate <- NULL
-  x$PostHolders$PostHolder[[i]]$HouseEndDate <- NULL
-  x$PostHolders$PostHolder[[i]]$Member$Party <- x$PostHolders$PostHolder[[i]]$Member$Party$`#text`
-# 
-   for (j in 1:length(x$PostHolders$PostHolder[[i]]$EndDate[1])) {
-     
-     if (length(x$PostHolders$PostHolder[[i]]$EndDate[[j]]) > 1) {
-       x$PostHolders$PostHolder[[i]]$EndDate[[j]] <- "1"
-     }
-     
-     # x$PostHolders$PostHolder[[i]]$EndDate[[1]] <- x$PostHolders$PostHolder[[i]]$EndDate[[1]][[1]]
-   }
-  
-#  x$PostHolders$PostHolder[[i]]$EndDate <- as.character(x$PostHolders$PostHolder[[i]]$EndDate)
-  
-   x$PostHolders$PostHolder[[i]]$Member$LayingMinisterName <- NULL
-    x$PostHolders$PostHolder[[i]]$Member$HouseEndDate <- NULL
-
-x$PostHolders$PostHolder[[i]]$Member$CurrentStatus <- NULL
-   
-  mem_df <- as.data.frame(x$PostHolders$PostHolder[[i]]$Member)
-  
-  x$PostHolders$PostHolder[[i]]$Member <- NULL
-  
-  mem_df$LayingMinisterName <- NULL
-  mem_df$HouseEndDate <- NULL
-  
-  #mem_df <- lapply(mem_df, as.character)
-  
-  mem_df$HouseEndDate <- NULL
-  mem_df$DateOfBirth <- NULL
-  
-  x$PostHolders$PostHolder[[i]] <- bind_cols(as.data.frame(x$PostHolders$PostHolder[[i]]), mem_df)
-  
-  if (!("EndDate..xsi.nil" %in% names(x$PostHolders$PostHolder[[i]]))) {
-  
-    x$PostHolders$PostHolder[[i]]$EndDate <- as.character(x$PostHolders$PostHolder[[i]]$EndDate)
-  }
-    }
-  
-
-}
-
-
-non.null.list <- lapply(x$PostHolders$PostHolder, Filter, f = Negate(is.null))
-
-oppo_posts <- bind_rows(non.null.list)
-
-names(oppo_posts) <- snakecase::to_snake_case(names(oppo_posts))
-
-oppo_posts$member_id <- if_else(is.na(oppo_posts$member_id),
-                                      oppo_posts$x_member_id,
-                                      oppo_posts$member_id)
-
-oppo_posts$type <- "Opposition"
-
-```
-
-```{r lab-fem-jobs, eval=FALSE, include=FALSE}
-library(readxl)
-library(dplyr)
-
-all_jobs <- bind_rows(oppo_posts, government_posts)
-
-summary(as.factor(all_jobs$gender))
-
-lab_fem_jobs <- all_jobs %>% 
-  filter(gender=="F", party %in% c("Labour (Co-op)", "Labour")) %>%
-  select(start_date, end_date, member_id, post_name, display_as)
-
-#all_women97_15 <- read_excel("list-of-mps.xlsx")
-
-#lab_fem_jobs$short_list <- lab_fem_jobs$member_id %in% all_women97_15$mnis
-
-lab_fem_jobs$end_date <- if_else(lab_fem_jobs$end_date == "list(`@xsi:nil` = \"true\", `@xmlns:xsi` = \"http://www.w3.org/2001/XMLSchema-instance\")",
-                                 "NA", lab_fem_jobs$end_date)
-
-lab_fem_jobs$end_date[lab_fem_jobs$end_date=="NA"] <- NA
-
-lab_fem_jobs$end_date <- as.Date(lab_fem_jobs$end_date)
-
-lab_fem_jobs$start_date <- as.Date(lab_fem_jobs$start_date)
-
-## use interval from lubridate to include jobs
-
-```
-
-```{r Extracing-post-1997-Labour-speeches, eval=FALSE, include=FALSE}
-### Extracing post-1997 Labour speeches
-library(readr)
-library(dplyr)
-library(quanteda)
-library(readxl)
-library(lubridate)
-library(stringi)
-
-all_speech <- read_rds("data/senti_df2.rds")
-
-# all_speech$word_count <- if_else(is.na(all_speech$word_count), 
-#                                  stri_count_words(all_speech$speech),
-#                                  all_speech$word_count)
-
-all_speech$eo_id <- rownames(all_speech)
-
-## Binned into quarters of a year
-all_speech$y_since_start <- round(time_length(all_speech$speech_date -
-                                          as.Date(all_speech$house_start_date),
-                                        unit = "years")* 4)/4
-
-all_speech$party <- if_else(all_speech$mnis_id == 4409, 
-                            "Labour",
-                            all_speech$party)
-
-all_speech$party_group <- if_else(all_speech$mnis_id == 4409, 
-                            "Labour",
-                            all_speech$party_group)
-
-all_speech$party_group <- if_else(all_speech$party == "Independent", 
-                            "Other",
-                            all_speech$party_group)
-
-
-all_speech$party_group <- case_when(all_speech$party == "Labour" ~ "Labour",
-                                    all_speech$party == "Labour (Co-op)" ~ "Labour",
-                                    all_speech$party == "Conservative" ~ "Conservative",
-                                    all_speech$party == "Democratic Unionist Party" ~ "Other",
-                                    TRUE ~ all_speech$party_group)
-
-all_speech$gender <- case_when(all_speech$gender == "F" ~ "Female",
-                               all_speech$gender == "M" ~ "Male",
-                               TRUE ~ all_speech$gender)
-
-all_women97_15 <- read_excel("list-of-mps.xlsx")
-
-all_speech$short_list <- all_speech$mnis_id %in% all_women97_15$mnis
-
-all_speech$speech <- gsub( " *\\(.*?\\)*", "", all_speech$speech)
-
-all_speech$speech <- gsub( " *\\[.*?\\]*", "", all_speech$speech)
-
-all_speech$speech <- gsub( "^c\\(", "", all_speech$speech)
-
-all_speech$speech <- gsub( "\\)$", "", all_speech$speech)
-
-all_speech$word_count <- stri_count_boundaries(all_speech$word_count,
-                                         type="word", skip_word_none=FALSE)
-
-write_rds(all_speech, "data/all_speech.rds")
-
-lab_speech <- all_speech %>% 
-  filter(party == "Labour" | party == "Labour (Co-op)", as_speaker == FALSE,
-         house_start_date >= "1997-05-01", 
-         speech_date >= "1997-05-01",
-         speech_date < "2017-06-08", word_count > 0)
-
-## CHeck tracy brabin
-library(fuzzyjoin)
-lab_speech <- fuzzy_left_join(lab_speech, lab_fem_jobs,
-                         by = c(
-                           "mnis_id" = "member_id",
-                           "speech_date" = "start_date",
-                           "speech_date" = "end_date"
-    ),
-  match_fun = list(`==`, `>=`, `<`))
-
-write_rds(lab_speech, "data/lab_speech.rds")
-
-lab_corpus <- corpus(lab_speech, docid_field = "eo_id", text_field = "speech")
-
-write_rds(lab_corpus, "data/lab_corpus.rds")
-
-lab_nums <- lab_speech %>% group_by(gender, short_list, mnis_id) %>%
-  tally() %>% ungroup() %>%
-  group_by(short_list, gender) %>%
-  summarise(distinct = n())
-
-write_rds(lab_nums, "data/lab_nums.rds")
-
-all_speech <- all_speech %>% 
-  filter(as_speaker == FALSE,
-         house_start_date >= "1997-05-01", speech_date >= "1997-05-01",
-         speech_date < "2017-06-08", word_count > 0)
-
-speech_sum_table1 <- all_speech %>%
-  group_by(short_list, gender, party_group) %>%
-  summarise(speeches = n(),
-            words = sum(word_count)) 
-
-# speech_sum_table1$gender <- case_when(speech_sum_table1$short_list==TRUE ~
-#                                        "All Women Shortlists",
-#                                      TRUE ~ speech_sum_table1$gender)
-# 
-# speech_sum_table1$gender <- case_when(speech_sum_table1$short_list==FALSE & 
-#                                        speech_sum_table1$party_group=="Labour" & 
-#                                        speech_sum_table1$gender=="Female" ~
-#                                        "Non-All Women Shortlists",
-#                                      TRUE ~ speech_sum_table1$gender )
-
-speech_sum_table2 <- all_speech %>%
-  group_by(party_group) %>%
-  summarise(speeches = n(),
-            words = sum(word_count)) 
-
-speech_sum_table3 <- all_speech %>%
-  summarise(speeches = n(),
-            words = sum(word_count)) 
-
-speech_sum_table4 <- all_speech %>%
-  group_by(gender) %>%
-  summarise(speeches = n(),
-            words = sum(word_count)) 
-
-speech_sum_table5 <- all_speech %>%
-  filter(gender=="Female", party_group=="Labour") %>%
-  group_by(party_group, gender) %>%
-  summarise(speeches = n(),
-            words = sum(word_count))
-
-speech_sum_table <- bind_rows(speech_sum_table1, speech_sum_table2,
-                              speech_sum_table3, speech_sum_table4,
-                              speech_sum_table5)
-
-speech_sum_table[is.na(speech_sum_table)] <- "All"
-
-# speech_sum_table[10,]$gender <- "All"
-# speech_sum_table[10,]$party_group <- "All"
-# speech_sum_table[10,]$short_list <- "All"
-# speech_sum_table[10,]$speeches <- sum(speech_sum_table$speeches[1:9])
-# speech_sum_table[10,]$words <- sum(speech_sum_table$words[1:9])
-# 
-# speech_sum_table[11,]$gender <- "Female"
-# speech_sum_table[11,]$party_group <- "Labour"
-# speech_sum_table[11,]$short_list <- "Both"
-# speech_sum_table[11,]$speeches <- sum(speech_sum_table$speeches[9], 
-#                                       speech_sum_table$speeches[2])
-# 
-# speech_sum_table[11,]$words <- sum(speech_sum_table$words[9],
-#                                    speech_sum_table$words[2])
-
-write_rds(speech_sum_table, "data/speech_sum_table.rds")
-```
 
 ```{r lab-desc-stats-table, echo=FALSE, message=FALSE, results='asis'}
 library(knitr)
@@ -521,116 +181,6 @@ Following research by @yu2014 and @newman2008 on gender differences in language,
 We also included mean words-per-sentence (WPS), total speach word count (WC) and Flesch–Kincaid grade level (FK) [@kincaid1975], calculated using `Quanteda` [@benoit2018] and `stringi` [@gagolewski2018].
 
 ### Women vs Men
-
-<!--### LIWC creation-->
-
-```{r lab-liwc-creation, eval=FALSE, include=FALSE}
-#remotes::install_github("kbenoit/quanteda.dictionaries")
-library(quanteda.dictionaries)
-library(quanteda)
-library(purrr)
-library(tidyr)
-library(effsize)
-library(dplyr)
-library(stringi)
-library(readr)
-
-lab_speech <- read_rds("data/lab_speech.rds")
-
-lab_corpus <- read_rds("data/lab_corpus.rds")
-
-liwc15_dict <- dictionary(file = "dict/LIWC2015_English_Flat.dic",
-       format = "LIWC")
-
-lab_liwc <- liwcalike(lab_corpus, 
-      dictionary = liwc15_dict, 
-      verbose = TRUE) %>%
- left_join(lab_speech, by = c("docname" = "eo_id"))
-
-# lab_liwc$WC <- stri_count_boundaries(lab_liwc$speech,
-#                                        type="word", skip_word_none=FALSE)
-
-lab_liwc$WC <- stri_count_boundaries(lab_liwc$speech,
-                                         type="word", skip_word_none=FALSE)
-
-lab_liwc$WPS <- lab_liwc$WC/stri_count_boundaries(lab_liwc$speech,
-                                                          type="sentence", skip_word_none=FALSE)
-
-lab_liwc[["Sixltr"]] <- sapply(
-  tokens(texts(lab_corpus), remove_hyphens = TRUE),
-  function(y) sum(stri_length(y) > 6)) / lab_liwc[["WC"]] * 100
-
-# lab_liwc$FK <-  textstat_readability(texts(lab_corpus), "Flesch.Kincaid")
-# 
-# lab_liwc$FK <- lab_liwc$FK$Flesch.Kincaid
-# 
-# lab_liwc$FK <- if_else(lab_liwc$WC < 5, NA_real_, lab_liwc$FK)
-
-# lab_liwc$WPS <- lab_liwc$WC/stri_count_boundaries(lab_liwc$speech,
-#                                        type="sentence", skip_word_none=FALSE)
-
-lab_liwc$total_syllable <- nsyllable(lab_liwc$speech)
-
-lab_liwc$FK <- case_when(lab_liwc$WC >= 5 ~ 
-                            0.39 * lab_liwc$WPS + 
-                            11.8 * lab_liwc$total_syllable/
-                            lab_liwc$WC - 15.59, TRUE ~ NA_real_)
-
-#lab_liwc$FK2 <- if_else(lab_liwc$WC < 5, NA_real_, lab_liwc$FK2)
-
-lab_liwc <- lab_liwc %>% select(docname, Segment, WC, WPS, FK, everything())
-
-#lab_liwc <- read_rds("data/lab_liwc.rds")
-
-write_rds(lab_liwc, "data/lab_liwc.rds")
-```
-
-```{r liwc-summaries-women-men, eval=FALSE, include=FALSE}
-library(readr)
-library(dplyr)
-library(purrr)
-library(tidyr)
-
-lab_liwc <- read_rds("data/lab_liwc.rds")
-
-## Group by gender, short_list, see what's up
-cols <- names(lab_liwc)[4:92]
-
-lab_liwc_men_women_mean <- list(c("WC"), cols) %>%
- map2(lst(mean=mean, funs(weighted.mean(., WC))),
-  ~ lab_liwc %>%
-   group_by(gender) %>%
-   summarise_at(.x, .y)) %>%
- reduce(inner_join)
-
-#tibble::glimpse(lab_liwc_men_women_mean)
-
-lab_liwc_men_women_tidy_mean <- gather(lab_liwc_men_women_mean, 
-          "attribute", "weighted_mean", -gender, -WC) 
-
-lab_liwc_men_women_sd <- list(c("WC"), cols) %>%
- map2(lst(mean=mean, funs(sd(., na.rm=TRUE))),
-  ~ lab_liwc %>%
-   group_by(gender) %>%
-   summarise_at(.x, .y)) %>%
- reduce(inner_join)
-
-lab_liwc_men_women_tidy_sd <- gather(lab_liwc_men_women_sd, "attribute",
-                                     "sd", -gender, -WC) 
-
-## Joining together the SD and Means to get CIs
-
-## Calculate Cohen's D in here somehow?
-lab_liwc_men_women2 <- left_join(lab_liwc_men_women_tidy_mean, 
-         lab_liwc_men_women_tidy_sd) %>% 
- left_join(lab_liwc %>% 
-    group_by(gender) %>% summarise(n=n())) %>%
- mutate(se = sd / sqrt(n),
-   lower_ci = weighted_mean - qt(1 - (0.05 / 2), n - 1) * se,
-   upper_ci = weighted_mean + qt(1 - (0.05 / 2), n - 1) * se)
-
-rm(lab_liwc_men_women_tidy_sd, lab_liwc_men_women_tidy_mean)
-```
 
 ```{r liwc-tables, include=FALSE}
 library(readr)
@@ -901,95 +451,6 @@ There are no categories among female Labour MPs by selection process meeting the
 
 ### Conservatives vs Labour
 
-```{r tory-labour-extraction, eval=FALSE, include=FALSE}
-## same as above, but this time Conservative vs Labour
-library(readr)
-library(dplyr)
-library(quanteda)
-library(readxl)
-library(lubridate)
-library(stringi)
-
-all_speech <- read_rds("data/senti_df2.rds")
-
-all_speech$eo_id <- rownames(all_speech)
-
-## Binned into quarters of a year
-all_speech$y_since_start <- round(time_length(all_speech$speech_date -
-                                          as.Date(all_speech$house_start_date),
-                                        unit = "years")* 4)/4
-
-con_speech <- filter(all_speech, 
-                     party_group == "Conservative", 
-                     as_speaker == FALSE, house_start_date >= "1997-05-01", 
-                     speech_date >= "1997-05-01", speech_date < "2017-06-08",
-                     word_count > 0)
-
-rm(all_speech)
-
-con_speech$speech <- gsub( " *\\(.*?\\)*", "", con_speech$speech)
-
-con_speech$speech <- gsub( " *\\[.*?\\]*", "", con_speech$speech)
-
-con_speech$speech <- gsub( "^c\\(", "", con_speech$speech)
-
-con_speech$speech <- gsub( "\\)$", "", con_speech$speech)
-
-write_rds(con_speech, "data/con_speech.rds")
-
-con_corpus <- corpus(con_speech, docid_field = "eo_id", text_field = "speech")
-
-write_rds(con_corpus, "data/con_corpus.rds")
-```
-
-
-```{r tory-labour-liwc, eval=FALSE, include=FALSE}
-library(readr)
-library(dplyr)
-library(tidyr)
-library(effsize)
-library(stringi)
-library(quanteda)
-library(quanteda.dictionaries)
-
-liwc15_dict <- dictionary(file = "dict/LIWC2015_English_Flat.dic",
-       format = "LIWC")
-
-con_corpus <- read_rds("data/con_corpus.rds")
-
-con_speech <- read_rds("data/con_speech.rds")
-
-con_liwc <- liwcalike(con_corpus, 
-      dictionary = liwc15_dict, 
-      verbose = TRUE) %>%
-  left_join(con_speech, by = c("docname" = "eo_id"))
-
-con_liwc$WC <- stri_count_boundaries(con_liwc$speech,
-                                         type="word", skip_word_none=FALSE)
-
-con_liwc$WPS <- con_liwc$WC/stri_count_boundaries(con_liwc$speech,
-                                                          type="sentence", skip_word_none=FALSE)
-
-con_liwc[["Sixltr"]] <- sapply(
-  tokens(texts(con_corpus), remove_hyphens = TRUE),
-  function(y) sum(stri_length(y) > 6)) / con_liwc[["WC"]] * 100
-
-con_liwc$FK <- case_when(con_liwc$WC >= 5 ~ 
-                               0.39 * con_liwc$WPS + 
-                               11.8 * quanteda::nsyllable(con_liwc$speech)/
-                               con_liwc$WC - 15.59, TRUE ~ NA_real_)
-
-#con_liwc$FK2 <- if_else(con_liwc$WC < 5, NA_real_, con_liwc$FK2)
-
-con_liwc <- con_liwc %>% select(docname, Segment, WC, WPS, FK, everything())
-
-#con_liwc <- read_rds("data/con_liwc.rds")
-
-write_rds(con_liwc, "data/con_liwc.rds")
-
-```
-
-
 ```{r tory-labour-liwc-analysis, include=FALSE}
 library(readr)
 library(effsize)
@@ -1069,169 +530,6 @@ There are no categories with effect sizes exceeding $|0.2|$ between Labour and C
 
 There are no categories with effect sizes exceeding $|0.2|$ when comparing all male and female MPs elected from 1997 onwards. There is only one category, "Articles", with an effect size of 0.11, greater than the $|0.1|$ threshold suggested by @newman2008.
 
-
-```{r other-mp-extraction, eval=FALSE, include=FALSE}
-## same as above, but this time Conservative vs Labour
-library(readr)
-library(dplyr)
-library(quanteda)
-library(readxl)
-library(lubridate)
-library(stringi)
-
-all_speech <- read_rds("data/senti_df2.rds")
-
-all_speech$eo_id <- rownames(all_speech)
-
-## Binned into quarters of a year
-all_speech$y_since_start <- round(time_length(all_speech$speech_date -
-                                          as.Date(all_speech$house_start_date),
-                                        unit = "years")* 4)/4
-
-all_speech$party <- if_else(all_speech$mnis_id == 4409, 
-                            "Labour",
-                            all_speech$party)
-
-other_speech <- filter(all_speech, 
-                         !(party %in% c("Labour", "Conservative", 
-                                        "Labour (Co-op)")), 
-                         house_start_date >= "1997-05-01", as_speaker==FALSE,
-                         speech_date >= "1997-05-01", 
-                         speech_date < "2017-06-08", word_count > 0)
-
-rm(all_speech)
-
-other_speech$speech <- gsub( " *\\(.*?\\)*", "", other_speech$speech)
-
-other_speech$speech <- gsub( " *\\[.*?\\]*", "", other_speech$speech)
-
-other_speech$speech <- gsub( "^c\\(", "", other_speech$speech)
-
-other_speech$speech <- gsub( "\\)$", "", other_speech$speech)
-
-write_rds(other_speech, "data/other_speech.rds")
-
-other_corpus <- corpus(other_speech, docid_field = "eo_id",
-                       text_field = "speech")
-
-write_rds(other_corpus, "data/other_corpus.rds")
-```
-
-```{r other-mp-liwc, eval=FALSE, include=FALSE}
-library(readr)
-library(dplyr)
-library(tidyr)
-library(effsize)
-library(stringi)
-library(quanteda)
-library(quanteda.dictionaries)
-
-liwc15_dict <- dictionary(file = "dict/LIWC2015_English_Flat.dic",
-       format = "LIWC")
-
-other_corpus <- read_rds("data/other_corpus.rds")
-
-other_speech <- read_rds("data/other_speech.rds")
-
-other_liwc <- liwcalike(other_corpus, 
-      dictionary = liwc15_dict, 
-      verbose = TRUE) %>%
-  left_join(other_speech, by = c("docname" = "eo_id"))
-
-other_liwc$WC <- stri_count_boundaries(other_liwc$speech,
-                                     type="word", skip_word_none=FALSE)
-
-other_liwc[["Sixltr"]] <- sapply(
-  tokens(texts(other_corpus), remove_hyphens = TRUE),
-  function(y) sum(stri_length(y) > 6)) / other_liwc[["WC"]] * 100
-
-# lab_con_liwc$FK <-  textstat_readability(texts(lab_corpus), "Flesch.Kincaid")
-# 
-# lab_con_liwc$FK <- lab_con_liwc$FK$Flesch.Kincaid
-# 
-# lab_con_liwc$FK <- if_else(lab_con_liwc$WC < 5, NA_real_, lab_con_liwc$FK)
-
-other_liwc$WPS <- other_liwc$WC/stri_count_boundaries(other_liwc$speech,
-                                                  type="sentence", skip_word_none=FALSE)
-
-other_liwc$FK <- case_when(other_liwc$WC >= 5 ~ 
-                           0.39 * other_liwc$WPS + 
-                           11.8 * quanteda::nsyllable(other_liwc$speech)/
-                           other_liwc$WC - 15.59, TRUE ~ NA_real_)
-
-#lab_con_liwc$FK2 <- if_else(lab_con_liwc$WC < 5, NA_real_, lab_con_liwc$FK2)
-
-other_liwc <- other_liwc %>% select(docname, Segment, WC, WPS, FK, everything())
-
-#lab_con_liwc <- read_rds("data/lab_con_liwc.rds")
-
-write_rds(other_liwc, "data/other_liwc.rds")
-
-```
-
-```{r all-parties-gender, eval=FALSE, include=FALSE}
-library(readr)
-library(dplyr)
-library(effsize)
-
-other_liwc <- read_rds("data/other_liwc.rds")
-
-lab_liwc <- read_rds("data/lab_liwc.rds")
-
-con_liwc <- read_rds("data/con_liwc.rds")
-
-all_liwc <- bind_rows(other_liwc, con_liwc, lab_liwc)
-
-fem_mac <- c("pronoun", "i", "we", "verb", "auxverb", "social", "posemo", 
-             "negemo", "tentat", "Sixltr",  "article", "prep",
-             "anger", "swear", "cogproc", "WPS", "WC", "FK")
-
-all_party_gender_df <- tibble::tibble(
-  word_type = fem_mac,
-  women = c(1:length(fem_mac)),
-  women_sd = c(1:length(fem_mac)),
-  men = c(1:length(fem_mac)),
-  men_sd = c(1:length(fem_mac)),
-  cohen_d = c(1:length(fem_mac)),
-  magnitude = c(1:length(fem_mac)))
-
-for (i in fem_mac) {
-  d <- (cohen.d(all_liwc[[i]], all_liwc$gender, na.rm = TRUE,
-                noncentral = FALSE, pooled = TRUE))
-  all_party_gender_df$women[all_party_gender_df$word_type==i] <- mean(all_liwc[all_liwc$gender == "Female", i], na.rm = TRUE)
-  all_party_gender_df$men[all_party_gender_df$word_type==i] <- mean(all_liwc[all_liwc$gender == "Male", i], na.rm = TRUE)
-  all_party_gender_df$women_sd[all_party_gender_df$word_type==i] <- sd(all_liwc[all_liwc$gender == "Female", i], na.rm = TRUE)
-  all_party_gender_df$men_sd[all_party_gender_df$word_type==i] <- sd(all_liwc[all_liwc$gender == "Male", i], na.rm = TRUE)
-  all_party_gender_df$cohen_d[all_party_gender_df$word_type==i] <- (d$estimate[[1]])
-  all_party_gender_df$magnitude[all_party_gender_df$word_type==i] <- as.character(d$magnitude[[1]])
-}
-
-#all_party_gender_df
-
-all_party_gender_df$word_type <- recode(all_party_gender_df$word_type,
-                               "pronoun" = "All Pronouns",
-                               "i" = "First person singular pronouns",
-                               "verb" = "Verbs",
-                               "auxverb" = "Auxiliary verbs",
-                               "social" = "Social processes ",
-                               "posemo" = "Positive emotions",
-                               "negemo" = "Negative emotions",
-                               "tentat" = "Tentative words",
-                               "Sixltr" = "More than six letters",
-                               "we" = "First person plural pronouns",
-                               "article" = "Articles",
-                               "prep" = "Prepositions",
-                               "anger" = "Anger words",
-                               "swear" = "Swear words",
-                               "cogproc" = "Cognitive processes",
-                               "WPS" = "Words per Sentence",
-                               "WC" = "Total Word Count",
-                               "FK" = "Flesh-Kincaid Grade Level")
-
-write_rds(all_party_gender_df, "data/all_party_gender_df.rds")
-
-```
-
 ```{r all-party-effect-sizes, echo=FALSE, results = 'asis'}
 library(knitr)
 library(kableExtra)
@@ -1250,204 +548,6 @@ kable(all_party_gender_df,  booktabs = TRUE, digits = 2,
 
 
 ## POS Analysis
-
-```{r spacy-annotations, eval=FALSE, include=FALSE}
-library(spacyr)
-library(progress)
-library(readr)
-library(quanteda)
-library(dplyr)
-
-lab_speech <- read_rds("data/lab_speech.rds")
-
-lab_speech$year <- as.factor(lab_speech$year)
-
-split_data <- split(lab_speech, lab_speech$year) ### Splitting data variable
-
-all_names <- names(split_data)
-
-pb_save <- progress_bar$new(total = length(all_names),
-                            format = "[:bar] :percent ETA: :eta Elapsed: :elapsedfull")
-
-for (this_name in all_names) {
-  save_name <- paste0(this_name, "x.rds")
-  write_rds(split_data[[this_name]], path = save_name)
-  pb_save$tick()
-}
-
-#devtools::install_github("quanteda/spacyr")
-#spacy_install(python_path = "/Users/evanodell/Documents/anaconda3/bin/python3")
-spacy_initialize()
-
-atemp <- list.files(pattern = "*x.rds")
-
-pb <- progress_bar$new(total = length(atemp), 
-                       format = "[:bar] :percent ETA: :eta Elapsed: :elapsedfull\n")
-
-for (i in atemp) {
-   pb$tick(0)
-  
-  df <- read_rds(i)
-  
-  message(cat("Corpusising "), i, "\n")
-  
-  lab_corpus <- corpus(df, docid_field = "eo_id", text_field = "speech")
-  
-  i <- gsub("x.rds", "", i)
-  
-  message(cat("Annotating "), i, "\n")
-  
-  # need to use corpus object for this
-  lab_annotate <- spacy_parse(lab_corpus, tag = TRUE, dependency = TRUE,
-                            lemma = FALSE, pos = FALSE, entity = TRUE) 
- 
-  save_name <- paste0("./annotated/ano_", i, ".rds")
-  
-  write_rds(lab_annotate, path = save_name)
-  
-  pb$tick()
-  
-  gc()
-
-}
-
-atemp2 <- list.files("./annotated/", pattern = "*.rds")
-
-atemp2 <- paste0("annotated/", atemp2)
-
-df.list <- sapply(atemp2, read_rds, simplify = FALSE)
-
-annotated_labour <- bind_rows(df.list)
-
-rm(df.list, atemp2)
-
-write_rds(annotated_labour, "data/annotated_labour.rds")
-```
-
-```{r annotations-cleanup, eval=FALSE, include=FALSE}
-# !diagnostics off
-library(readr)
-library(dplyr)
-annotated_labour <- read_rds("data/annotated_labour.rds")
-
-post_df <- tibble::tribble(
-     ~tag,    ~POS,
-  "-LRB-", "PUNCT",
-  "-RRB-", "PUNCT",
-      ",", "PUNCT",
-      ":", "PUNCT",
-      ".", "PUNCT",
-     "''", "PUNCT",
-   "\"\"", "PUNCT",
-     "``", "PUNCT",
-      "$",   "SYM",
-    "ADD",     "X",
-    "AFX",   "ADJ",
-    "BES",  "VERB",
-     "CC",  "CONJ",
-     "CD",   "NUM",
-     "DT",   "DET",
-     "EX",   "ADV",
-     "FW",     "X",
-     "GW",     "X",
-    "HVS",  "VERB",
-   "HYPH", "PUNCT",
-     "IN",   "ADP",
-     "JJ",   "ADJ",
-    "JJR",   "ADJ",
-    "JJS",   "ADJ",
-     "LS", "PUNCT",
-     "MD",  "VERB",
-    "NFP", "PUNCT",
-    "NIL",    "NA",
-     "NN",  "NOUN",
-    "NNP", "PROPN",
-   "NNPS", "PROPN",
-    "NNS",  "NOUN",
-    "PDT",   "ADJ",
-    "POS",  "PART",
-    "PRP",  "PRON",
-   "PRP$",   "ADJ",
-     "RB",   "ADV",
-    "RBR",   "ADV",
-    "RBS",   "ADV",
-     "RP",  "PART",
-    "_SP", "SPACE",
-    "SYM",   "SYM",
-     "TO",  "PART",
-     "UH",  "INTJ",
-     "VB",  "VERB",
-    "VBD",  "VERB",
-    "VBG",  "VERB",
-    "VBN",  "VERB",
-    "VBP",  "VERB",
-    "VBZ",  "VERB",
-    "WDT",   "ADJ",
-     "WP",  "NOUN",
-    "WP$",   "ADJ",
-    "WRB",   "ADV",
-     "XX",     "X"
-  )
-
-post_df$POS <- as.factor(post_df$POS)
-
-annotated_labour <- annotated_labour %>% left_join(post_df)
-
-#summary(annotated_labour)
-
-write_rds(annotated_labour, "data/annotated_labour.rds")
-```
-
-```{r tidying-annotations, eval=FALSE, include=FALSE}
-library(readr)
-library(dplyr)
-library(magrittr)
-library(tidyr)
-library(effsize)
-
-annotated_labour <- read_rds("data/annotated_labour.rds")
-
-ano_lab_tag <- annotated_labour %>% 
-  filter(POS != "PUNCT", is.na(POS) == FALSE, POS != "SPACE") %>%
-  group_by(doc_id, tag) %>%
-  summarise(count = n()) %>%
-  mutate(freq = count / sum(count)) %>% ungroup() 
-
-ano_lab_tag$count <- NULL
-
-ano_lab_tag <- ano_lab_tag %>% spread(tag, freq)
-
-ano_lab_tag[is.na(ano_lab_tag)] <- 0
-
-ano_lab_pos <- annotated_labour %>% 
-  filter(POS != "PUNCT", is.na(POS) == FALSE, POS != "SPACE") %>%
-  group_by(doc_id, POS) %>%
-  summarise(count = n()) %>%
-  mutate(freq = count / sum(count)) %>% ungroup() 
-
-ano_lab_pos$count <- NULL
-
-ano_lab_pos <- ano_lab_pos %>% spread(POS, freq)
-
-ano_lab_pos[is.na(ano_lab_pos)] <- 0
-
-lab_speech <- read_rds("data/lab_speech.rds")
-
-ano_lab_tag <- ano_lab_tag %>% 
-  left_join(select(lab_speech, eo_id, gender, short_list),
-            by = c("doc_id"="eo_id"))
-
-ano_lab_pos <- ano_lab_pos %>% 
-  left_join(select(lab_speech, eo_id, gender, short_list),
-            by = c("doc_id"="eo_id"))
-
-ano_lab_pos$short_list <- as.factor(ano_lab_pos$short_list)
-ano_lab_tag$short_list <- as.factor(ano_lab_tag$short_list)
-
-write_rds(ano_lab_pos, "data/ano_lab_pos.rds")
-
-write_rds(ano_lab_tag, "data/ano_lab_tag.rds")
-```
 
 ```{r tag-means, include=FALSE}
 library(readr)
@@ -1511,7 +611,6 @@ ano_lab_pos_sl2 <- ano_lab_pos_sl %>%
 
 ```{r pos-tag-tables, include=FALSE}
 library(effsize)
-
 
 pos_df_gender <- bind_rows(ano_lab_pos_gender2, ano_lab_tag_gender2)
 
@@ -1624,7 +723,6 @@ kable(pos_df_sl,  booktabs = TRUE, digits = 2,
   add_indent(c(2:3))
 ```
 
-
 Part-of-speech (POS) tagging was done using `spaCy` [@honnibal2017] and the `spacyr` package [@benoit2018a]. There is one small gender difference (_d_ = $|0.22|$) in the use of plural nouns, which make up  `r paste0(formatC(pos_df_gender$Female_mean[pos_df_gender$type=="Plural Nouns"], digits = 3),"%")` of the words used by female Labour MPs, compared to  `r paste0(formatC(pos_df_gender$Male_mean[pos_df_gender$type=="Plural Nouns"], digits = 3),"%")` of words spoken by male Labour MPs. As with LIWC, there are no categories where _d_ >= $|0.2|$ when comparing female Labour MPs by selection process. 
 
 ## Tokenising / Keyness
@@ -1634,34 +732,6 @@ The most commonly used words by both men and women would be protocol decorum exp
 ### Men vs Women
 
 Keyness -- a linguistic measure of the frequency of different words in two groups of texts -- reveals clear gender differences in the most disproportionately common words used by female and male Labour MPs. Unsurprisingly, despite male MPs saying almost twice as many words (`r formatC(speech_sum_table$words[speech_sum_table$party_group == "Labour" & speech_sum_table$gender == "Male"], big.mark = ",")` vs `r formatC(speech_sum_table$words[speech_sum_table$party_group == "Labour" & speech_sum_table$gender == "Female"], big.mark = ",")`) as their female colleagues, female Labour MPs were more than two-and-a-half (2.61) times as likely to say "women". They were also much more likely to use "women's" and "woman" in parliamentary debate. Female Labour MPs also appear much more likely to discuss "children", "people", "care", "families", "home", "parents", "work" and social policy areas such as "services", "disabled [people]" and "housing" than their male colleagues. Male MPs were more likely to refer to military topics ("Iraq", "nuclear"), and to parliamentary process and protocol  -- "question", "political", "conservative", "electoral", "house", "party", "argument" "liberal" and "point" are far more common in speeches by male Labour MPs than by female ones. This could suggest that male Labour MPs are more comfortable using the traditional language of House of Commons debate, and are more concerned with the rules, procedures and processes of the parliamentary system than their female colleagues.
-
-```{r dfm-creation, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-library(readr)
-library(dplyr)
-library(quanteda)
-
-lab_corpus <- read_rds("data/lab_corpus.rds")
-
-parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
-                          "give", "gentleman", "right", "percent", "per",
-                          "cent", "prime", "minister")
-
-lab_dfm_key <- lab_corpus %>% 
-  dfm(remove = parliament_stopwords, remove_punct = TRUE,
-      verbose = TRUE, groups = "gender") %>%
-  dfm_weight("count")
-
-write_rds(lab_dfm_key, "data/lab_dfm_key.rds")
-
-lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
-
-lab_dfm_key_fem <- lab_corpus_fem %>% 
-  dfm(remove = parliament_stopwords, remove_punct = TRUE,
-      verbose = TRUE, groups = "short_list") %>%
-  dfm_weight("count")
-
-write_rds(lab_dfm_key_fem, "data/lab_dfm_key_fem.rds")
-```
 
 ```{r gender-keyness-plot, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE, fig.cap="\\label{gender-keyness}Keyness between Labour MPs, by Gender"}
 library(ggplot2)
@@ -1721,35 +791,6 @@ fem_keyness_plot
 
 The keyness differences between Labour and Conservative MPs are much greater than gender differences within Labour. The very high use of "Lady" by Conservative MPs is reflective of the greater proportion of female MPs in other parties, as it is often used to refer to comments by other members of the house. It may also represent a greater use of traditional hosue decorum by Conservative MPs.
 
-```{r eval=FALSE, include=FALSE}
-library(readr)
-library(quanteda)
-library(dplyr)
-
-all_speech <- read_rds("data/senti_df2.rds")
-
-lab_con_speech <- all_speech %>% 
-  filter(party_group %in% c("Labour", "Conservative"),
-         as_speaker == FALSE, house_start_date >= "1997-05-01",
-         speech_date >= "1997-05-01", speech_date < "2017-06-08",
-         word_count > 0)
-
-rm(all_speech)
-
-lab_con_corpus <- corpus(lab_con_speech, 
-                         docid_field = "eo_id", text_field = "speech")
-
-parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
-                          "give", "gentleman", "right", "percent", "per",
-                          "cent", "prime", "minister")
-
-lab_con_dfm <- lab_con_corpus %>% 
-  dfm(remove = parliament_stopwords, remove_punct = TRUE,
-      verbose = TRUE, groups = "party_group") %>%
-  dfm_weight("count")
-
-write_rds(lab_con_dfm, "data/lab_con_dfm.rds")
-```
 
 ```{r lab-con-keyness, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE, fig.cap="\\label{party-keyness}Keyness between Labour and Conservative MPs"}
 library(ggplot2)
@@ -1778,31 +819,6 @@ lab_con_keyness_plot
 ## Bigrams
 
 We created bigrams of all first person plural and singular pronouns for female Labour MPs. As above, AWS MPs are far more likely to make references to their constituency or their constituents.
-
-```{r bigrams-short-list-creation, eval=FALSE, message=FALSE, include=FALSE}
-library(quanteda)
-library(readr)
-
-lab_corpus <- read_rds("data/lab_corpus.rds")
-
-lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
-
-fem_bigrams <- tokens(lab_corpus_fem, what = "word", remove_numbers = FALSE,
-                       remove_punct = FALSE, remove_symbols = FALSE,  
-                       remove_twitter = TRUE, remove_url = TRUE, 
-                       ngrams = 2, verbose = TRUE)
-
-bigram_phrases <- c("i", "i'd",  "i'll", "i'm", "i've", "me", "methinks",
-                    "mine", "my", "myself", "let's", "lets", "our", "ours",
-                    "ourselves", "us", "we", "we'd", "we'll", "we're", "we've")
-
-bigram_phrases <- paste0(bigram_phrases, "_*")
-
-pro_bigram <- tokens_select(fem_bigrams, phrase(bigram_phrases))
-#84569
-
-write_rds(pro_bigram, "data/pro_bigram.rds")
-```
 
 ```{r bigrams-short-list-keyness, echo=FALSE, message=FALSE, warning=FALSE, fig.height=8, fig.cap="\\label{bigrams-keyness}Bigram Keyness in Female Labour MPs by Selection Process"}
 library(quanteda)
@@ -1837,127 +853,6 @@ pro_dfm_key_plot
 
 We trained a Naive Bayes classifier with document-frequency priors and a multinomial distribution to predict the gender of speakers when given speeches by all Labour MPs in our dataset, and the selection process when only given female Labour MPs. The accuracy of both models were roughly equivalent, 70.67% accuracy when predicting gender and 71.22% when predicting shortlists. By contrast, the classifier could distinguish between Labour and Conservative speeches with 74.23% accuracy.
 
-```{r naive-bayes-gender, eval=FALSE, include=FALSE}
-library(quanteda)
-library(quanteda.corpora)
-library(caret)
-library(readr)
-
-lab_corpus <- read_rds("data/lab_corpus.rds")
-
-set.seed(42)
-id_train <- sample(1:262071, 104828, replace = FALSE) ## 40% in training
-#head(id_train, 10)
-
-docvars(lab_corpus, "id_numeric") <- 1:ndoc(lab_corpus)
-
-# get training set
-training_dfm <- corpus_subset(lab_corpus, id_numeric %in% id_train) %>%
-  dfm(stem = TRUE)
-
-# get test set (documents not in id_train)
-test_dfm <- corpus_subset(lab_corpus, !id_numeric %in% id_train) %>%
-  dfm(stem = TRUE)
-
-nb <- textmodel_nb(training_dfm, docvars(training_dfm, "gender"),
-                   prior = "docfreq")
-#summary(nb)
-
-test_dfm <- dfm_select(test_dfm, training_dfm)
-
-actual_class <- docvars(test_dfm, "gender")
-predicted_class <- predict(nb, test_dfm)
-class_table <- table(actual_class, predicted_class)
-class_table
-
-gender_accuracy <- confusionMatrix(class_table, mode = "everything")
-gender_accuracy$overall[[1]]
-
-```
-
-```{r naive-bayes-sl, eval=FALSE, include=FALSE}
-
-### Shortlist classification
-lab_corpus_fem <- corpus_subset(lab_corpus, gender=="Female")
-
-set.seed(42)
-id_train <- sample(1:84572, 33829, replace = FALSE) ## 40% in training
-head(id_train, 10)
-
-docvars(lab_corpus_fem, "id_numeric") <- 1:ndoc(lab_corpus_fem)
-
-# get training set
-training_dfm <- corpus_subset(lab_corpus_fem, id_numeric %in% id_train) %>%
-  dfm(stem = TRUE)
-
-# get test set (documents not in id_train)
-test_dfm <- corpus_subset(lab_corpus_fem, !id_numeric %in% id_train) %>%
-  dfm(stem = TRUE)
-
-nb_fem <- textmodel_nb(training_dfm, docvars(training_dfm, "short_list"),
-                   prior = "docfreq")
-summary(nb_fem)
-
-test_dfm <- dfm_select(test_dfm, training_dfm)
-
-actual_class <- docvars(test_dfm, "short_list")
-predicted_class <- predict(nb_fem, test_dfm)
-class_table <- table(actual_class, predicted_class)
-class_table
-
-sl_accuracy <- confusionMatrix(class_table, mode = "sens_spec")
-sl_accuracy$overall[[1]]
-```
-
-```{r naive-bayes-lab-vs-conservative, eval=FALSE, include=FALSE}
-library(quanteda)
-library(quanteda.corpora)
-library(caret)
-library(readr)
-library(dplyr)
-
-all_speech <- read_rds("data/senti_df2.rds")
-
-lab_con_speech <- all_speech %>% 
-  filter(party_group %in% c("Labour", "Conservative"),
-         as_speaker == FALSE, house_start_date >= "1997-05-01",
-         speech_date >= "1997-05-01", speech_date < "2017-06-08")
-
-rm(all_speech)
-
-lab_con_corpus <- corpus(lab_con_speech, 
-                         docid_field = "eo_id", text_field = "speech")
-
-set.seed(42)
-id_train <- sample(1:547233, (547233*0.4), replace = FALSE) ## 40% in training
-#head(id_train, 10)
-
-docvars(lab_con_corpus, "id_numeric") <- 1:ndoc(lab_con_corpus)
-
-# get training set
-training_dfm <- corpus_subset(lab_con_corpus, id_numeric %in% id_train) %>%
-  dfm(stem = TRUE)
-
-# get test set (documents not in id_train)
-test_dfm <- corpus_subset(lab_con_corpus, !id_numeric %in% id_train) %>%
-  dfm(stem = TRUE)
-
-nb <- textmodel_nb(training_dfm, docvars(training_dfm, "gender"),
-                   prior = "docfreq")
-#summary(nb)
-
-test_dfm <- dfm_select(test_dfm, training_dfm)
-
-actual_class <- docvars(test_dfm, "gender")
-predicted_class <- predict(nb, test_dfm)
-class_table <- table(actual_class, predicted_class)
-class_table
-
-party_accuracy <- confusionMatrix(class_table, mode = "everything")
-party_accuracy$overall[[1]]
-round(party_accuracy$overall[[1]], 4)
-
-```
 
 ## Topic Models
 
@@ -2004,7 +899,7 @@ p_k_result
 ```
 
 
-To identify the best number of topics, we created six topic models with different numbers of topics (_K_). We created models with 30, 45, 60, 80 and 100 topics, and used an algorithm developed by @lee2014c, implemented in the `stm` package [@roberts2018], which resulted in _K_ = 66. As seen in Figure \ref{topic-model-selection}, the algorithm from @lee2014c appears to produce the best result, a topic model with `r formatC(topic_model_k0$settings$dim$K, , big.mark = ",")` topics, across `r formatC(topic_model_k0$settings$dim$N, , big.mark = ",")` speeches with a dictionary of `r formatC(topic_model_k0$settings$dim$V, , big.mark = ",")` words. All models were created using the "spectral" method developed by @arora2013, implemented by @roberts2018. One of the topics -- Topic 66 -- was identified as a possibly topic, but was never the most likely topic in the matrix of number of documents by number of topics -- labelled $\theta$ by @roberts2018, and so while it is included in the model, assignment of single topics to speeches uses the highest $\theta$ for each speech.
+To identify the best number of topics, we created six topic models with different numbers of topics (_K_). We created models with 30, 45, 60, 80 and 100 topics, and used an algorithm developed by @lee2014c, implemented in the `stm` package [@roberts2018], which resulted in _K_ = 66. As seen in Figure \ref{topic-model-selection}, the algorithm from @lee2014c appears to produce the best result, a topic model with `r formatC(topic_model_k0$settings$dim$K, , big.mark = ",")` topics, across `r formatC(topic_model_k0$settings$dim$N, , big.mark = ",")` speeches with a dictionary of `r formatC(topic_model_k0$settings$dim$V, , big.mark = ",")` words. All models were created using the "spectral" method developed by @arora2013, implemented by @roberts2018. One of the topics -- Topic 66 -- was identified as a possibly topic, but was never the most likely topic in the matrix of number of documents by number of topics -- labelled $\theta$ by @roberts2018, and so while it is included in the model, assignment of single topics to speeches uses the highest $\theta$ for each speech. Other topics are rarely used -- Topic 53, which we labelled "Dispatch Box", only has five topics assigned to it, four from Male MPs and one from an AWS MP.
 
 
 
@@ -2018,7 +913,7 @@ The first implementation used , . The resulting topic model has 84 topics, acros
 
 <!-- As seen in the word lists in the [appendix][Shortlists vs Non-Shortlists - K0], there is relatively scattershot semantic coherence, although exclusivity is high, when using the 84 topic models suggested by Lee and Mimno's [-@lee2014c] algorithm. We therefore re-ran the analysis, using 45 topic models, which resulted in increased semantic coherence, albeit with slightly lower exclusivity, as illustrated in Figure \ref{k45-coherence}. The lower number of models also makes hand-coding of the content of topics more straightforward. The _K_ = 45 topic model has 81,651 documents and uses a dictionary of 119,586 words, like the _K_ = 84 model. Models with [_K_ = 30][Shortlists vs Non-Shortlists - K30] and [_K_ = 60][Shortlists vs Non-Shortlists - K60] were also produced and are available in the appendix. -->
 
-We created a Fruchterman-Reingold [@fruchterman1991] diagram (Figure \ref{k0-network}) to show the connections between different topics. Larger vertices indicate more common topics, and the plot uses a colour scale to indicate the proportion of speeches classed in that topic made by AWS and non-AWS female Labour MPs. The space between vertices indicate the closeness or distance of two topics. E.g. closer vertices represent topics with more overlapping words than more distant topics. (There are no women with speeches in topic 66?)
+We created a Fruchterman-Reingold [@fruchterman1991] diagram (Figure \ref{k0-network}) to show the connections between different topics. Larger vertices indicate more common topics, and the plot uses a colour scale to indicate the proportion of speeches classed in that topic made by AWS and non-AWS female Labour MPs. The space between vertices indicate the closeness or distance of two topics. E.g. closer vertices represent topics with more overlapping words than more distant topics.
 
 ```{r stm-analysis-k0, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k0-network}Fruchterman-Reingold plot of k0 Network"}
 library(readr)
@@ -2175,7 +1070,8 @@ kable(prep_df_k0,  booktabs = TRUE, longtable = TRUE,
                     "Type", "Stars"),
       align = c("l","r","r","r","r","r")) %>%
     kable_styling(latex_options = c("HOLD_position",  "repeat_header",
-                                    "striped"), full_width = TRUE )
+                                    "striped"), full_width = TRUE ) %>%
+  column_spec(1, width = "4cm")
 ```
 
 
@@ -2191,43 +1087,9 @@ topic_dt_k0_3 <- topic_dt_k0 %>%
    mutate(AWS_freq = AWS/sum(AWS, na.rm = TRUE),
           non_AWS_freq = non_AWS/sum(non_AWS, na.rm = TRUE),
           man_freq = man_count/sum(man_count, na.rm = TRUE),
-          assigned_topic = gsub("Topic", "Topic ", assigned_topic))
-
-
-topic_dt_k0_4 <- topic_dt_k0_3 %>%
-    mutate(AWS_freq = paste0(round((AWS_freq*100), 2), "%"),
-          non_AWS_freq = paste0(round((non_AWS_freq*100), 2), "%"),
-          AWS = formatC(AWS, big.mark = ","),
-          non_AWS = formatC(non_AWS, big.mark = ","),
-          man_freq = paste0(round((man_freq*100), 2), "%"),
-          man_count = formatC(man_count, big.mark = ",")) %>%
-  select(assigned_topic, AWS, AWS_freq, non_AWS, non_AWS_freq, man_count, man_freq)
-
-```
-
-
-```{r topic-summary-table-k0, echo=FALSE, results = 'asis'}
-library(knitr)
-library(kableExtra)
-
-kable(topic_dt_k0_4, booktabs = TRUE, longtable = TRUE, 
-      caption = "Count and Distribution of Topics -- k0",
-      col.names = c("Topic Number", "AWS Speeches", "Percent of AWS Speeches",
-                    "Non-AWS Speeches", "Percent of non-AWS Speeches",
-                    "Male MP Speeches", "Percent of Male MP Speeches"),
-      align = c("l","r","r","r","r","r","r")) %>%
-    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
-                                    "striped"), full_width = TRUE )
-```
-
-
-```{r k0-topic-pyramid, echo=FALSE, fig.height=9, fig.cap="\\label{k0-topic-pyramid-pllot}k0 Pyramid Chart"}
-
-topic_dt_k0_5 <- topic_dt_k0_3 %>% 
-  select(-man_count, -man_freq, -non_AWS, -AWS) %>%
-  gather("aws_status", "perc", -assigned_topic) %>%
-   mutate(assigned_topic = factor(assigned_topic, 
-                                   levels=c("Topic 1", "Topic 2", "Topic 3",
+          assigned_topic = gsub("Topic", "Topic ", assigned_topic)) %>%
+   mutate(assigned_topic = factor(assigned_topic, levels=c(
+                                    "Topic 1", "Topic 2", "Topic 3",
                                     "Topic 4", "Topic 5", "Topic 6",
                                     "Topic 7", "Topic 8", "Topic 9",
                                     "Topic 10", "Topic 11", "Topic 12",
@@ -2248,76 +1110,109 @@ topic_dt_k0_5 <- topic_dt_k0_3 %>%
                                     "Topic 55", "Topic 56", "Topic 57",
                                     "Topic 58", "Topic 59", "Topic 60",
                                     "Topic 61", "Topic 62", "Topic 63",
-                                    "Topic 64", "Topic 65", "Topic 66")))#,
-  #        assigned_topic = recode(assigned_topic, "Topic 1" = "Ministers",
-  #                                "Topic 2" = "Elections",
-  #                                "Topic 3" = "Northern Ireland",
-  #                                "Topic 4" = "Personal finance",
-  #                                 "Topic 5" = "committees",
-  #                                 "Topic 6" = "development",
-  #                                 "Topic 7" = "petitions",
-  #                                 "Topic 8" = "agreement",
-  #                                 "Topic 9" = "market competition",
-  #                                 "Topic 10" = "gender",
-  #                                 "Topic 11" = "energy",
-  #                                 "Topic 12" = "post-office",
-  #                                 "Topic 13" = "regions",
-  #                                 "Topic 14" = "pensions and disability",
-  #                                 "Topic 15" = "unemployment",
-  #                                 "Topic 16" = "education",
-  #                                 "Topic 17" = "other",
-  #                                 "Topic 18" = "inquiries",
-  #                                 "Topic 19" = "business",
-  #                                 "Topic 20" = "wales",
-  #                                 "Topic 21" = "social care",
-  #                                 "Topic 22" = "pay",
-  #                                 "Topic 23" = "amendments",
-  #                                 "Topic 24" = "reports",
-  #                                 "Topic 25" = "deicisons",
-  #                                 "Topic 26" = "floods",
-  #                                 "Topic 27" = "spending",
-  #                                 "Topic 28" = "culture",
-  #                                 "Topic 29" = "single parents",
-  #                                 "Topic 30" = "voeters",
-  #                                 "Topic 31" = "point",
-  #                                 "Topic 32" = "member replies",
-  #                                 "Topic 33" = "EU",
-  #                                 "Topic 34" = "higher education",
-  #                                 "Topic 35" = "local authorities",
-  #                                 "Topic 36" = "disbility",
-  #                                 "Topic 37" = "fishing",
-  #                                 "Topic 38" = "justice",
-  #                                 "Topic 39" = "international",
-  #                                 "Topic 40" = "hillsborough disaster",
-  #                                 "Topic 41" = "policy development",
-  #                                 "Topic 42" = "crime",
-  #                                 "Topic 43" = "housing",
-  #                                 "Topic 44" = "questions",
-  #                                 "Topic 45" = "health research",
-  #                                 "Topic 46" = "badger cull",
-  #                                 "Topic 47" = "defence",
-  #                                 "Topic 48" = "immigration detention",
-  #                                 "Topic 49" = "police",
-  #                                 "Topic 50" = "NHS care",
-  #                                 "Topic 51" = "tax",
-  #                                 "Topic 52" = "time",
-  #                                 "Topic 53" = "NHS staffing",
-  #                                 "Topic 54" = "bills",
-  #                                 "Topic 55" = "economic sectors",
-  #                                 "Topic 56" = "disease",
-  #                                 "Topic 57" = "regions",
-  #                                 "Topic 58" = "legal aid",
-  #                                 "Topic 59" = "youth employment",
-  #                                 "Topic 60" = "tax evasion",
-  #                                 "Topic 61" = "scotland",
-  #                                 "Topic 62" = "human trafficing ",
-  #                                 "Topic 63" = "retail sector",
-  #                                 "Topic 64" = "debate",
-  #                                 "Topic 65" = "foster care",
-  #                                 "Topic 66" = "transport",
-  #                                 "Topic 67" = "changes over time",
-  #                                 "Topic 68" = "support",
-  #                                 "Topic 84" = "Other"))
+                                    "Topic 64", "Topic 65", "Topic 66")),
+          assigned_topic = recode(assigned_topic, 
+                          "Topic 1" = "(1) Employment/Trade Unions",
+                          "Topic 2" = "(2) Legal System",
+                          "Topic 3" = "(3) Roads",
+                          "Topic 4" = "(4) Housing",
+                          "Topic 5" = "(5) Police, Firefighters, Prisons",
+                          "Topic 6" = "(6) Northern Ireland",
+                          "Topic 7" = "(7) Committee",
+                          "Topic 8" = "(8) Schools",
+                          "Topic 9" = "(9) Energy & Climate Change",
+                          "Topic 10" = "(10) Defence",
+                          "Topic 11" = "(11) Parliament",
+                          "Topic 12" = "(12) International Politics",
+                          "Topic 13" = "(13) Ministers",
+                          "Topic 14" = "(14) Policy impact",
+                          "Topic 15" = "(15) Gender",
+                          "Topic 16" = "(16) Regional Development",
+                          "Topic 17" = "(17) Communications/Telecommunications",
+                          "Topic 18" = "(18) Immigration",
+                          "Topic 19" = "(19) Health System",
+                          "Topic 20" = "(20) International Development",
+                          "Topic 21" = "(21) Benefits & disability",
+                          "Topic 22" = "(22) Sport and culture",
+                          "Topic 23" = "(23) History",
+                          "Topic 24" = "(24) Higher education and skills",
+                          "Topic 25" = "(25) Concurring point",
+                          "Topic 26" = "(26) Pensions",
+                          "Topic 27" = "(27) Points of order",
+                          "Topic 28" = "(28) Issues",
+                          "Topic 29" = "(29) Constituencies",
+                          "Topic 30" = "(30) Ethnic groups & racism",
+                          "Topic 31" = "(31) Amendments",
+                          "Topic 32" = "(32) Reports",
+                          "Topic 33" = "(33) People",
+                          "Topic 34" = "(34) Wales and Scotland",
+                          "Topic 35" = "(35) Alcohol and tobacco",
+                          "Topic 36" = "(36) Place names",
+                          "Topic 37" = "(37) Budget",
+                          "Topic 38" = "(38) Tax",
+                          "Topic 39" = "(39) Private companies",
+                          "Topic 40" = "(40) Environment and Fishing",
+                          "Topic 41" = "(41) Crime",
+                          "Topic 42" = "(42) Bills",
+                          "Topic 43" = "(43) Children",
+                          "Topic 44" = "(44) Utilities & PFI",
+                          "Topic 45" = "(45) Middle East",
+                          "Topic 46" = "(46) Local authorities",
+                          "Topic 47" = "(47) Elections",
+                          "Topic 48" = "(48) Debate",
+                          "Topic 49" = "(49) Transport",
+                          "Topic 50" = "(50) Questions",
+                          "Topic 51" = "(51) Families",
+                          "Topic 52" = "(52) Health research",
+                          "Topic 53" = "(53) Dispatch box",
+                          "Topic 54" = "(54) Parties",
+                          "Topic 55" = "(55) Statements",
+                          "Topic 56" = "(56) European Union",
+                          "Topic 57" = "(57) Locations",
+                          "Topic 58" = "(58) Jobs & Manufacturing",
+                          "Topic 59" = "(59) Small Business",
+                          "Topic 60" = "(60) Agreement/Disagreement",
+                          "Topic 61" = "(61) Voluntary Sector",
+                          "Topic 62" = "(62) Comments",
+                          "Topic 63" = "(63) Social Care",
+                          "Topic 64" = "(64) Time",
+                          "Topic 65" = "(65) Media and Animals",
+                          "Topic 66" = "(66) Other")) %>%
+  arrange(assigned_topic)
+
+topic_dt_k0_4 <- topic_dt_k0_3 %>%
+    mutate(AWS_freq = paste0(round((AWS_freq*100), 2), "%"),
+          non_AWS_freq = paste0(round((non_AWS_freq*100), 2), "%"),
+          AWS = formatC(AWS, big.mark = ","),
+          non_AWS = formatC(non_AWS, big.mark = ","),
+          man_freq = paste0(round((man_freq*100), 2), "%"),
+          man_count = formatC(man_count, big.mark = ",")) %>%
+  select(assigned_topic, AWS, AWS_freq, non_AWS, non_AWS_freq, man_count, man_freq)
+
+```
+
+
+```{r topic-summary-table-k0, echo=FALSE, results = 'asis'}
+library(knitr)
+library(kableExtra)
+
+kable(topic_dt_k0_4, booktabs = TRUE, longtable = TRUE, 
+      caption = "Count and Distribution of Topics -- k0",
+      col.names = c("Topic", "AWS Speeches", "Percent of AWS Speeches",
+                    "Non-AWS Speeches", "Percent of non-AWS Speeches",
+                    "Male MP Speeches", "Percent of Male MP Speeches"),
+      align = c("l","r","r","r","r","r","r")) %>%
+    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
+                                    "striped"), full_width = TRUE )
+```
+
+
+```{r k0-topic-pyramid, echo=FALSE, fig.cap="\\label{k0-topic-pyramid-plot}K0 Pyramid Chart", fig.height=9, message=FALSE, warning=FALSE}
+
+topic_dt_k0_5 <- topic_dt_k0_3 %>% 
+  select(-man_count, -man_freq, -non_AWS, -AWS) %>%
+  gather("aws_status", "perc", -assigned_topic) %>%
+  arrange(assigned_topic)
 
 topic_dt_k0_5$perc[is.na(topic_dt_k0_5$perc)] <- 0
 
@@ -2349,35 +1244,12 @@ ggsave("p_k0_pyramid.svg", plot = p_k0_pyramid,
 p_k0_pyramid
 ```
 
-```{r k0-topic-bar, echo=FALSE, fig.cap="\\label{k0-topic-bar-plot}k0 Bar Chart"}
+```{r k0-topic-bar, echo=FALSE, fig.cap="\\label{k0-topic-bar-plot}k0 Bar Chart", message=FALSE, warning=FALSE}
 
 topic_dt_k0_6 <- topic_dt_k0_3 %>% 
   select(-man_count, -non_AWS, -AWS) %>%
   gather("aws_status", "perc", -assigned_topic) %>%
-   mutate(assigned_topic = factor(assigned_topic, 
-                                   levels=c("Topic 1", "Topic 2", "Topic 3",
-                                    "Topic 4", "Topic 5", "Topic 6",
-                                    "Topic 7", "Topic 8", "Topic 9",
-                                    "Topic 10", "Topic 11", "Topic 12",
-                                    "Topic 13", "Topic 14", "Topic 15",
-                                    "Topic 16", "Topic 17", "Topic 18",
-                                    "Topic 19", "Topic 20", "Topic 21",
-                                    "Topic 22", "Topic 23", "Topic 24",
-                                    "Topic 25", "Topic 26", "Topic 27",
-                                    "Topic 28", "Topic 29", "Topic 30",
-                                    "Topic 31", "Topic 32", "Topic 33",
-                                    "Topic 34", "Topic 35", "Topic 36",
-                                    "Topic 37", "Topic 38", "Topic 39",
-                                    "Topic 40", "Topic 41", "Topic 42",
-                                    "Topic 43", "Topic 44", "Topic 45",
-                                    "Topic 46", "Topic 47", "Topic 48",
-                                    "Topic 49", "Topic 50", "Topic 51",
-                                    "Topic 52", "Topic 53", "Topic 54",
-                                    "Topic 55", "Topic 56", "Topic 57",
-                                    "Topic 58", "Topic 59", "Topic 60",
-                                    "Topic 61", "Topic 62", "Topic 63",
-                                    "Topic 64", "Topic 65", "Topic 66")))#,
-
+  arrange(assigned_topic)
 
 p_k0_bar <- ggplot(data = topic_dt_k0_6,
                     aes(x = assigned_topic, y = perc, fill = aws_status)) +
@@ -2387,7 +1259,7 @@ p_k0_bar <- ggplot(data = topic_dt_k0_6,
   scale_fill_viridis_d(labels = c("AWS", "Non-AWS", "Men"),
                        begin = 0.3, end = 0.7, option = "magma", name = "") + 
   labs(x = "Topic", y = "Percentage of Speeches") + 
-  theme(legend.position = "bottom", 
+  theme(legend.position = "bottom", text = element_text(size = 8.5),
         axis.text.x = element_text(angle = 90, hjust = 1))
 
 ggsave("p_k0_bar.svg", plot = p_k0_bar,
@@ -2415,12 +1287,79 @@ topic_words_frex <- topic_words_frex %>% unite(V1:V20, sep = ", ") %>%
 topic_words_frex$topic <- paste0("Topic ", row.names(topic_words_frex))
 
 topic_words2 <- topic_words_highest %>% left_join(topic_words_frex) %>% 
-  select(topic, everything())
+  select(topic, everything()) %>%
+  mutate(topic = recode(topic, 
+                          "Topic 1" = "(1) Employment/Trade Unions",
+                          "Topic 2" = "(2) Legal System",
+                          "Topic 3" = "(3) Roads",
+                          "Topic 4" = "(4) Housing",
+                          "Topic 5" = "(5) Police, Firefighters, Prisons",
+                          "Topic 6" = "(6) Northern Ireland",
+                          "Topic 7" = "(7) Committee",
+                          "Topic 8" = "(8) Schools",
+                          "Topic 9" = "(9) Energy & Climate Change",
+                          "Topic 10" = "(10) Defence",
+                          "Topic 11" = "(11) Parliament",
+                          "Topic 12" = "(12) International Politics",
+                          "Topic 13" = "(13) Ministers",
+                          "Topic 14" = "(14) Policy impact",
+                          "Topic 15" = "(15) Gender",
+                          "Topic 16" = "(16) Regional Development",
+                          "Topic 17" = "(17) Communications/Telecommunications",
+                          "Topic 18" = "(18) Immigration",
+                          "Topic 19" = "(19) Health System",
+                          "Topic 20" = "(20) International Development",
+                          "Topic 21" = "(21) Benefits & disability",
+                          "Topic 22" = "(22) Sport and culture",
+                          "Topic 23" = "(23) History",
+                          "Topic 24" = "(24) Higher education and skills",
+                          "Topic 25" = "(25) Concurring point",
+                          "Topic 26" = "(26) Pensions",
+                          "Topic 27" = "(27) Points of order",
+                          "Topic 28" = "(28) Issues",
+                          "Topic 29" = "(29) Constituencies",
+                          "Topic 30" = "(30) Ethnic groups & racism",
+                          "Topic 31" = "(31) Amendments",
+                          "Topic 32" = "(32) Reports",
+                          "Topic 33" = "(33) People",
+                          "Topic 34" = "(34) Wales and Scotland",
+                          "Topic 35" = "(35) Alcohol and tobacco",
+                          "Topic 36" = "(36) Place names",
+                          "Topic 37" = "(37) Budget",
+                          "Topic 38" = "(38) Tax",
+                          "Topic 39" = "(39) Private companies",
+                          "Topic 40" = "(40) Environment and Fishing",
+                          "Topic 41" = "(41) Crime",
+                          "Topic 42" = "(42) Bills",
+                          "Topic 43" = "(43) Children",
+                          "Topic 44" = "(44) Utilities & PFI",
+                          "Topic 45" = "(45) Middle East",
+                          "Topic 46" = "(46) Local authorities",
+                          "Topic 47" = "(47) Elections",
+                          "Topic 48" = "(48) Debate",
+                          "Topic 49" = "(49) Transport",
+                          "Topic 50" = "(50) Questions",
+                          "Topic 51" = "(51) Families",
+                          "Topic 52" = "(52) Health research",
+                          "Topic 53" = "(53) Dispatch box",
+                          "Topic 54" = "(54) Parties",
+                          "Topic 55" = "(55) Statements",
+                          "Topic 56" = "(56) European Union",
+                          "Topic 57" = "(57) Locations",
+                          "Topic 58" = "(58) Jobs & Manufacturing",
+                          "Topic 59" = "(59) Small Business",
+                          "Topic 60" = "(60) Agreement/Disagreement",
+                          "Topic 61" = "(61) Voluntary Sector",
+                          "Topic 62" = "(62) Comments",
+                          "Topic 63" = "(63) Social Care",
+                          "Topic 64" = "(64) Time",
+                          "Topic 65" = "(65) Media and Animals",
+                          "Topic 66" = "(66) Other"))
 ```
 
 #### Word Occurences
 
-The table below shows the twenty most common words in each topic, and the ten words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016].
+The table below shows the twenty most common words in each topic, and the twenty words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016]. We have named each topic based on the most common words and highest FREX score words in each topic.
 
 ```{r topic-words-table-k0, echo=FALSE, results = 'asis'}
 library(knitr)
@@ -2437,6 +1376,78 @@ kable(topic_words2,  booktabs = TRUE, longtable = TRUE,
 
 
 ### Manual Validation
+
+As STM is an unsupervised model, we used several different validation strategies to ensure the topics themselves are both interesting and relevant [@grimmer2013]. @quinn2010 suggest that topics are valid if they correspond to external events. Figure \ref{Middle East-plot-validity} shows the number of speeches by Labour MPs on the "Middle East" topic, with a spike in 2003 (at the start of the Iraq War), another spike in 2008 and 2009, as the bulk of British troops left Iraq, a small spike in 2011 coinciding with UK participation in NATO's military intervention in Libya, and debate in 2014--2016 over UK participation in military interventions in the Syrian Civil War. 
+
+Figure \ref{wales-scotland-validity} shows debate over the devolved authorities of Wales and Scotland peaking in 2014, to coincide with Scotland's independence referendum. The post-2015 decline also likely stems from the SNP winning all but three seats in Scotland during the 2015 General Election. Figure \ref{eu-validity} shows the increase in debate over the European Union coinciding with the referendum on the UK's member of the European Union.
+
+
+```{r validation-prep, include=FALSE}
+library(lubridate)
+library(ggplot2)
+
+head(topic_dt_k0)
+
+topic_dt_k0_valid <- topic_dt_k0 %>% 
+  group_by(assigned_topic, year) %>%
+  summarise(count = n())
+
+test10 <- topic_dt_k0_valid %>% filter(assigned_topic == "Topic10")
+
+plot10 <- ggplot(aes(x=year, y = count), data = test10) +
+  geom_line() + 
+  labs(x = "Year", y = "Number of Speeches")
+
+plot10
+
+```
+
+
+```{r Middle East-plot, echo=FALSE,fig.cap="\\label{Middle East-plot-validity}Number of Speeches in \"Middle East\" Topic per Year"}
+test45 <- topic_dt_k0_valid %>% filter(assigned_topic == "Topic45")
+
+plot45 <- ggplot(aes(x=year, y = count), data = test45) +
+  geom_line() + 
+  labs(x = "Year", y = "Number of Speeches")
+
+plot45
+
+ggsave("plot45.svg", plot = plot45,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+```
+
+
+```{r wales-scotland-plot, echo=FALSE,fig.cap="\\label{wales-scotland-validity}Number of Speeches in \"Wales & Scotland\" Topic per Year"}
+test34 <- topic_dt_k0_valid %>% filter(assigned_topic == "Topic34")
+
+plot34 <- ggplot(aes(x=year, y = count), data = test34) +
+  geom_line() + 
+  labs(x = "Year", y = "Number of Speeches")
+
+plot34
+
+ggsave("plot34.svg", plot = plot34,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+```
+
+
+
+```{r eu-plot, echo=FALSE,fig.cap="\\label{eu-validity}Number of Speeches in \"European Union\" Topic per Year"}
+
+test56 <- topic_dt_k0_valid %>% filter(assigned_topic == "Topic56")
+
+plot56 <- ggplot(aes(x=year, y = count), data = test56) +
+  geom_line() + 
+  labs(x = "Year", y = "Number of Speeches")
+
+plot56
+
+ggsave("plot56.svg", plot = plot56,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+```
+
 
 # Discussion
 
