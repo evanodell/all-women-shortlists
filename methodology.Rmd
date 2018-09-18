@@ -1563,8 +1563,6 @@ p_k0_prop
 
 "`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.max(topic_dt_k0_prop$prop)]))`" is the topic that AWS MPs are proportionally most likely to discuss, relative to their non-AWS colleagues; AWS MPs are `r formatC(max(topic_dt_k0_prop$prop), digits = 3, format = "g")` more likely to discuss "`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.max(topic_dt_k0_prop$prop)]))`" than non-AWS Labour MPs. Non-AWS female Labour MPs are most disproportionately likely to discuss the "`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.min(topic_dt_k0_prop$prop)]))`" topic, with `r formatC(min(topic_dt_k0_prop$prop), digits = 3, format = "g")` as many of their speeches covering the "`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.min(topic_dt_k0_prop$prop)]))`" than AWS MPs.
 
--- need to work out putting the names and proportion results into this text
-
 # Discussion
 
 There do not appear to be substantial or meaningful differences in the speaking styles of female Labour MPs selected through all women shortlists when compared to their female colleagues selected through open shortlists using LIWC. This is possibly due to the speaking style dominant in British parliamentary debate, which is more formal than the speech used in most day-to-day conversation. LIWC was developed by American researchers, and the LIWC dictionary may not be able to capture stylistic differences between American and British English, and may not include words commonly used in formal British English speech, limiting its usefulness in the context of British political debate.
