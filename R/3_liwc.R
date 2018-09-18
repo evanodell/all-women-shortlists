@@ -103,10 +103,7 @@ write_rds(con_speech, "data/con_speech.rds")
 con_corpus <- corpus(con_speech, docid_field = "eo_id", text_field = "speech")
 
 write_rds(con_corpus, "data/con_corpus.rds")
-```
 
-
-```{r tory-labour-liwc, eval=FALSE, include=FALSE}
 library(readr)
 library(dplyr)
 library(tidyr)
@@ -267,6 +264,10 @@ con_liwc <- read_rds("data/con_liwc.rds")
 
 all_liwc <- bind_rows(other_liwc, con_liwc, lab_liwc)
 
+all_liwc$gender <- case_when(all_liwc$gender == "F" ~ "Female",
+                             all_liwc$gender == "M" ~ "Male",
+                             TRUE ~ all_liwc$gender)
+
 fem_mac <- c("pronoun", "i", "we", "verb", "auxverb", "social", "posemo", 
              "negemo", "tentat", "Sixltr",  "article", "prep",
              "anger", "swear", "cogproc", "WPS", "WC", "FK")
@@ -291,7 +292,7 @@ for (i in fem_mac) {
   all_party_gender_df$magnitude[all_party_gender_df$word_type==i] <- as.character(d$magnitude[[1]])
 }
 
-#all_party_gender_df
+all_party_gender_df
 
 all_party_gender_df$word_type <- recode(all_party_gender_df$word_type,
                                         "pronoun" = "All Pronouns",

@@ -1,4 +1,4 @@
-```{r government-jobs, eval=FALSE, include=FALSE}
+
 library(listviewer)
 library(httr)
 library(dplyr)
@@ -69,9 +69,6 @@ government_posts$end_date <- if_else(
     government_posts$post_name=="Secretary of State for Education & skills", 
   "2006-05-05", government_posts$end_date)
 
-```
-
-```{r opposition-jobs, eval=FALSE, include=FALSE}
 library(listviewer)
 library(httr)
 
@@ -154,9 +151,7 @@ oppo_posts$member_id <- if_else(is.na(oppo_posts$member_id),
 
 oppo_posts$type <- "Opposition"
 
-```
 
-```{r lab-fem-jobs, eval=FALSE, include=FALSE}
 library(readxl)
 library(dplyr)
 
@@ -183,4 +178,4 @@ lab_fem_jobs$start_date <- as.Date(lab_fem_jobs$start_date)
 
 ## use interval from lubridate to include jobs
 
-```
+

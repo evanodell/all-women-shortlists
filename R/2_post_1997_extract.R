@@ -8,10 +8,6 @@ library(stringi)
 
 all_speech <- read_rds("data/senti_df2.rds")
 
-# all_speech$word_count <- if_else(is.na(all_speech$word_count), 
-#                                  stri_count_words(all_speech$speech),
-#                                  all_speech$word_count)
-
 all_speech$eo_id <- rownames(all_speech)
 
 ## Binned into quarters of a year
@@ -46,16 +42,26 @@ all_women97_15 <- read_excel("list-of-mps.xlsx")
 
 all_speech$short_list <- all_speech$mnis_id %in% all_women97_15$mnis
 
-all_speech$speech <- gsub( " *\\(.*?\\)*", "", all_speech$speech)
+all_speech$speech <- gsub( " *\\(.*?\\)*", " ", all_speech$speech)
 
-all_speech$speech <- gsub( " *\\[.*?\\]*", "", all_speech$speech)
+all_speech$speech <- gsub( " *\\[.*?\\]*", " ", all_speech$speech)
 
 all_speech$speech <- gsub( "^c\\(", "", all_speech$speech)
 
+all_speech$speech <- gsub( "^c \\(", "", all_speech$speech)
+
 all_speech$speech <- gsub( "\\)$", "", all_speech$speech)
 
-all_speech$word_count <- stri_count_boundaries(all_speech$word_count,
-                                               type="word", skip_word_none=FALSE)
+all_speech$word_count <- all_speech$speech %>%
+  stri_replace_all_fixed("\n", " ") %>%
+  stri_replace_all_fixed("\n", " ") %>%
+  stri_replace_all_regex( "\\ n\\s", " ") %>% 
+  stri_count_boundaries( type="word", 
+                         skip_word_none=FALSE)
+
+
+# all_speech$word_count <- stri_count_boundaries(all_speech$speech,
+#                                               )
 
 write_rds(all_speech, "data/all_speech.rds")
 

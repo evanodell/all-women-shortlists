@@ -2702,6 +2702,46 @@ p_k45_pyramid
 ```
 
 
+
+
+```{r k0-topic-pyramid-man, echo=FALSE, fig.cap="\\label{k0-topic-pyramid-plot}K0 Pyramid Chart", fig.height=9, message=FALSE, warning=FALSE}
+
+topic_dt_k0_5 <- topic_dt_k0_3 %>% 
+  select(-man_count, -non_AWS, -AWS) %>%
+  gather("aws_status", "perc", -assigned_topic) %>%
+  arrange(assigned_topic)
+
+topic_dt_k0_5$perc[is.na(topic_dt_k0_5$perc)] <- 0
+
+p_k0_pyramid_m <- ggplot(data = topic_dt_k0_5, 
+                         aes(x = assigned_topic, y = perc)) +
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "non_AWS_freq"),
+           stat = "identity", aes(fill = aws_status) ) + 
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "AWS_freq"),
+           stat = "identity", aes(y = -perc, fill = aws_status)) + 
+  scale_y_continuous(breaks = seq(-0.075, 0.075, 0.025), 
+                     labels = paste0(
+                       as.character(c(seq(7.5, 0, -2.5),
+                                      seq(2.5, 7.5, 2.5))), "%")) + 
+  coord_flip(ylim = c(-0.075, 0.075)) + 
+  scale_fill_viridis_d(labels = c("AWS", "non-AWS"),
+                       begin = 0.3, end = 0.7, option = "magma", name = "") + 
+  labs(x = "Topic", y = "Percentage of Speeches") + 
+  theme(legend.position = "bottom") + guides(color = FALSE) + 
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "man_freq"),
+           stat = "identity", aes(color = aws_status),
+           alpha = 0, color = "#21908C", show.legend = FALSE) + 
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "man_freq"),
+           stat = "identity", aes(color = aws_status, y = -perc),
+           alpha = 0, color = "#21908C", show.legend = FALSE)
+
+ggsave("p_k0_pyramid.svg", plot = p_k0_pyramid,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k0_pyramid_m
+```
+
+
 Figure \ref{k45-topic-pyramid-plot} is a pyramid plot, showing the percentage of speeches classed in each topic of AWS and non-AWS MPs. 
 
 ```{r k45-topic-bar, echo=FALSE, fig.cap="\\label{k45-topic-bar-plot}k45 Bar Chart"}
