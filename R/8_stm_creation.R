@@ -1,4 +1,28 @@
 
+
+# stm-corpus creation -----------------------------------------------------
+
+library(stm)
+library(quanteda)
+library(quanteda.corpora)
+library(readr)
+
+lab_corpus <- read_rds("data/lab_corpus.rds")
+
+parliament_stopwords <- c(stopwords(), "hon", "rose", "n", "friend", "way", 
+                          "give", "gentleman", "right", "percent", "per",
+                          "cent", "prime", "minister", "c")
+#ndoc(lab_corpus_fem)
+
+lab_corpus_stm <- dfm(lab_corpus, remove_punct = TRUE,
+                          remove = parliament_stopwords, verbose = TRUE) %>%
+  convert(to = "stm", docvars = NULL)
+
+lab_corpus_stm$meta$short_list <- as.factor(lab_corpus_stm$meta$short_list)
+
+write_rds(lab_corpus_stm, "data/lab_corpus_stm.rds")
+
+
 # stm-creation-k30 -------------------------------------------------------
 
 library(stm)
@@ -47,7 +71,7 @@ set.seed(402)
 #topic_model_k30 seed = 9957388
 topic_model_k0_m <- stm(lab_corpus_stm$documents, 
                         vocab = lab_corpus_stm$vocab, 
-                        K = 0, prevalence = ~short_list+gender, 
+                        K = 0, prevalence = ~gender + short_list, 
                         seed = 9957388,
                         data = lab_corpus_stm$meta,
                         verbose = TRUE, init.type = "Spectral")
@@ -129,11 +153,17 @@ write_rds(prep_K60, "data/prep_K60_m.rds")
 
 # corr-creation-k0 -------------------------------------------------------
 
+
+lab_corpus_stm$meta$gender <- as.factor(lab_corpus_stm$meta$gender)
+
+lab_corpus_stm$meta$gender = factor(lab_corpus_stm$meta$gender, 
+                                    levels=c("Male", "Female"))
+
 topic_model_k0 <- read_rds("data/topic_model_k0_m.rds")
 
 corr_topic_k0 <- topicCorr(topic_model_k0, method = "huge", verbose = FALSE)
 
-prep_k0 <- estimateEffect(1:66 ~ short_list + gender, topic_model_k0, 
+prep_k0 <- estimateEffect(~ gender+short_list, topic_model_k0, 
                           meta = lab_corpus_stm$meta, uncertainty = "Global")
 
 write_rds(corr_topic_k0, "data/corr_topic_k0_m.rds")

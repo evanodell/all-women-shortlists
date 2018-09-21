@@ -352,7 +352,7 @@ p_sl1 <- ggplot(data=filter(lab_liwc_women2_subset,
   xlab("Years since entering House of Commons") + 
   theme(legend.position = "bottom")
 
-ggsave("p_sl1.svg", plot = p_sl1, path="plots", device = "svg",
+ggsave("p1_sl1.svg", plot = p_sl1, path="plots", device = "svg",
        width = 20, height = 20, units = "cm")
 
 p_sl1
@@ -361,7 +361,7 @@ p_sl1
 ```{r sl-wps-plot, eval=FALSE, include=FALSE}
 p_sl_wps <- ggplot(data=filter(lab_liwc_women2_subset,
                                attribute=="Words per Sentence"),
-                aes(x=y_since_start, y = weighted_mean, colour = short_list)) +
+                aes(x = y_since_start, y = weighted_mean, colour = short_list)) +
   geom_line(alpha=0.7) +
   labs(title = "Words per Sentence", colour = "") + 
   ylab("Weighted Mean") +
@@ -755,7 +755,7 @@ lab_keyness_plot <- textplot_keyness(lab_keyness, n = 25,
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("lab_keyness_plot.svg", plot = lab_keyness_plot,
+ggsave("p2_lab_keyness_plot.svg", plot = lab_keyness_plot,
        device = "svg", path = "plots")
 
 lab_keyness_plot
@@ -782,7 +782,7 @@ fem_keyness_plot <- textplot_keyness(lab_keyness_fem, n=25) +
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("fem_keyness_plot.svg", plot = fem_keyness_plot,
+ggsave("p3_fem_keyness_plot.svg", plot = fem_keyness_plot,
        device = "svg", path = "plots")
 
 fem_keyness_plot
@@ -811,7 +811,7 @@ lab_con_keyness_plot <- textplot_keyness(lab_con_keyness, n=25,
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("lab_con_keyness_plot.svg", plot = lab_con_keyness_plot,
+ggsave("p4_lab_con_keyness_plot.svg", plot = lab_con_keyness_plot,
        device = "svg", path = "plots")
 
 lab_con_keyness_plot
@@ -843,7 +843,7 @@ pro_dfm_key_plot <- textplot_keyness(pro_dfm_key, n=25) +
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("pro_dfm_key_plot.svg", plot = pro_dfm_key_plot,
+ggsave("p5_pro_dfm_key_plot.svg", plot = pro_dfm_key_plot,
        device = "svg", path = "plots")
 
 pro_dfm_key_plot
@@ -894,12 +894,11 @@ p_k_result <- ggplot(k_result, aes(K, Value, color = Metric)) +
   labs(x = expression(italic("K")),
        y = NULL)
 
-ggsave("p_k_result.svg", plot = p_k_result, path="plots", device = "svg",
+ggsave("p6_k_result.svg", plot = p_k_result, path="plots", device = "svg",
        width = 20, height = 20, units = "cm")
 
 p_k_result
 ```
-
 
 To identify the best number of topics, we created six topic models with different numbers of topics (_K_). We created models with 30, 45, 60, 80 and 100 topics, and used an algorithm developed by @lee2014c, implemented in the `stm` package [@roberts2018], which resulted in _K_ = 66. As seen in Figure \ref{topic-model-selection}, the algorithm from @lee2014c appears to produce the best result, a topic model with `r formatC(topic_model_k0$settings$dim$K, , big.mark = ",")` topics, across `r formatC(topic_model_k0$settings$dim$N, , big.mark = ",")` speeches with a dictionary of `r formatC(topic_model_k0$settings$dim$V, , big.mark = ",")` words. All models were created using the "spectral" method developed by @arora2013, implemented by @roberts2018. One of the topics -- Topic 66 -- was identified as a possibly topic, but was never the most likely topic in the matrix of number of documents by number of topics -- labelled $\theta$ by @roberts2018, and so while it is included in the model, assignment of single topics to speeches uses the highest $\theta$ for each speech. Other topics are rarely used -- Topic 53, which we labelled "Dispatch Box", only has five topics assigned to it, four from Male MPs and one from an AWS MP.
 
@@ -907,7 +906,7 @@ To identify the best number of topics, we created six topic models with differen
 
 We created a Fruchterman-Reingold [@fruchterman1991] diagram (Figure \ref{k0-network}) to show the connections between different topics. Larger vertices indicate more common topics, and the plot uses a colour scale to indicate the proportion of speeches classed in that topic made by AWS and non-AWS female Labour MPs. The space between vertices indicate the closeness or distance of two topics. E.g. closer vertices represent topics with more overlapping words than more distant topics.
 
-```{r stm-analysis-k0, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k0-network}Fruchterman-Reingold plot of k0 Network"}
+```{r stm-analysis-k0, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k0-network}Fruchterman-Reingold plot of Topic Network"}
 library(readr)
 library(stm)
 library(viridis)
@@ -967,7 +966,7 @@ colnames(edges_k0) <- c("X1","Y1","X2","Y2")
 
 plotcord_k0$topic <- as.numeric(row.names(plotcord_k0))
   
-plotcord_k0 <- plotcord_k0 %>% left_join(prep_df_k0_coeff)
+#plotcord_k0 <- plotcord_k0 %>% left_join(prep_df_k0)
 
 lab_corpus_stm$meta$eo_id <- docnames(lab_corpus_stm$documents)
 
@@ -1006,22 +1005,43 @@ topic_dt_k0$assigned_topic <- factor(topic_dt_k0$assigned_topic,
                                     "Topic64", "Topic65", "Topic66"))
 
 topic_dt_k0_2 <- topic_dt_k0 %>% filter(gender == "Female") %>% 
-  group_by(assigned_topic) %>%
-  summarise(count = n()) %>%
-  mutate(freq = count/sum(count) )
+  group_by(assigned_topic, short_list) %>%
+  summarise(count = n()) %>% group_by(short_list) %>%
+  mutate(freq = count/sum(count)) %>% 
+  ungroup() %>% select(assigned_topic, short_list, count) %>%
+  spread(short_list, count) %>%
+  rename("sl" = `TRUE`, "not_sl" = `FALSE`) %>%
+  mutate(sl_freq = sl/sum(sl),
+         not_sl_freq = not_sl/sum(not_sl, na.rm = TRUE),
+         estimate = sl_freq - not_sl_freq,
+         count = not_sl + sl,
+         freq = count/sum(count, na.rm = TRUE))
 
 plotcord_k0$assigned_topic <- paste0("Topic", plotcord_k0$topic)
 
-plotcord_k0 <- plotcord_k0 %>% left_join(topic_dt_k0_2)
+plotcord_k0_2 <- plotcord_k0 %>% 
+  inner_join(topic_dt_k0_2) %>% filter(!is.na(estimate))
+
+# plotcord_k0_2 <- plotcord_k0 %>% 
+#   left_join(topic_dt_k0_2) %>%
+#   ungroup() %>%
+#   select(X1, X2, topic, Estimate, type, count, freq) %>% 
+#   tidyr::spread(type, Estimate) %>% 
+#   mutate(genderFemale = Intercept + genderFemale,
+#          Shortlist = genderFemale + Shortlist,
+#          Estimate = genderFemale - Shortlist) %>%
+#   tidyr::gather(gender, Estimate, -Intercept, -X1, -X2, -topic, -count, -freq,
+#                 -Shortlist, -genderFemale)
+
 
 p_network_k0 <- ggplot() + 
   geom_segment(aes(x=X1, y=Y1, xend = X2, yend = Y2),
                data=edges_k0, size = 0.5, colour="grey") +
-  geom_point(data = plotcord_k0, aes(X1, X2, colour = Estimate, size = freq)) + 
-  geom_text(aes(X1, X2, label=topic), hjust="center", vjust="top",
-            size = 5, data = plotcord_k0) + 
-  scale_colour_viridis(breaks = c(max(plotcord_k0$Estimate),
-                                  min(plotcord_k0$Estimate)), 
+  geom_point(data = plotcord_k0_2, aes(X1, X2, colour = estimate, size = freq)) + 
+  geom_text(aes(X1, X2, label=topic), hjust = "center", vjust="top",
+            size = 5, data = plotcord_k0_2) + 
+  scale_colour_viridis(breaks = c(max(plotcord_k0_2$estimate),
+                                  min(plotcord_k0_2$estimate)), 
                        labels = c("More AWS", "More non-AWS"),
                        name=NULL, option = "plasma",
                        end = 0.85, begin = 0.05) + 
@@ -1034,10 +1054,13 @@ p_network_k0 <- ggplot() +
     axis.title.x = element_blank(), 
     axis.title.y = element_blank())
 
-ggsave("p_network_k0.svg", plot = p_network_k0, path="plots", device = "svg", width = 20, height = 20, units = "cm")
+ggsave("p7_network_k0.svg", plot = p_network_k0, path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 p_network_k0
 ```
+
+
+The `stm` package includes an `estimateEffect` function which creates a regression model (Table \ref{estimate-table-k0}) using individual documents (speeches) as individual observations, with the number of documents fitting each topic as the dependent variable and model covariates (AWS status and gender) as independent variables. 
 
 ```{r estimate-table-k0, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 library(knitr)
@@ -1046,8 +1069,8 @@ library(dplyr)
 
 row.names(prep_df_k0) <- NULL
 prep_df_k0$type <- gsub("X.Intercept", "Intercept", prep_df_k0$type)
-prep_df_k0$type <- gsub("short_listTRUE", "Shortlist", prep_df_k0$type)
-prep_df_k0$type <- gsub("genderMale", "Men", prep_df_k0$type)
+prep_df_k0$type <- gsub("short_listTRUE", "AWS", prep_df_k0$type)
+prep_df_k0$type <- gsub("genderFemale", "Non-AWS", prep_df_k0$type)
 
 prep_df_k0 <- prep_df_k0 %>% rename(
   "p" = "Pr(>|t|)"
@@ -1302,7 +1325,7 @@ p_k0_pyramid <- ggplot(data = topic_dt_k0_5,
   labs(x = "Topic", y = "Percentage of Speeches") + 
   theme(legend.position = "bottom")
 
-ggsave("p_k0_pyramid.svg", plot = p_k0_pyramid,
+ggsave("p8_k0_pyramid.svg", plot = p_k0_pyramid,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 p_k0_pyramid
@@ -1329,7 +1352,7 @@ p_k0_bar <- ggplot(data = topic_dt_k0_6,
   theme(legend.position = "bottom", text = element_text(size = 8.5),
         axis.text.x = element_text(angle = 90, hjust = 1))
 
-ggsave("p_k0_bar.svg", plot = p_k0_bar,
+ggsave("p9_k0_bar.svg", plot = p_k0_bar,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 p_k0_bar
@@ -1482,7 +1505,7 @@ plot45 <- ggplot(aes(x=year, y = count), data = test45) +
 
 plot45
 
-ggsave("plot45.svg", plot = plot45,
+ggsave("p_10_plot45.svg", plot = plot45,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 ```
@@ -1497,7 +1520,7 @@ plot34 <- ggplot(aes(x=year, y = count), data = test34) +
 
 plot34
 
-ggsave("plot34.svg", plot = plot34,
+ggsave("p_11_plot34.svg", plot = plot34,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 ```
 
@@ -1513,7 +1536,7 @@ plot56 <- ggplot(aes(x=year, y = count), data = test56) +
 
 plot56
 
-ggsave("plot56.svg", plot = plot56,
+ggsave("p_12_plot56.svg", plot = plot56,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 ```
@@ -1555,7 +1578,7 @@ p_k0_prop <- ggplot(data = topic_dt_k0_prop,
        y = "Proportion of speeches made by AWS MPs (right side)\nrelative to non-AWS MPs (left side)") + 
   theme(legend.position = "bottom", text = element_text(size = 8.5))
 
-ggsave("p_k0_prop.svg", plot = p_k0_prop,
+ggsave("p13_k0_prop.svg", plot = p_k0_prop,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 p_k0_prop
@@ -1606,7 +1629,9 @@ lab_speech$speech <- stri_replace_all_fixed(lab_speech$speech, "\n", " ")
 
 lab_speech$speech <- stri_replace_all_regex(lab_speech$speech, "\\ n\\s", " ")
 
-head(lab_speech$speech)
+lab_speech$speech <- stri_replace_all_regex(lab_speech$speech, "\ n\\s", " ")
+
+#head(lab_speech$speech)
 
 lab_fem_sl <- lab_speech %>% 
   filter(gender == "Female" & short_list == TRUE)
@@ -1614,7 +1639,35 @@ lab_fem_sl <- lab_speech %>%
 set.seed(191)
 constit_kwic <- kwic(lab_fem_sl$speech, phrase("my constit*"),
                      window = 10, valuetype = "glob", remove_punct = FALSE) %>% 
-  select(pre:post) %>% sample_frac(0.02)
+  tibble::as_tibble() %>% 
+  select(pre:post) %>% 
+  sample_frac(0.02) 
+
+constit_kwic$pre <- stri_replace_all_fixed(constit_kwic$pre, " \\ n ", " ")
+
+constit_kwic$post <- stri_replace_all_fixed(constit_kwic$post, " \\ n ", " ")
+
+constit_kwic$post <- stri_replace_all_regex(constit_kwic$post, "^\\\\ n ", " ")
+
+constit_kwic$post <- stri_replace_all_regex(constit_kwic$post, " \\\\ n$", " ")
+
+constit_kwic$post <- stri_replace_all_regex(constit_kwic$post, "^n ", "")
+
+constit_kwic$post <- stri_replace_all_regex(constit_kwic$post, " \\\"", " ")
+
+constit_kwic$post <- stri_replace_all_regex(constit_kwic$post, " ([:punct:])", "$1")
+
+constit_kwic$pre <- stri_replace_all_fixed(constit_kwic$pre, " \\ n ", " ")
+
+constit_kwic$pre <- stri_replace_all_regex(constit_kwic$pre, "^\\\\ n ", " ")
+
+constit_kwic$pre <- stri_replace_all_regex(constit_kwic$pre, " \\\\ n$", " ")
+
+constit_kwic$pre <- stri_replace_all_regex(constit_kwic$pre, "^n ", "")
+
+constit_kwic$pre <- stri_replace_all_regex(constit_kwic$pre, " \\\"", " ")
+
+constit_kwic$pre <- stri_replace_all_regex(constit_kwic$pre, " ([:punct:])", "$1")
 
 kable(constit_kwic,  booktabs = TRUE, longtable = TRUE, 
       col.names = c("Pre", "Keyword", "Post"),
