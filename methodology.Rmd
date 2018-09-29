@@ -45,9 +45,6 @@ use_condaenv(condaenv = "spacy_condaenv",
 
 Data in Table 1 is from House of Commons Library reports [@kelly2016; @audickas2017]. All women shortlists were not used by Labour during the 2001 General Election.
 
-<!--## Corpus creation -->
-
-
 
 ```{r lab-desc-stats-table, echo=FALSE, message=FALSE, results='asis'}
 library(knitr)
@@ -352,7 +349,7 @@ p_sl1 <- ggplot(data=filter(lab_liwc_women2_subset,
   xlab("Years since entering House of Commons") + 
   theme(legend.position = "bottom")
 
-ggsave("p1_sl1.svg", plot = p_sl1, path="plots", device = "svg",
+ggsave("p01_sl1.svg", plot = p_sl1, path="plots", device = "svg",
        width = 20, height = 20, units = "cm")
 
 p_sl1
@@ -755,7 +752,7 @@ lab_keyness_plot <- textplot_keyness(lab_keyness, n = 25,
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("p2_lab_keyness_plot.svg", plot = lab_keyness_plot,
+ggsave("p02_lab_keyness_plot.svg", plot = lab_keyness_plot,
        device = "svg", path = "plots")
 
 lab_keyness_plot
@@ -782,7 +779,7 @@ fem_keyness_plot <- textplot_keyness(lab_keyness_fem, n=25) +
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("p3_fem_keyness_plot.svg", plot = fem_keyness_plot,
+ggsave("p03_fem_keyness_plot.svg", plot = fem_keyness_plot,
        device = "svg", path = "plots")
 
 fem_keyness_plot
@@ -811,7 +808,7 @@ lab_con_keyness_plot <- textplot_keyness(lab_con_keyness, n=25,
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("p4_lab_con_keyness_plot.svg", plot = lab_con_keyness_plot,
+ggsave("p04_lab_con_keyness_plot.svg", plot = lab_con_keyness_plot,
        device = "svg", path = "plots")
 
 lab_con_keyness_plot
@@ -843,7 +840,7 @@ pro_dfm_key_plot <- textplot_keyness(pro_dfm_key, n=25) +
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("p5_pro_dfm_key_plot.svg", plot = pro_dfm_key_plot,
+ggsave("p05_pro_dfm_key_plot.svg", plot = pro_dfm_key_plot,
        device = "svg", path = "plots")
 
 pro_dfm_key_plot
@@ -857,11 +854,11 @@ We trained a Naive Bayes classifier with document-frequency priors and a multino
 
 ## Topic Models
 
-Using topic models to classify text is widely used in social sciences [@grimmer2013], as, when combined with the large volume of plain text data available, it allows for a rapid and consistent method of analysis . Topic modelling and other statistic methods of textual analysis are not a substitute for reading the texts themselves, but can augment other analysis or -- as in this case -- analyse and classify larger amounts of text than would be feasible using human coders [@grimmer2013]. Topic models classify a series of documents (in this case individual speeches) into one of a given number of topics, identifying terms that are common in some documents but rare in others. When developing topic models, there is a trade-off between high precision in the classification of each document with broader topics when using smaller numbers of topics, or lower precision in individual speech classification with more finely-grained topics when using larger numbers of topics. @grimmer2013 also highlight the importance of validating unsurpervised topic models when applied to new sets of texts. 
+Using topic models to classify text is widely used in social sciences [@grimmer2013], as, when combined with the large volume of plain text data available, it allows for a rapid and consistent method of analysis . Topic modelling and other statistic methods of textual analysis are not a substitute for reading the texts themselves, but can augment other analysis or -- as in this case -- analyse and classify larger amounts of text than would be feasible using human coders [@grimmer2013]. Topic models classify a series of documents (in this case individual speeches) into one of a given number of topics, identifying terms that are common in some documents but rare in others. When developing topic models, there is a trade-off between high precision in the classification of each document with broader topics when using smaller numbers of topics, or lower precision in individual speech classification with more finely-grained topics when using larger numbers of topics. @grimmer2013 also highlight the importance of validating unsurpervised topic models when applied to new sets of texts, which we have done [below](#Manual Validation).
 
-The R package `stm` [@roberts2018] implements a structured topic model (STM) [@roberts2016; @arora2013]. An STM incorporates data about the writer or speaker into the topic classification algorithm. This differs from traditional topic modelling methods using latent variables to identify topics [e.g. with latent Dirichlet allocation @blei2003], and then comparing proportions of each topic to one or more external variables. STM allows us to incorporate the variables we are interested in to the topic model itself using a generalised linear model; i.e. the proportion of speechs classified as belonging to each topic can vary as a function of the AWS and gender variables.
+The R package `stm` [@roberts2018] implements a structured topic model (STM) [@roberts2016; @arora2013]. An STM incorporates covariates into the topic classification algorithm, creating possibilities for hypothesis testing. This differs from traditional topic modelling methods using latent variables to identify topics [e.g. with latent Dirichlet allocation @blei2003], and then comparing proportions of each topic to one or more external variables. STM allows us to incorporate the variables we are interested in to the topic model itself using a generalised linear model; i.e. the proportion of speechs classified as belonging to each topic can vary as a function of the AWS and gender variables.
 
-We incorporated the AWS status of speakers and their gender as covariates into our topic model, using all speeches by Labour MPs.
+We incorporated the AWS status of speakers and their gender as prevalence covariates into our topic model. 
 
  <!--We then used `stm`'s implementation of Latent Dirichlet Allocation [@blei2003]-->
 
@@ -873,8 +870,6 @@ library(purrr)
 library(dplyr)
 
 topic_model_k0 <- read_rds("data/topic_model_k0_m.rds")
-
-#labelTopics(topic_model_k0)
 
 k_models <- read_rds("data/k_models.rds")
 
@@ -894,19 +889,21 @@ p_k_result <- ggplot(k_result, aes(K, Value, color = Metric)) +
   labs(x = expression(italic("K")),
        y = NULL)
 
-ggsave("p6_k_result.svg", plot = p_k_result, path="plots", device = "svg",
+ggsave("p06_k_result.svg", plot = p_k_result, path="plots", device = "svg",
        width = 20, height = 20, units = "cm")
 
 p_k_result
 ```
 
-To identify the best number of topics, we created six topic models with different numbers of topics (_K_). We created models with 30, 45, 60, 80 and 100 topics, and used an algorithm developed by @lee2014c, implemented in the `stm` package [@roberts2018], which resulted in _K_ = 66. As seen in Figure \ref{topic-model-selection}, the algorithm from @lee2014c appears to produce the best result, a topic model with `r formatC(topic_model_k0$settings$dim$K, , big.mark = ",")` topics, across `r formatC(topic_model_k0$settings$dim$N, , big.mark = ",")` speeches with a dictionary of `r formatC(topic_model_k0$settings$dim$V, , big.mark = ",")` words. All models were created using the "spectral" method developed by @arora2013, implemented by @roberts2018. One of the topics -- Topic 66 -- was identified as a possibly topic, but was never the most likely topic in the matrix of number of documents by number of topics -- labelled $\theta$ by @roberts2018, and so while it is included in the model, assignment of single topics to speeches uses the highest $\theta$ for each speech. Other topics are rarely used -- Topic 53, which we labelled "Dispatch Box", only has five topics assigned to it, four from Male MPs and one from an AWS MP.
+We created six topic models with different numbers of topics (_K_). We created models with 30, 45, 60, 80 and 100 topics, and used an algorithm developed by @lee2014c, implemented in the `stm` package [@roberts2018], which resulted in _K_ = 66. Figure \ref{topic-model-selection} shows, clockwise from the top-left, heldout likelihood [explain], lower bound [explain], semantic coherence [@mimno2011], and the multinomial dispersion of the STM residuals [@taddy2012], 
 
-### Shortlists vs Non-Shortlists
+As seen in Figure \ref{topic-model-selection}, the _K_ = 66 result appears to produce the best result, a topic model with `r formatC(topic_model_k0$settings$dim$K, , big.mark = ",")` topics, across `r formatC(topic_model_k0$settings$dim$N, , big.mark = ",")` speeches with a dictionary of `r formatC(topic_model_k0$settings$dim$V, , big.mark = ",")` words. All models were created using the "spectral" method developed by @arora2013, implemented in the `stm` package by @roberts2018. 
 
-We created a Fruchterman-Reingold [@fruchterman1991] diagram (Figure \ref{k0-network}) to show the connections between different topics. Larger vertices indicate more common topics, and the plot uses a colour scale to indicate the proportion of speeches classed in that topic made by AWS and non-AWS female Labour MPs. The space between vertices indicate the closeness or distance of two topics. E.g. closer vertices represent topics with more overlapping words than more distant topics.
+One of the topics -- Topic 66 -- is never the most likely topic in the matrix of number of documents by number of topics -- labelled $\theta$ by @roberts2018 -- and so while it is included in the model, assignment of single topics to speeches uses the highest $\theta$ for each speech. Other topics are rarely used -- Topic 53, which we labelled "Dispatch Box", only has five topics assigned to it, four from Male MPs and one from an AWS MP.
 
-```{r stm-analysis-k0, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k0-network}Fruchterman-Reingold plot of Topic Network"}
+Figure \ref{k0-network} is a Fruchterman-Reingold force-directed diagram [@fruchterman1991] of correlations between different topics. Larger vertices indicate more common topics, and the colour scale indicates the proportion of speeches classed in that topic made by AWS and non-AWS female Labour MPs, respectively. Edges indicate positive correlations between the two linked topics.
+
+```{r stm-analysis-k0-network-graph, echo=FALSE, message=FALSE, warning=FALSE, fig.height=7, fig.cap="\\label{k0-network}Fruchterman-Reingold plot of Topic Network"}
 library(readr)
 library(stm)
 library(viridis)
@@ -962,6 +959,7 @@ edgelist_k0 <- get.edgelist(g)
 #convert to a four column edge data frame with source and destination coordinates
 edges_k0 <- data.frame(plotcord_k0[edgelist_k0[,1],], 
                     plotcord_k0[edgelist_k0[,2],])
+
 colnames(edges_k0) <- c("X1","Y1","X2","Y2")
 
 plotcord_k0$topic <- as.numeric(row.names(plotcord_k0))
@@ -974,6 +972,8 @@ topic_dt_k0 <- make.dt(topic_model_k0, lab_corpus_stm$meta)
 
 set.seed(24)
 topic_dt_k0$assigned_topic <- colnames(topic_dt_k0[,2:67])[max.col(topic_dt_k0[,2:67],ties.method="random")]
+
+topic_dt_k0$theta <- apply(topic_dt_k0[,2:67], 1, max)
 
 topic_dt_k0$assigned_topic <- as.factor(topic_dt_k0$assigned_topic)
 
@@ -1054,13 +1054,12 @@ p_network_k0 <- ggplot() +
     axis.title.x = element_blank(), 
     axis.title.y = element_blank())
 
-ggsave("p7_network_k0.svg", plot = p_network_k0, path="plots", device = "svg", width = 20, height = 20, units = "cm")
+ggsave("p07_network_k0.svg", plot = p_network_k0, path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 p_network_k0
 ```
 
-
-The `stm` package includes an `estimateEffect` function which creates a regression model (Table \ref{estimate-table-k0}) using individual documents (speeches) as individual observations, with the number of documents fitting each topic as the dependent variable and model covariates (AWS status and gender) as independent variables. 
+The `stm` package includes the `estimateEffect` function, which creates a regression model (Table \ref{Topic Estimates}) using individual documents (speeches) as observations, with the proportion of a each document fitting each topic as the dependent variable and model covariates (AWS status and gender) as independent variables. The intercept in this model is all speeches by male Labour MPs.
 
 ```{r estimate-table-k0, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 library(knitr)
@@ -1072,9 +1071,7 @@ prep_df_k0$type <- gsub("X.Intercept", "Intercept", prep_df_k0$type)
 prep_df_k0$type <- gsub("short_listTRUE", "AWS", prep_df_k0$type)
 prep_df_k0$type <- gsub("genderFemale", "Non-AWS", prep_df_k0$type)
 
-prep_df_k0 <- prep_df_k0 %>% rename(
-  "p" = "Pr(>|t|)"
-)
+prep_df_k0 <- prep_df_k0 %>% rename("p" = "Pr(>|t|)")
 
 prep_df_k0$stars <- case_when(prep_df_k0$p < 0.001 ~ "***", 
                                prep_df_k0$p < 0.01 ~ "**",
@@ -1267,23 +1264,28 @@ topic_dt_k0_3 <- topic_dt_k0 %>%
   arrange(assigned_topic)
 
 topic_dt_k0_4 <- topic_dt_k0_3 %>%
-    mutate(AWS_freq = paste0(round((AWS_freq*100), 2), "%"),
-          non_AWS_freq = paste0(round((non_AWS_freq*100), 2), "%"),
+    mutate(AWS_freq = paste0(formatC(round(AWS_freq*100, 2), 
+            format = "f", digits = 2), "%"),
+          non_AWS_freq = paste0(formatC(round(non_AWS_freq*100, 2), 
+            format = "f", digits = 2), "%"),
           AWS = formatC(AWS, big.mark = ","),
           non_AWS = formatC(non_AWS, big.mark = ","),
-          man_freq = paste0(round((man_freq*100), 2), "%"),
+          man_freq = paste0(formatC(
+            round((man_freq*100), 2), 
+            format = "f", digits = 2), "%"),
           man_count = formatC(man_count, big.mark = ",")) %>%
   select(assigned_topic, AWS, AWS_freq, non_AWS, non_AWS_freq, man_count, man_freq)
 
 ```
 
+Table \ref{tab:count-distribution} shows the number and percentage of speeches assigned to each topic, based on its $\theta$ value. The results in this table differ slightly from those in Table \ref{Topic Estimates}, as it uses a "winner-take-all" method to assign a topic to each speech.
 
 ```{r topic-summary-table-k0, echo=FALSE, results = 'asis'}
 library(knitr)
 library(kableExtra)
 
 kable(topic_dt_k0_4, booktabs = TRUE, longtable = TRUE, 
-      caption = "Count and Distribution of Topics -- k0",
+      caption = "Count and Distribution of Topics",
       col.names = c("Topic", "AWS Speeches", "Percent of AWS Speeches",
                     "Non-AWS Speeches", "Percent of non-AWS Speeches",
                     "Male MP Speeches", "Percent of Male MP Speeches"),
@@ -1294,69 +1296,58 @@ kable(topic_dt_k0_4, booktabs = TRUE, longtable = TRUE,
 ```
 
 
-```{r k0-topic-pyramid, echo=FALSE, fig.cap="\\label{k0-topic-pyramid-plot}K0 Pyramid Chart", fig.height=9, message=FALSE, warning=FALSE}
+### Topic Graphs
 
-topic_dt_k0_5 <- topic_dt_k0_3 %>% 
-  select(-man_count, -man_freq, -non_AWS, -AWS) %>%
-  gather("aws_status", "perc", -assigned_topic) %>%
-  arrange(assigned_topic)
+The estimate effects in these graphs were extracted using the `tidystm` package by Mikael Poul Johannesson. Figure \ref{k0-topic-dot-plot} highlights nine topics with different expected proportions between male, AWS and non-AWS Labour MPs. See Figure \ref{k0-topic-bar-plot} for a graph of all 66 topics.
 
-topic_dt_k0_5$perc[is.na(topic_dt_k0_5$perc)] <- 0
+```{r tidystm-graphs, echo=FALSE, fig.cap="\\label{k0-topic-selected-bar-plot}Selected Topic Proportions", message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+effect <- read_rds("data/effect.rds")
 
-p_k0_pyramid <- ggplot(data = topic_dt_k0_5, 
-                        aes(x = assigned_topic, y = perc, fill = aws_status)) +
-  geom_bar(data = filter(topic_dt_k0_5, aws_status == "non_AWS_freq"),
-           stat = "identity" ) + 
-  geom_bar(data = filter(topic_dt_k0_5, aws_status == "AWS_freq"),
-           stat = "identity", aes(y = -perc) ) + 
-  geom_bar(data = filter(topic_dt_k0_5, aws_status == "AWS_freq"),
-           stat = "identity", aes(color = aws_status),
-           alpha = 0, color = "#641A80", show.legend=FALSE) + 
-  geom_bar(data = filter(topic_dt_k0_5, aws_status == "non_AWS_freq"),
-           stat = "identity", aes(color = aws_status, y = -perc),
-           alpha = 0, color = "#F76F5C", show.legend=FALSE) + 
-  scale_y_continuous(breaks = seq(-0.075, 0.075, 0.025), 
-                     labels = paste0(
-                       as.character(c(seq(7.5, 0, -2.5),
-                                      seq(2.5, 7.5, 2.5))), "%")) + 
-  coord_flip(ylim = c(-0.075, 0.075)) + 
-  scale_fill_viridis_d(labels = c("AWS", "non-AWS"),
-                       begin = 0.3, end = 0.7, option = "magma", name = "") + 
-  labs(x = "Topic", y = "Percentage of Speeches") + 
+p_k0_sel_bar <- ggplot(filter(effect,
+                           topic %in% c(27, 2, 21, 63, 60, 54, 29, 30, 38)),
+aes(y = estimate, x = as.factor(label),
+                   group = covariate.value, fill = covariate.value)) + 
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_errorbar(aes(ymin = ci.lower, ymax = ci.upper), 
+                color = "black", width = 0.3, position=position_dodge(.9)) + 
+   scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("#a06dba", "#7aa457", "#cb6a49"),
+                    labels = c( "Men", "Non-AWS", "AWS"),
+                    name = "") + 
+  labs(x = "Topic",
+       y = "Expected Topic Proportion") +
   theme(legend.position = "bottom")
 
-ggsave("p8_k0_pyramid.svg", plot = p_k0_pyramid,
+ggsave("p08_k0_sel_bar.svg", plot = p_k0_sel_bar,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
-p_k0_pyramid
+p_k0_sel_bar
 ```
 
+```{r k0-topic-bar, echo=FALSE, fig.cap="\\label{k0-topic-bar-plot}All Topic Proportions", message=FALSE, warning=FALSE}
+p_k0_bar <- ggplot(effect, aes(y = estimate, x = as.factor(topic),
+                   group = covariate.value, fill = covariate.value)) + 
+  geom_bar(stat = "identity", position=position_dodge()) +
+  geom_errorbar(aes(ymin = ci.lower, ymax = ci.upper), 
+                color = "black", width = 0.3, position=position_dodge(.9)) + 
+   scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("#a06dba", "#7aa457", "#cb6a49"),
+                    labels = c( "Men", "Non-AWS", "AWS"),
+                    name = "") + 
+  labs(x = "Topic",
+       y = "Expected Topic Proportion") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 90, hjust = 1.1, vjust = 0.5))
 
-
-
-```{r k0-topic-bar, echo=FALSE, fig.cap="\\label{k0-topic-bar-plot}k0 Bar Chart", message=FALSE, warning=FALSE}
-
-topic_dt_k0_6 <- topic_dt_k0_3 %>% 
-  select(-man_count, -non_AWS, -AWS) %>%
-  gather("aws_status", "perc", -assigned_topic) %>%
-  arrange(assigned_topic)
-
-p_k0_bar <- ggplot(data = topic_dt_k0_6,
-                    aes(x = assigned_topic, y = perc, fill = aws_status)) +
-  geom_bar(stat = "identity", position = "dodge") + 
-  scale_y_continuous(breaks = c(0, 0.025, 0.05, 0.075),
-                     labels = scales::percent) + 
-  scale_fill_viridis_d(labels = c("AWS", "Non-AWS", "Men"),
-                       begin = 0, end = 0.8, option = "plasma", name = "") + 
-  labs(x = "Topic", y = "Percentage of Speeches") + 
-  theme(legend.position = "bottom", text = element_text(size = 8.5),
-        axis.text.x = element_text(angle = 90, hjust = 1))
-
-ggsave("p9_k0_bar.svg", plot = p_k0_bar,
+ggsave("p09_k0_bar.svg", plot = p_k0_bar,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 p_k0_bar
 ```
+
+
 
 ```{r stm-topic-words-k0, message=FALSE, warning=FALSE, include=FALSE}
 library(tidyr)
@@ -1448,9 +1439,7 @@ topic_words2 <- topic_words_highest %>% left_join(topic_words_frex) %>%
 ```
 
 
-
-
-#### Word Occurences
+### Word Occurences
 
 The table below shows the twenty most common words in each topic, and the twenty words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016]. We have named each topic based on the most common words and highest FREX score words in each topic.
 
@@ -1474,7 +1463,6 @@ As STM is an unsupervised model, we used several different validation strategies
 
 Figure \ref{wales-scotland-validity} shows debate over the devolved authorities of Wales and Scotland peaking in 2014, to coincide with Scotland's independence referendum. The post-2015 decline also likely stems from the SNP winning all but three seats in Scotland during the 2015 General Election. Figure \ref{eu-validity} shows the increase in debate over the European Union coinciding with the referendum on the UK's member of the European Union.
 
-
 ```{r validation-prep, include=FALSE}
 library(lubridate)
 library(ggplot2)
@@ -1496,7 +1484,7 @@ plot10
 ```
 
 
-```{r Middle East-plot, echo=FALSE,fig.cap="\\label{Middle East-plot-validity}Number of Speeches in \"Middle East\" Topic per Year"}
+```{r middle-east-plot, echo=FALSE,fig.cap="\\label{Middle East-plot-validity}Number of Speeches in \"Middle East\" Topic per Year"}
 test45 <- topic_dt_k0_valid %>% filter(assigned_topic == "Topic45")
 
 plot45 <- ggplot(aes(x=year, y = count), data = test45) +
@@ -1505,11 +1493,10 @@ plot45 <- ggplot(aes(x=year, y = count), data = test45) +
 
 plot45
 
-ggsave("p_10_plot45.svg", plot = plot45,
+ggsave("p10_plot45.svg", plot = plot45,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 ```
-
 
 ```{r wales-scotland-plot, echo=FALSE,fig.cap="\\label{wales-scotland-validity}Number of Speeches in \"Wales & Scotland\" Topic per Year"}
 test34 <- topic_dt_k0_valid %>% filter(assigned_topic == "Topic34")
@@ -1520,7 +1507,7 @@ plot34 <- ggplot(aes(x=year, y = count), data = test34) +
 
 plot34
 
-ggsave("p_11_plot34.svg", plot = plot34,
+ggsave("p11_plot34.svg", plot = plot34,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 ```
 
@@ -1536,55 +1523,11 @@ plot56 <- ggplot(aes(x=year, y = count), data = test56) +
 
 plot56
 
-ggsave("p_12_plot56.svg", plot = plot56,
+ggsave("p12_plot56.svg", plot = plot56,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 ```
 
-
-
-### Topic Proportion
-
-Figure \ref{k0-topic-proportion} displays the percentage of speeches made by AWS Labour MPs compared to non-AWS female Labour MPs, for all topics where AWS and/or non-AWS MPs made 100 or more speeches.
-
-```{r k0-topic-proportion, echo=FALSE, fig.height=7, fig.cap="\\label{k0-topic-proportion}k0 Topic Proportions"}
-# topic_dt_k0_3$prop <- 
-  
-  
-  #topic_dt_k0_3$AWS_freq/topic_dt_k0_3$non_AWS_freq
-
-topic_dt_k0_prop <- topic_dt_k0_3 %>% 
-  mutate(prop = case_when(
-  AWS_freq/non_AWS_freq < 1 ~ 
-    ((non_AWS_freq/AWS_freq) * -1) + 1,
-  TRUE ~ (AWS_freq/non_AWS_freq) -1 )) %>% 
-  filter(!is.na(non_AWS) & AWS >= 100 | non_AWS >= 100) %>%
-  select(assigned_topic, prop) %>%
-  mutate(
-         assigned_topic = as.character(assigned_topic)) %>%
-  arrange(prop)
-
-topic_dt_k0_prop$assigned_topic <- reorder(topic_dt_k0_prop$assigned_topic,
-                                           topic_dt_k0_prop$prop)
-
-p_k0_prop <- ggplot(data = topic_dt_k0_prop, 
-                     aes(x = assigned_topic,
-                         y = prop, fill = prop)) +
-  geom_bar(stat = "identity") + 
-  scale_y_continuous() + 
-  scale_fill_viridis_c(name = "") + 
-  coord_flip() + 
-  labs(x = "Topic", 
-       y = "Proportion of speeches made by AWS MPs (right side)\nrelative to non-AWS MPs (left side)") + 
-  theme(legend.position = "bottom", text = element_text(size = 8.5))
-
-ggsave("p13_k0_prop.svg", plot = p_k0_prop,
-       path="plots", device = "svg", width = 20, height = 20, units = "cm")
-
-p_k0_prop
-```
-
-"`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.max(topic_dt_k0_prop$prop)]))`" is the topic that AWS MPs are proportionally most likely to discuss, relative to their non-AWS colleagues; AWS MPs are `r formatC(max(topic_dt_k0_prop$prop), digits = 3, format = "g")` more likely to discuss "`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.max(topic_dt_k0_prop$prop)]))`" than non-AWS Labour MPs. Non-AWS female Labour MPs are most disproportionately likely to discuss the "`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.min(topic_dt_k0_prop$prop)]))`" topic, with `r formatC(min(topic_dt_k0_prop$prop), digits = 3, format = "g")` as many of their speeches covering the "`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.min(topic_dt_k0_prop$prop)]))`" than AWS MPs.
 
 # Discussion
 
@@ -1608,6 +1551,144 @@ On 4th April 2001, Betty Williams, member for Conwy from 1997--2010, raised the 
 
 
 # Appendix
+
+## Gender effect estimates
+
+Estimate effects of different topics, using only gender.
+
+```{r estimate-table-gender, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+library(knitr)
+library(kableExtra)
+library(dplyr)
+
+prep_k0_gender <- read_rds("data/prep_k0_gender.rds")
+
+prep_df_k0_gender <- summary(prep_k0_gender)[[3]]
+
+prep_df_k0_gender <- as.data.frame(do.call(rbind, prep_df_k0_gender))
+
+prep_df_k0_gender$topic <- NA
+
+prep_df_k0_gender$topic <- rep(1:66, each = 2)
+
+prep_df_k0_gender$type <- row.names(prep_df_k0_gender)
+
+prep_df_k0_gender$type <- gsub("\\.[0-9][0-9]", "", prep_df_k0_gender$type)
+
+prep_df_k0_gender$type <- gsub("\\.[0-9]", "", prep_df_k0_gender$type)
+
+prep_df_k0_gender$type <- gsub("\\.$", "", prep_df_k0_gender$type)
+
+
+row.names(prep_df_k0_gender) <- NULL
+prep_df_k0_gender$type <- gsub("X.Intercept", "Intercept", prep_df_k0_gender$type)
+prep_df_k0_gender$type <- gsub("genderFemale", "Female", prep_df_k0_gender$type)
+
+prep_df_k0_gender <- prep_df_k0_gender %>% rename(
+  "p" = "Pr(>|t|)"
+)
+
+prep_df_k0_gender$stars <- case_when(prep_df_k0_gender$p < 0.001 ~ "***", 
+                              prep_df_k0_gender$p < 0.01 ~ "**",
+                              prep_df_k0_gender$p < 0.05 ~ "*", 
+                              TRUE ~ "")
+
+prep_df_k0_gender_2 <- prep_df_k0_gender %>% select(type, Estimate,
+                                      `Std. Error`, `t value`, p, stars) %>%
+  mutate(p = pixiedust::pval_string(p,  digits = 4))
+
+
+kable(prep_df_k0_gender_2, booktabs = TRUE, longtable = TRUE, 
+      caption = "Topic Estimates",
+      col.names = c("", "Estimate", "Standard Error",
+                    "t value", "Pr(>|t|)", ""),
+      align = c("l","r","r","r","r", "l")) %>%
+  kable_styling(latex_options = c("HOLD_position",  "repeat_header",
+                                    "striped"), full_width = TRUE ) %>%
+   group_rows(index = c("Topic 1 -- Employment & unions" = 2,
+                        "Topic 2 -- Legal system" = 2,
+                        "Topic 3 -- Roads" = 2,
+                        "Topic 4 -- Housing" = 2,
+                        "Topic 5 -- Police, firefighters & prison" = 2,
+                        "Topic 6 -- Northern Ireland" = 2,
+                        "Topic 7 -- Committee" = 2,
+                        "Topic 8 -- Schools" = 2,
+                        "Topic 9 -- Energy & climate change" = 2,
+                        "Topic 10 -- Defence" = 2,
+                        "Topic 11 -- Parliament" = 2,
+                        "Topic 12 -- International politics" = 2,
+                        "Topic 13 -- Ministers" = 2,
+                        "Topic 14 -- Policy impact" = 2,
+                        "Topic 15 -- Gender" = 2,
+                        "Topic 16 -- Regional development" = 2,
+                        "Topic 17 -- Communications" = 2,
+                        "Topic 18 -- Immigration" = 2,
+                        "Topic 19 -- Health system" = 2,
+                        "Topic 20 -- International development" = 2,
+                        "Topic 21 -- Benefits & disability" = 2,
+                        "Topic 22 -- Sport & culture" = 2,
+                        "Topic 23 -- History" = 2,
+                        "Topic 24 -- Higher education & skills" = 2,
+                        "Topic 25 -- Concurring point" = 2,
+                        "Topic 26 -- Pensions" = 2,
+                        "Topic 27 -- Points of order" = 2,
+                        "Topic 28 -- Issues" = 2,
+                        "Topic 29 -- Constituencies" = 2,
+                        "Topic 30 -- Ethnic groups & racism" = 2,
+                        "Topic 31 -- Amendments" = 2,
+                        "Topic 32 -- Reports" = 2,
+                        "Topic 33 -- People" = 2,
+                        "Topic 34 -- Wales & Scotland" = 2,
+                        "Topic 35 -- Alcohol & tobacco" = 2,
+                        "Topic 36 -- Place names" = 2,
+                        "Topic 37 -- Budget" = 2,
+                        "Topic 38 -- Tax" = 2,
+                        "Topic 39 -- Private companies" = 2,
+                        "Topic 40 -- Environment & fishing" = 2,
+                        "Topic 41 -- Crime" = 2,
+                        "Topic 42 -- Bills" = 2,
+                        "Topic 43 -- Children" = 2,
+                        "Topic 44 -- Utilities & PFI" = 2,
+                        "Topic 45 -- Middle East" = 2,
+                        "Topic 46 -- Local authorities" = 2,
+                        "Topic 47 -- Elections" = 2,
+                        "Topic 48 -- Debate" = 2,
+                        "Topic 49 -- Transport" = 2,
+                        "Topic 50 -- Questions" = 2,
+                        "Topic 51 -- Families" = 2,
+                        "Topic 52 -- Health research" = 2,
+                        "Topic 53 -- Dispatch box" = 2,
+                        "Topic 54 -- Parties" = 2,
+                        "Topic 55 -- Statements" = 2,
+                        "Topic 56 -- European Union" = 2,
+                        "Topic 57 -- Locations" = 2,
+                        "Topic 58 -- Jobs & manufacturing" = 2,
+                        "Topic 59 -- Small business" = 2,
+                        "Topic 60 -- Agreement & disagreement" = 2,
+                        "Topic 61 -- Voluntary sector" = 2,
+                        "Topic 62 -- Comments" = 2,
+                        "Topic 63 -- Social care" = 2,
+                        "Topic 64 -- Time" = 2,
+                        "Topic 65 -- Media & animals" = 2,
+                        "Topic 66 -- Other" = 2))
+```
+
+
+## $\theta$ distribution
+
+```{r theta-boxplot, echo=FALSE, fig.height=7, fig.cap="\\label{k0-theta-boxplot}k0 Theta Values in Topic Assignment"}
+library(ggplot2)
+
+p_theta <- ggplot(data = topic_dt_k0, aes(assigned_topic, theta)) + 
+  geom_boxplot() + 
+  scale_x_discrete(labels = c(1:65)) + 
+  labs(x = "Assigned Topic",
+       y = "Theta")
+  
+p_theta
+```
+
+
 
 ## AWS References to Constituents in Context
 

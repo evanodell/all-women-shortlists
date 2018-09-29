@@ -1976,6 +1976,71 @@ The first implementation used an algorithm developed by @lee2014c, implemented i
 
 -  refer to other papers that use these kinds of methods - Grimmer, King, Quinn, etc
 
+
+
+```{r k0-topic-pyramid, echo=FALSE, fig.cap="\\label{k0-topic-pyramid-plot}K0 Pyramid Chart", fig.height=9, message=FALSE, warning=FALSE}
+
+topic_dt_k0_5 <- topic_dt_k0_3 %>% 
+  select(-man_count, -man_freq, -non_AWS, -AWS) %>%
+  gather("aws_status", "perc", -assigned_topic) %>%
+  arrange(assigned_topic)
+
+topic_dt_k0_5$perc[is.na(topic_dt_k0_5$perc)] <- 0
+
+p_k0_pyramid <- ggplot(data = topic_dt_k0_5, 
+                        aes(x = assigned_topic, y = perc, fill = aws_status)) +
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "non_AWS_freq"),
+           stat = "identity" ) + 
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "AWS_freq"),
+           stat = "identity", aes(y = -perc) ) + 
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "AWS_freq"),
+           stat = "identity", aes(color = aws_status),
+           alpha = 0, color = "#641A80", show.legend=FALSE) + 
+  geom_bar(data = filter(topic_dt_k0_5, aws_status == "non_AWS_freq"),
+           stat = "identity", aes(color = aws_status, y = -perc),
+           alpha = 0, color = "#F76F5C", show.legend=FALSE) + 
+  scale_y_continuous(breaks = seq(-0.075, 0.075, 0.025), 
+                     labels = paste0(
+                       as.character(c(seq(7.5, 0, -2.5),
+                                      seq(2.5, 7.5, 2.5))), "%")) + 
+  coord_flip(ylim = c(-0.075, 0.075)) + 
+  scale_fill_viridis_d(labels = c("AWS", "non-AWS"),
+                       begin = 0.3, end = 0.7, option = "magma", name = "") + 
+  labs(x = "Topic", y = "Percentage of Speeches") + 
+  theme(legend.position = "bottom")
+
+ggsave("p08_k0_pyramid.svg", plot = p_k0_pyramid,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k0_pyramid
+```
+
+
+```{r k0-topic-bar, echo=FALSE, fig.cap="\\label{k0-topic-bar-plot}k0 Bar Chart", message=FALSE, warning=FALSE}
+
+topic_dt_k0_6 <- topic_dt_k0_3 %>% 
+  select(-man_count, -non_AWS, -AWS) %>%
+  gather("aws_status", "perc", -assigned_topic) %>%
+  arrange(assigned_topic)
+
+p_k0_bar <- ggplot(data = topic_dt_k0_6,
+                    aes(x = assigned_topic, y = perc, fill = aws_status)) +
+  geom_bar(stat = "identity", position = "dodge") + 
+  scale_y_continuous(breaks = c(0, 0.025, 0.05, 0.075),
+                     labels = scales::percent) + 
+  scale_fill_viridis_d(labels = c("AWS", "Non-AWS", "Men"),
+                       begin = 0, end = 0.8, option = "plasma", name = "") + 
+  labs(x = "Topic", y = "Percentage of Speeches") + 
+  theme(legend.position = "bottom", text = element_text(size = 8.5),
+        axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggsave("p09_k0_bar.svg", plot = p_k0_bar,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k0_bar
+```
+
+
 ### Shortlists vs Non-Shortlists - K45
 
 As seen in the word lists in the [appendix][Shortlists vs Non-Shortlists - K0], there is relatively scattershot semantic coherence, although exclusivity is high, when using the 84 topic models suggested by Lee and Mimno's [-@lee2014c] algorithm. We therefore re-ran the analysis, using 45 topic models, which resulted in increased semantic coherence, albeit with slightly lower exclusivity, as illustrated in Figure \ref{k45-coherence}. The lower number of models also makes hand-coding of the content of topics more straightforward. The _K_ = 45 topic model has 81,651 documents and uses a dictionary of 119,586 words, like the _K_ = 84 model. Models with [_K_ = 30][Shortlists vs Non-Shortlists - K30] and [_K_ = 60][Shortlists vs Non-Shortlists - K60] were also produced and are available in the appendix.
@@ -2940,6 +3005,52 @@ ggsave("p_k45_prop.svg", plot = p_k45_prop,
 
 p_k45_prop
 ```
+
+
+
+### Topic Proportion
+
+Figure \ref{k0-topic-proportion} displays the percentage of speeches made by AWS Labour MPs compared to non-AWS female Labour MPs, for all topics where AWS and/or non-AWS MPs made 100 or more speeches.
+
+```{r k0-topic-proportion, echo=FALSE, fig.height=7, fig.cap="\\label{k0-topic-proportion}k0 Topic Proportions"}
+# topic_dt_k0_3$prop <- 
+  
+  
+  #topic_dt_k0_3$AWS_freq/topic_dt_k0_3$non_AWS_freq
+
+topic_dt_k0_prop <- topic_dt_k0_3 %>% 
+  mutate(prop = case_when(
+  AWS_freq/non_AWS_freq < 1 ~ 
+    ((non_AWS_freq/AWS_freq) * -1) + 1,
+  TRUE ~ (AWS_freq/non_AWS_freq) -1 )) %>% 
+  filter(!is.na(non_AWS) & AWS >= 100 | non_AWS >= 100) %>%
+  select(assigned_topic, prop) %>%
+  mutate(
+         assigned_topic = as.character(assigned_topic)) %>%
+  arrange(prop)
+
+topic_dt_k0_prop$assigned_topic <- reorder(topic_dt_k0_prop$assigned_topic,
+                                           topic_dt_k0_prop$prop)
+
+p_k0_prop <- ggplot(data = topic_dt_k0_prop, 
+                     aes(x = assigned_topic,
+                         y = prop, fill = prop)) +
+  geom_bar(stat = "identity") + 
+  scale_y_continuous() + 
+  scale_fill_viridis_c(name = "") + 
+  coord_flip() + 
+  labs(x = "Topic", 
+       y = "Proportion of speeches made by AWS MPs (right side)\nrelative to non-AWS MPs (left side)") + 
+  theme(legend.position = "bottom", text = element_text(size = 8.5))
+
+ggsave("p13_k0_prop.svg", plot = p_k0_prop,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
+p_k0_prop
+```
+
+"`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.max(topic_dt_k0_prop$prop)]))`" is the topic that AWS MPs are proportionally most likely to discuss, relative to their non-AWS colleagues; AWS MPs are `r formatC(max(topic_dt_k0_prop$prop), digits = 3, format = "g")` more likely to discuss "`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.max(topic_dt_k0_prop$prop)]))`" than non-AWS Labour MPs. Non-AWS female Labour MPs are most disproportionately likely to discuss the "`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.min(topic_dt_k0_prop$prop)]))`" topic, with `r formatC(min(topic_dt_k0_prop$prop), digits = 3, format = "g")` as many of their speeches covering the "`r gsub("\\(.*\\) ", "", as.character(topic_dt_k0_prop$assigned_topic[which.min(topic_dt_k0_prop$prop)]))`" than AWS MPs.
+
 
 ### Manual Validation
 
