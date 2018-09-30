@@ -704,6 +704,33 @@ kable(fem_mac_df,  booktabs = TRUE,  digits = 2,
 
 There are no categories where gender differences meet the effect size threshold of $|0.2|$ suggested by Cohen [-@cohen1988, 25--26] to indicate a small effect. 4 categories -- words with more than six letters, prepositions, words-per-sentence and Flesh-Kincaid grade level -- exceeded the $|0.1|$ threshold suggested by Newman et al [-@newman2008].
 
+```{r sl-wps-plot, eval=FALSE, include=FALSE}
+p_sl_wps <- ggplot(data=filter(lab_liwc_women2_subset,
+                               attribute=="Words per Sentence"),
+                aes(x = y_since_start, y = weighted_mean,
+                    colour = short_list)) +
+  geom_line(alpha=0.7) +
+  labs(title = "Words per Sentence", colour = "") + 
+  ylab("Weighted Mean") +
+  xlab("Years since entering House of Commons") + 
+  theme(legend.position = "bottom")
+
+p_sl_wps
+```
+
+```{r sl-wc-plot, eval=FALSE, include=FALSE}
+p_sl_wc <- ggplot(data=filter(lab_liwc_women2_subset,
+                               attribute=="Total Word Count"),
+                aes(x=y_since_start, y = weighted_mean, colour = short_list)) +
+  geom_line(alpha=0.7) +
+  labs(title = "Total Word Count per Speech", colour = "") + 
+  ylab("Mean") +
+  xlab("Years since entering House of Commons") + 
+  theme(legend.position = "bottom")
+
+p_sl_wc
+```
+
 
 ### Shortlists vs Non-Shortlists
 

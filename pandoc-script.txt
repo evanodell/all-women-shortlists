@@ -1,0 +1,2 @@
+#pandoc
+pandoc -s methodology.html -o methodology.docx

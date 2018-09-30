@@ -263,23 +263,23 @@ heldout <- make.heldout(lab_corpus_stm$documents, lab_corpus_stm$vocab)
 
 #30 validity --------
 
-# exclusivity_k30 <- exclusivity(topic_model_k30)
-#
-# semantic_coherence_k30 <- semanticCoherence(topic_model_k30, lab_corpus_stm$documents)
-# 
-# check_residuals_k30 <- checkResiduals(topic_model_k30, lab_corpus_stm$documents)
-# 
-# bound_k30 <- max(topic_model_k30$convergence$bound)
-# 
-# lfact_k30 <- lfactorial(topic_model_k30$settings$dim$K)
+exclusivity_k30 <- exclusivity(topic_model_k30)
+
+semantic_coherence_k30 <- semanticCoherence(topic_model_k30, lab_corpus_stm$documents)
+
+check_residuals_k30 <- checkResiduals(topic_model_k30, lab_corpus_stm$documents)
+
+bound_k30 <- max(topic_model_k30$convergence$bound)
+
+lfact_k30 <- lfactorial(topic_model_k30$settings$dim$K)
 
 eval_heldout_k30 <-  eval.heldout(topic_model_k30, heldout$missing)
 
 #45 validity --------
 
-#exclusivity_k45 <- exclusivity(topic_model_k45)
+exclusivity_k45 <- exclusivity(topic_model_k45)
 
-#semantic_coherence_k45 <- semanticCoherence(topic_model_k45, lab_corpus_stm$documents)
+semantic_coherence_k45 <- semanticCoherence(topic_model_k45, lab_corpus_stm$documents)
 
 check_residuals_k45 <- checkResiduals(topic_model_k45, lab_corpus_stm$documents)
 

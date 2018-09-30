@@ -104,5 +104,23 @@ for (i in t_list){
          width = 15, height = 20)
 }
 
+p_effect <- ggplot(effect, aes(y = estimate, x = covariate.value,
+                               fill = covariate.value)) + 
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_errorbar(aes(ymin = ci.lower, ymax = ci.upper), 
+                color = "black", width = 0.3, position=position_dodge(.9)) + 
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("#a06dba", "#7aa457", "#cb6a49"),
+                    labels = c("Men", "Non-AWS", "AWS"),
+                    name = "") + 
+  scale_x_discrete(labels = c("Men", "Non-AWS", "AWS")) + 
+  labs(x = "",
+       y = "Expected Topic Proportion") +
+  theme(legend.position = "bottom") + 
+  facet_wrap(~topic, scales = "free_y", ncol=7)
 
+#p_effect
 
+ggsave("all_topics_bar.svg", plot = p_effect, 
+       path="plots/ee-plots", device = "svg", units = "cm",
+       width = 40, height = 80)

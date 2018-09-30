@@ -155,4 +155,21 @@ speech_sum_table[is.na(speech_sum_table)] <- "All"
 # speech_sum_table[11,]$words <- sum(speech_sum_table$words[9],
 #                                    speech_sum_table$words[2])
 
+speech_sum_table <- speech_sum_table %>% ungroup() %>%
+  arrange(party_group, gender, short_list)
+
+speech_sum_table$gender <- case_when(speech_sum_table$short_list==TRUE ~
+                                       "All Women Shortlists",
+                                     TRUE ~ speech_sum_table$gender)
+
+speech_sum_table$gender <- case_when(speech_sum_table$short_list==FALSE & 
+                                       speech_sum_table$party_group=="Labour" & 
+                                       speech_sum_table$gender=="Female" ~
+                                       "Non-All Women Shortlists",
+                                     TRUE ~ speech_sum_table$gender )
+
+speech_sum_table <- speech_sum_table %>% 
+  select(-short_list) %>%
+  select(party_group, gender, everything())
+
 write_rds(speech_sum_table, "data/speech_sum_table.rds")

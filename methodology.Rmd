@@ -5,21 +5,21 @@ csl: apa.csl
 lof: true
 lot: true
 output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: 3
+    number_sections: true
+  word_document:
+    toc: yes
+    toc_depth: 3
+    number_sections: true
   pdf_document:
     toc: yes
     toc_depth: 3
     number_sections: true
     includes:  
       in_header: preamble.tex
-  word_document:
-    toc: yes
-    toc_depth: 3
-    number_sections: true
-  html_document:
-    df_print: paged
-    toc: yes
-    toc_depth: 3
-    number_sections: true
 link-citations: yes
 editor_options:
   chunk_output_type: console
@@ -28,7 +28,7 @@ fig_caption: yes
 ---
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set()
+knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 ```
 
 
@@ -43,8 +43,7 @@ use_condaenv(condaenv = "spacy_condaenv",
 
 # Descriptive Statistics
 
-Data in Table 1 is from House of Commons Library reports [@kelly2016; @audickas2017]. All women shortlists were not used by Labour during the 2001 General Election.
-
+Table 1 shows the number of Labour MPs elected in each general election from 1997 to 2015, including newly elected MPs (the ``intake''), the number of newly elected MPs from all women shortlists (AWS), and the number of candidates selected through all women shortlists. Data in Table 1 is from the House of Commons Library [@kelly2016; @audickas2017]. All women shortlists were not used by Labour during the 2001 General Election.
 
 ```{r lab-desc-stats-table, echo=FALSE, message=FALSE, results='asis'}
 library(knitr)
@@ -88,7 +87,7 @@ kable(labour_intakes_table,  booktabs = TRUE,
   column_spec(4:5, width = "2cm") %>%
   column_spec(6:7, width = "1.5cm") %>%
   column_spec(8, width = "2cm") %>%
-  kable_styling(latex_options = c("striped", "HOLD_position"), full_width = FALSE)
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position"), full_width = FALSE)
 
 ```
 
@@ -99,28 +98,13 @@ library(kableExtra)
 library(dplyr)
 
 speech_sum_table <- read_rds("data/speech_sum_table.rds")
-
-speech_sum_table <- speech_sum_table %>% ungroup() %>%
-  arrange(party_group, gender, short_list)
-
-speech_sum_table$gender <- case_when(speech_sum_table$short_list==TRUE ~
-                                       "All Women Shortlists",
-                                     TRUE ~ speech_sum_table$gender)
-
-speech_sum_table$gender <- case_when(speech_sum_table$short_list==FALSE & 
-                                       speech_sum_table$party_group=="Labour" & 
-                                       speech_sum_table$gender=="Female" ~
-                                       "Non-All Women Shortlists",
-                                     TRUE ~ speech_sum_table$gender )
-
-speech_sum_table <- speech_sum_table %>% 
-  select(-short_list) %>%
-  select(party_group, gender, everything())
-
 ## table for total MP numbers
 
 lab_nums <- read_rds("data/lab_nums.rds")
 ```
+
+
+Table 2 shows the total size of the dataset in speeches and words by each party, including by gender for each party, and in the case of female Labour MPs, by AWS status. Details on inclusion criteria are given [below](#methodology).
 
 ```{r speech-stats-table, echo=FALSE, results = 'asis'}
 library(kableExtra)
@@ -135,7 +119,7 @@ kable(speech_sum_table2,  booktabs = TRUE, digits = 2,
       caption = "Number of Speeches and Words in Dataset",
       col.names = c("Gender", "Speeches", "Words"),
       align = c("l", "r", "r"))  %>%
-  kable_styling(latex_options = c("striped", "HOLD_position"))  %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position"))  %>%
   group_rows("Conservatives", 4, 6) %>%
     group_rows("Labour", 7, 11) %>%
   group_rows("Liberal Democrat", 12, 14) %>%
@@ -155,9 +139,9 @@ To account for the possible effects of age, parliamentary experience and cohort,
 
 ## Linguistic Inquiry and Word Count
 
-Word classification used the `Linguistic Inquiry and Word Count 2015` (LIWC) dictionary [@pennebaker2015] and tokenising tools from the `Quanteda` R package [@benoit2018]. Word counts and words-per-sentence were calculated using `stringi` [@gagolewski2018], a wrapper to the ICU regex library.
+Word classification used the `Linguistic Inquiry and Word Count 2015` (LIWC) dictionary [@pennebaker2015] and tokenising tools from the `Quanteda` `R` package [@benoit2018]. Word counts and words-per-sentence, and calculations for determining grade level [@kincaid1975] were produced using `stringi` [@gagolewski2018], an `R` wrapper to the ICU regex library.
 
-Following research by @yu2014 and @newman2008 on gender differences in language, we compared MPs speeches using the following LIWC categories:
+Following research by @yu2014 and @newman2008 on gender differences in language, we focused on the following LIWC categories to compare MPs' speeches:
 
 * All Pronouns (pronoun)<!-- Feminine: -->
 * First person singular pronouns (i) <!-- Feminine: -->
@@ -175,7 +159,7 @@ Following research by @yu2014 and @newman2008 on gender differences in language,
 * Cognitive processes (cogproc)<!-- Masculine: -->
 * Words longer than six letters (Sixltr)<!-- Masculine: -->
 
-We also included mean words-per-sentence (WPS), total speach word count (WC) and Flesch–Kincaid grade level (FK) [@kincaid1975], calculated using `Quanteda` [@benoit2018] and `stringi` [@gagolewski2018].
+We also included mean words-per-sentence (WPS), total speach word count (WC) and Flesch–Kincaid grade level (FK) [@kincaid1975], calculated using the `Quanteda` [@benoit2018] and `stringi` [@gagolewski2018] `R` packages.
 
 ### Women vs Men
 
@@ -241,16 +225,15 @@ fem_mac_df$word_type <- recode(fem_mac_df$word_type,
 ```{r gender-effect-sizes-table, echo=FALSE, results = 'asis'}
 library(knitr)
 library(kableExtra)
-kable(fem_mac_df,  booktabs = TRUE,  digits = 2, 
+kable(fem_mac_df,  booktabs = TRUE, digits = 2, 
       caption = "Effect Sizes for Male and Female Labour MPs",
       col.names = c("", "Mean", "SD", "Mean", "SD",
-                    "Cohen's D", "Magnitude") )  %>%
-  kable_styling(latex_options = c("striped", "HOLD_position")) %>% 
+                    "Cohen's d", "Magnitude") )  %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position")) %>% 
   add_header_above(c(" " = 1, "Women" = 2, "Men" = 2, "Effect Size" = 2))
 ```
 
-There are no categories where gender differences meet the effect size threshold of $|0.2|$ suggested by Cohen [-@cohen1988, 25--26] to indicate a small effect. 4 categories -- words with more than six letters, prepositions, words-per-sentence and Flesh-Kincaid grade level -- exceeded the $|0.1|$ threshold suggested by Newman et al [-@newman2008].
-
+There are no categories where gender differences meet the effect size threshold of $|0.2|$ suggested by Cohen [-@cohen1988, 25--26] to indicate a small effect. 4 categories -- words with more than six letters, prepositions, words-per-sentence and Flesh-Kincaid grade level -- met or exceeded the $|0.1|$ threshold suggested by @newman2008.
 
 ### Shortlists vs Non-Shortlists
 
@@ -261,7 +244,7 @@ library(tidyr)
 library(purrr)
 library(effsize)
 
-lab_liwc <- read_rds("data/lab_liwc.rds")
+#lab_liwc <- read_rds("data/lab_liwc.rds")
 
 lab_liwc_women <- filter(lab_liwc, gender=="Female",
                          house_start_date >= "1997-05-01")
@@ -305,10 +288,9 @@ lab_liwc_women2_subset <- lab_liwc_women2 %>%
 
 ```
 
+Figure \ref{sl-key-y-since-start} shows changes in the occurences of selected LIWC terms, words-per-sentence, total word count and Flesch–Kincaid grade level, over the course of an MP's career, as measured since the time an MP was first elected. There do not appear to be any notable changes in speaking style over the course of female Labour MPs' careers. Figure \ref{sl-key-date} shows changes in the occurences of the same selected terms from 1997--2017. As in Figure \ref{sl-key-y-since-start}, there do not appear to be any meaningful trends in the use of the selected terms over time.
 
-The following plots show changes in the occurences of selected LIWC terms, words-per-sentence, total word count and Flesch–Kincaid grade level, over the course of an MP's career. There do not appear to be any notable changes in speaking style over the course of female Labour MPs' careers.
-
-```{r short-list-plot-key-variables, echo=FALSE, fig.cap="\\label{sl-key-variables}Occurence of selected LIWC terms", fig.height=8}
+```{r sl-key-y-since-start, echo=FALSE, fig.cap="\\label{sl-key-y-since-start}Occurence of selected LIWC terms, by time as MP", fig.height=8}
 library(ggplot2)
 
 lab_liwc_women2_subset$attribute <- recode(lab_liwc_women2_subset$attribute,
@@ -336,49 +318,113 @@ lab_liwc_women2_subset$short_list <- recode(
   "FALSE" = "Open ShortList",
   "TRUE" = "All Women Shortlist")
 
-p_sl1 <- ggplot(data=filter(lab_liwc_women2_subset, 
-                            attribute != "Words per sentence", 
-                            attribute != "Word count",
-                            attribute != "Flesh-Kincaid Grade Level"),
-                aes(x = y_since_start, y = weighted_mean, colour = short_list)) + 
+p01_sl_y_since_start <- ggplot(data = lab_liwc_women2_subset %>%
+                                 filter(attribute != "Words per sentence",
+                                        attribute != "Word count",
+                                        attribute != "Flesh-Kincaid Grade Level"),
+                               aes(x = y_since_start, y = weighted_mean,
+                                   colour = short_list)) + 
   geom_line(alpha=0.7) +
   scale_y_continuous(labels = function(x) paste0(x, "%")) +
   facet_wrap(~attribute) + 
-  labs(title = "Occurence of selected LIWC terms", colour = "") + 
-  ylab("Weighted Mean") +
-  xlab("Years since entering House of Commons") + 
+  labs(colour = "",
+       x = "Weighted Mean",
+       y = "Year") + 
   theme(legend.position = "bottom")
 
-ggsave("p01_sl1.svg", plot = p_sl1, path="plots", device = "svg",
-       width = 20, height = 20, units = "cm")
+ggsave("p01_sl_y_since_start.svg", plot = p01_sl_y_since_start,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
-p_sl1
+p01_sl_y_since_start
 ```
 
-```{r sl-wps-plot, eval=FALSE, include=FALSE}
-p_sl_wps <- ggplot(data=filter(lab_liwc_women2_subset,
-                               attribute=="Words per Sentence"),
-                aes(x = y_since_start, y = weighted_mean, colour = short_list)) +
+
+```{r sl-key-date, echo=FALSE, fig.cap="\\label{sl-key-date}Occurence of selected LIWC terms, by date", fig.height=8}
+library(ggplot2)
+library(lubridate)
+
+cols <- names(lab_liwc_women)[4:92]
+
+lab_liwc_women$quarter <- quarter(lab_liwc_women$speech_date, with_year = TRUE)
+
+lab_liwc_women_mean_date <- list(c("WC"), cols) %>%
+ map2(lst(mean=mean, funs(weighted.mean(., WC, na.rm=TRUE))),
+  ~ lab_liwc_women %>%
+   group_by(short_list, quarter) %>%
+   summarise_at(.x, .y)) %>%
+ reduce(inner_join)
+
+lab_liwc_women_tidy_mean_date <- gather(lab_liwc_women_mean_date, "attribute",
+                                   "weighted_mean", -short_list,
+                                   -quarter) 
+
+lab_liwc_women_sd_date <- list(c("WC"), cols) %>%
+ map2(lst(mean=mean, funs(sd(., na.rm=TRUE))),
+  ~ lab_liwc_women %>%
+   group_by(gender, short_list, quarter) %>%
+   summarise_at(.x, .y)) %>%
+ reduce(inner_join)
+
+lab_liwc_women_tidy_sd_date <- gather(lab_liwc_women_sd_date, "attribute",
+                                 "sd", -short_list, -gender,
+                                 -quarter) 
+
+## Joining together the SD and Means to get CIs
+lab_liwc_women2_date <- left_join(lab_liwc_women_tidy_mean_date,
+                             lab_liwc_women_tidy_sd_date) %>% 
+ left_join(lab_liwc_women %>% 
+    group_by(gender, short_list, quarter) %>% summarise(n=n())) %>%
+ mutate(se = sd / sqrt(n),
+   lower_ci = weighted_mean - qt(1 - (0.05 / 2), n - 1) * se,
+   upper_ci = weighted_mean + qt(1 - (0.05 / 2), n - 1) * se)
+
+lab_liwc_women2_subset_date <- lab_liwc_women2_date %>%
+  filter(attribute %in% c(fem_mac, "WC"))
+
+lab_liwc_women2_subset_date$attribute <- recode(
+  lab_liwc_women2_subset_date$attribute,
+               "pronoun" = "All pronouns",
+               "i" = "First person\nsingular pronouns",
+               "verb" = "Verbs",
+               "auxverb" = "Auxiliary verbs",
+               "social" = "Social processes ",
+               "posemo" = "Positive emotions",
+               "negemo" = "Negative emotions",
+               "tentat" = "Tentative words",
+               "Sixltr" = "More than six letters",
+               "we" = "First person\nplural pronouns",
+               "article" = "Articles",
+               "prep" = "Prepositions",
+               "anger" = "Anger words",
+               "swear" = "Swear words",
+               "cogproc" = "Cognitive processes",
+               "WPS" = "Words per sentence",
+               "WC" = "Word count",
+               "FK" = "Flesh-Kincaid Grade Level")
+
+lab_liwc_women2_subset_date$short_list <- recode(
+  as.factor(lab_liwc_women2_subset_date$short_list), 
+  "FALSE" = "Open ShortList",
+  "TRUE" = "All Women Shortlist")
+
+p02_sl_date <- ggplot(data = lab_liwc_women2_subset_date %>%
+                        filter(attribute != "Words per sentence",
+                               attribute != "Word count",
+                               attribute != "Flesh-Kincaid Grade Level"),
+                      aes(x = quarter, y = weighted_mean, 
+                          colour = short_list)) + 
   geom_line(alpha=0.7) +
-  labs(title = "Words per Sentence", colour = "") + 
-  ylab("Weighted Mean") +
-  xlab("Years since entering House of Commons") + 
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  facet_wrap(~attribute) + 
+  labs(colour = "",
+       x = "Weighted Mean",
+       y = "Year") + 
   theme(legend.position = "bottom")
 
-p_sl_wps
-```
+ggsave("p02_sl_date.svg", plot = p02_sl_date,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
-```{r sl-wc-plot, eval=FALSE, include=FALSE}
-p_sl_wc <- ggplot(data=filter(lab_liwc_women2_subset,
-                               attribute=="Total Word Count"),
-                aes(x=y_since_start, y = weighted_mean, colour = short_list)) +
-  geom_line(alpha=0.7) +
-  labs(title = "Total Word Count per Speech", colour = "") + 
-  ylab("Mean") +
-  xlab("Years since entering House of Commons") + 
-  theme(legend.position = "bottom")
-
-p_sl_wc
+p02_sl_date
 ```
 
 ```{r fem-mac-df-sl-creation, include=FALSE}
@@ -438,10 +484,10 @@ library(kableExtra)
 kable(fem_mac_df_sl,  booktabs = TRUE, digits = 2, 
       caption = "Effect Sizes for Female Labour MPs by selection process",
       col.names = c("", "Mean", "SD", "Mean", "SD",
-                    "Cohen's D", "Magnitude")) %>%
-  kable_styling(latex_options = c("striped", "HOLD_position")) %>% 
+                    "Cohen's d", "Magnitude")) %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position")) %>% 
   add_header_above(c(" " = 1, "All Women Shortlists" = 2,
-                     "Open Shorlists" = 2, "Effect Size" = 2))
+                     "Open Shortlists" = 2, "Effect Size" = 2))
 
 ```
 
@@ -508,20 +554,19 @@ lab_con_df$word_type <- recode(lab_con_df$word_type,
 
 ```
 
-
 ```{r tory-labour-effect-sizes-table, echo=FALSE, results = 'asis'}
 library(knitr)
 library(kableExtra)
 kable(lab_con_df,  booktabs = TRUE, digits = 2, 
       caption = "Effect Sizes for All Labour and Conservative MPs",
       col.names = c("", "Mean", "SD", "Mean", "SD",
-                    "Cohen's D", "Magnitude") )  %>%
-  kable_styling(latex_options = c("striped", "HOLD_position")) %>% 
+                    "Cohen's d", "Magnitude") )  %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position")) %>% 
   add_header_above(c(" " = 1, "Labour" = 2,
                      "Conservatives" = 2, "Effect Size" = 2))
 ```
 
-There are no categories with effect sizes exceeding $|0.2|$ between Labour and Conservative MPs, like inter-Labour differences.
+There are no categories with effect sizes exceeding $|0.2|$ between Labour and Conservative MPs, and only one (first person plural pronouns) exceeding $|0.1|$.
 
 
 ### All MPs Gender Differences
@@ -537,8 +582,8 @@ all_party_gender_df <- read_rds("data/all_party_gender_df.rds")
 kable(all_party_gender_df,  booktabs = TRUE, digits = 2, 
       caption = "Effect Sizes for Male and Female MPs, All Parties",
       col.names = c("", "Mean", "SD", "Mean", "SD",
-                    "Cohen's D", "Magnitude")) %>%
-  kable_styling(latex_options = c("striped", "HOLD_position")) %>% 
+                    "Cohen's d", "Magnitude")) %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position")) %>% 
   add_header_above(c(" " = 1, "Women" = 2,
                      "Men" = 2, "Effect Size" = 2))
 
@@ -702,8 +747,8 @@ library(kableExtra)
 kable(pos_df_gender,  booktabs = TRUE, digits = 2, 
       caption = "Part-of-Speech Effect Sizes for Male and Female Labour MPs",
       col.names = c("Word Type", "Mean", "SD", "Mean", "SD",
-                    "Cohen's D", "Magnitude") )  %>%
-  kable_styling(latex_options = c("striped", "HOLD_position")) %>% 
+                    "Cohen's d", "Magnitude") )  %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position")) %>% 
   add_header_above(c(" " = 1, "Women" = 2, "Men" = 2, "Effect Size" = 2)) %>%
   add_indent(c(2:3))
 ```
@@ -714,22 +759,24 @@ library(kableExtra)
 kable(pos_df_sl,  booktabs = TRUE, digits = 2, 
       caption = "Part-of-Speech Effect Sizes for AWS and non-AWS Labour MPs",
       col.names = c("Word Type", "Mean", "SD", "Mean", "SD",
-                    "Cohen's D", "Magnitude"))  %>%
-  kable_styling(latex_options = c("striped", "HOLD_position")) %>% 
+                    "Cohen's d", "Magnitude"))  %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position")) %>% 
   add_header_above(c(" " = 1, "All Women Shortlists" = 2,
                      "Open Shorlists" = 2, "Effect Size" = 2)) %>%
   add_indent(c(2:3))
 ```
 
-Part-of-speech (POS) tagging was done using `spaCy` [@honnibal2017] and the `spacyr` package [@benoit2018a]. There is one small gender difference (_d_ = $|0.22|$) in the use of plural nouns, which make up  `r paste0(formatC(pos_df_gender$Female_mean[pos_df_gender$type=="Plural Nouns"], digits = 3),"%")` of the words used by female Labour MPs, compared to  `r paste0(formatC(pos_df_gender$Male_mean[pos_df_gender$type=="Plural Nouns"], digits = 3),"%")` of words spoken by male Labour MPs. As with LIWC, there are no categories where _d_ >= $|0.2|$ when comparing female Labour MPs by selection process. 
+Part-of-speech (POS) tagging was done using the `spaCy` library [@honnibal2017] and the `spacyr` package [@benoit2018a]. There is one small gender difference (_d_ = -0.22) in the use of plural nouns, which make up  `r paste0(formatC(pos_df_gender$Female_mean[pos_df_gender$type=="Plural Nouns"], digits = 3),"%")` of the words used by female Labour MPs, compared to  `r paste0(formatC(pos_df_gender$Male_mean[pos_df_gender$type=="Plural Nouns"], digits = 3),"%")` of words spoken by male Labour MPs. As with LIWC, there are no categories where _d_ >= $|0.2|$ when comparing female Labour MPs by selection process, and only one category -- plural nouns -- with an effect size of _d_ >= $|0.1|$.
 
-## Tokenising / Keyness
+## Keyness
 
-The most commonly used words by both men and women would be protocol decorum expressions, so we calculate the keyness of words to identify gender differences in the choices of topics raised by men and women, and by short-list and non-shortlist women.
+We calculated the keyness of words to identify gender differences in the choices of topics raised and terminology used by both male and female Labour MPs, and by short-list and non-shortlist female Labour MPs. We have also calculated keyness between Labour and Conservative MPs for the purposes of illustration. All keyness figures include the 25 most disproportionately common words among each group, as determined by ${\chi}^2$ tests using `quanteda` [@benoit2018].
 
-### Men vs Women
+### Labour Men vs Women
 
-Keyness -- a linguistic measure of the frequency of different words in two groups of texts -- reveals clear gender differences in the most disproportionately common words used by female and male Labour MPs. Unsurprisingly, despite male MPs saying almost twice as many words (`r formatC(speech_sum_table$words[speech_sum_table$party_group == "Labour" & speech_sum_table$gender == "Male"], big.mark = ",")` vs `r formatC(speech_sum_table$words[speech_sum_table$party_group == "Labour" & speech_sum_table$gender == "Female"], big.mark = ",")`) as their female colleagues, female Labour MPs were more than two-and-a-half (2.61) times as likely to say "women". They were also much more likely to use "women's" and "woman" in parliamentary debate. Female Labour MPs also appear much more likely to discuss "children", "people", "care", "families", "home", "parents", "work" and social policy areas such as "services", "disabled [people]" and "housing" than their male colleagues. Male MPs were more likely to refer to military topics ("Iraq", "nuclear"), and to parliamentary process and protocol  -- "question", "political", "conservative", "electoral", "house", "party", "argument" "liberal" and "point" are far more common in speeches by male Labour MPs than by female ones. This could suggest that male Labour MPs are more comfortable using the traditional language of House of Commons debate, and are more concerned with the rules, procedures and processes of the parliamentary system than their female colleagues.
+Keyness -- a linguistic measure of the frequency of different words in two groups of texts -- reveals clear gender differences in the most disproportionately common words used by female and male Labour MPs, illustrated in Figure \ref{gender-keyness}.
+
+Unsurprisingly, despite male MPs saying almost twice as many words (`r formatC(speech_sum_table$words[speech_sum_table$party_group == "Labour" & speech_sum_table$gender == "Male"], big.mark = ",")` vs `r formatC(speech_sum_table$words[speech_sum_table$party_group == "Labour" & speech_sum_table$gender == "Female"], big.mark = ",")`) as their female colleagues, female Labour MPs were more than two-and-a-half (2.61) times as likely to say "women". They were also much more likely to use "women's" and "woman" in parliamentary debate. Female Labour MPs also appear much more likely to discuss "children", "people", "care", "families", "home", "parents", "work" and social policy areas such as "services", "disabled [people]" and "housing" than their male colleagues. Male MPs were more likely to refer to military topics ("Iraq", "nuclear"), and to parliamentary process and protocol  -- "question", "political", "conservative", "electoral", "house", "party", "argument" "liberal" and "point" are far more common in speeches by male Labour MPs than by female ones. This could suggest that male Labour MPs are more comfortable using the traditional language of House of Commons debate, and are more concerned with the rules, procedures and processes of the parliamentary system than their female colleagues.
 
 ```{r gender-keyness-plot, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE, fig.cap="\\label{gender-keyness}Keyness between Labour MPs, by Gender"}
 library(ggplot2)
@@ -741,18 +788,15 @@ lab_dfm_key <- read_rds("data/lab_dfm_key.rds")
 
 lab_keyness <- textstat_keyness(lab_dfm_key, measure = c("chi2"))
 
-#head(lab_keyness)
-
 lab_keyness_plot <- textplot_keyness(lab_keyness, n = 25, 
                                      color = c("purple", "darkgreen")) +  
-  #coord_cartesian(xlim=c(-3100, 14100)) +
   scale_x_continuous(limits = c(-3100, 14100), 
                      breaks = seq(-3000, 15000, by = 1500)) + 
   labs(title = "Keyness between Labour MPs, by Gender",
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("p02_lab_keyness_plot.svg", plot = lab_keyness_plot,
+ggsave("p03_lab_keyness_plot.svg", plot = lab_keyness_plot,
        device = "svg", path = "plots")
 
 lab_keyness_plot
@@ -760,7 +804,7 @@ lab_keyness_plot
 
 ### Shortlists vs Non-Shortlists
 
-Keyness differences by selection process are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen" (Special Educational Needs). Also of note is AWS MPs making more references to their "constituency" and its "constituents", suggesting that AWS MPs may draw on the fact they were elected by their constituents as a source political legitimacy, at least more than non-AWS MPs.
+Keyness differences by selection process (Figure \ref{sl-keyness}) are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen" (Special Educational Needs). Also of note is AWS MPs making more references to their "constituency" and its "constituents", suggesting that AWS MPs may draw more heavily on the fact they were elected by their constituents as a source political legitimacy, or are more likely to illustrate a point with an example from their constitutency, compared to non-AWS MPs.
 
 ```{r short-list-keyness-plot, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE, fig.cap="\\label{sl-keyness}Keyness between Female Labour MPs, by Selection Process"}
 
@@ -779,7 +823,7 @@ fem_keyness_plot <- textplot_keyness(lab_keyness_fem, n=25) +
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("p03_fem_keyness_plot.svg", plot = fem_keyness_plot,
+ggsave("p04_fem_keyness_plot.svg", plot = fem_keyness_plot,
        device = "svg", path = "plots")
 
 fem_keyness_plot
@@ -787,8 +831,7 @@ fem_keyness_plot
 
 ### Labour vs Conservative
 
-The keyness differences between Labour and Conservative MPs are much greater than gender differences within Labour. The very high use of "Lady" by Conservative MPs is reflective of the greater proportion of female MPs in other parties, as it is often used to refer to comments by other members of the house. It may also represent a greater use of traditional hosue decorum by Conservative MPs.
-
+The keyness differences (Figure \ref{party-keyness}) between Labour and Conservative MPs are much greater than gender or AWS differences within Labour. The very high use of "Lady" by Conservative MPs is reflective of the greater proportion of female MPs in other parties, as it is often used to refer to comments by other members of the house. It may also represent a greater use of traditional hosue decorum by Conservative MPs.
 
 ```{r lab-con-keyness, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE, fig.cap="\\label{party-keyness}Keyness between Labour and Conservative MPs"}
 library(ggplot2)
@@ -808,7 +851,7 @@ lab_con_keyness_plot <- textplot_keyness(lab_con_keyness, n=25,
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("p04_lab_con_keyness_plot.svg", plot = lab_con_keyness_plot,
+ggsave("p05_lab_con_keyness_plot.svg", plot = lab_con_keyness_plot,
        device = "svg", path = "plots")
 
 lab_con_keyness_plot
@@ -840,7 +883,7 @@ pro_dfm_key_plot <- textplot_keyness(pro_dfm_key, n=25) +
        x = "Chi2") + 
   theme(legend.position = "bottom")
 
-ggsave("p05_pro_dfm_key_plot.svg", plot = pro_dfm_key_plot,
+ggsave("p06_pro_dfm_key_plot.svg", plot = pro_dfm_key_plot,
        device = "svg", path = "plots")
 
 pro_dfm_key_plot
@@ -849,8 +892,7 @@ pro_dfm_key_plot
 
 ## Naive Bayes classification
 
-We trained a Naive Bayes classifier with document-frequency priors and a multinomial distribution to predict the gender of speakers when given speeches by all Labour MPs in our dataset, and the selection process when only given female Labour MPs. The accuracy of both models were roughly equivalent, 70.67% accuracy when predicting gender and 71.22% when predicting shortlists. By contrast, the classifier could distinguish between Labour and Conservative speeches with 74.23% accuracy.
-
+We trained a Naive Bayes classifier with document-frequency priors and a multinomial distribution to predict the gender of speakers when given speeches by all Labour MPs in our dataset, and the selection process when only given female Labour MPs. The accuracy of both models were roughly equivalent, 70.67% accuracy when predicting gender and 71.22% when predicting shortlists. By contrast, the classifier could distinguish between Labour and Conservative speeches with 74.23% accuracy. 
 
 ## Topic Models
 
@@ -875,21 +917,22 @@ k_models <- read_rds("data/k_models.rds")
 
 k_result <- k_models %>%
   transmute(K,
-            `Lower bound` = lbound,
+            `Lower bound (000,000's)` = lbound/1000000,
             Residuals = map_dbl(check_residuals, "dispersion"),
             `Semantic coherence` = map_dbl(semantic_coherence, mean),
-            `Held-out likelihood` = map_dbl(eval_heldout, "expected.heldout")) %>%
-  gather(Metric, Value, -K)
+            `Held-out likelihood` = map_dbl(eval_heldout, "expected.heldout"),
+            Exclusivity = map_dbl(exclusivity, mean)) %>%
+  gather(label, value, -K)
 
-p_k_result <- ggplot(k_result, aes(K, Value, color = Metric)) +
-  geom_line(size = 1.5, alpha = 0.7, show.legend = FALSE) +
-  scale_colour_viridis_d() + 
+p_k_result <- ggplot(k_result, aes(K, value, color = label)) +
+  geom_line(size = 1.45, alpha = 0.9, show.legend = FALSE) +
+  scale_colour_viridis_d(end = 0.9) + 
   scale_x_continuous(breaks = c(30, 45, 60, 66, 80, 100)) + 
-  facet_wrap(~Metric, scales = "free_y") +
+  facet_wrap(~label, scales = "free_y", nrow = 3) +
   labs(x = expression(italic("K")),
        y = NULL)
 
-ggsave("p06_k_result.svg", plot = p_k_result, path="plots", device = "svg",
+ggsave("p07_k_result.svg", plot = p_k_result, path="plots", device = "svg",
        width = 20, height = 20, units = "cm")
 
 p_k_result
@@ -1022,18 +1065,7 @@ plotcord_k0$assigned_topic <- paste0("Topic", plotcord_k0$topic)
 plotcord_k0_2 <- plotcord_k0 %>% 
   inner_join(topic_dt_k0_2) %>% filter(!is.na(estimate))
 
-# plotcord_k0_2 <- plotcord_k0 %>% 
-#   left_join(topic_dt_k0_2) %>%
-#   ungroup() %>%
-#   select(X1, X2, topic, Estimate, type, count, freq) %>% 
-#   tidyr::spread(type, Estimate) %>% 
-#   mutate(genderFemale = Intercept + genderFemale,
-#          Shortlist = genderFemale + Shortlist,
-#          Estimate = genderFemale - Shortlist) %>%
-#   tidyr::gather(gender, Estimate, -Intercept, -X1, -X2, -topic, -count, -freq,
-#                 -Shortlist, -genderFemale)
-
-
+set.seed(808)
 p_network_k0 <- ggplot() + 
   geom_segment(aes(x=X1, y=Y1, xend = X2, yend = Y2),
                data=edges_k0, size = 0.5, colour="grey") +
@@ -1054,12 +1086,12 @@ p_network_k0 <- ggplot() +
     axis.title.x = element_blank(), 
     axis.title.y = element_blank())
 
-ggsave("p07_network_k0.svg", plot = p_network_k0, path="plots", device = "svg", width = 20, height = 20, units = "cm")
+ggsave("p08_network_k0.svg", plot = p_network_k0, path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 p_network_k0
 ```
 
-The `stm` package includes the `estimateEffect` function, which creates a regression model (Table \ref{Topic Estimates}) using individual documents (speeches) as observations, with the proportion of a each document fitting each topic as the dependent variable and model covariates (AWS status and gender) as independent variables. The intercept in this model is all speeches by male Labour MPs.
+The `stm` package includes the `estimateEffect` function, which creates a regression model (Table 9) using individual documents (speeches) as observations, with the proportion of a each document fitting each topic as the dependent variable and model covariates (AWS status and gender) as independent variables. The intercept in this model is all speeches by male Labour MPs.
 
 ```{r estimate-table-k0, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 library(knitr)
@@ -1068,8 +1100,8 @@ library(dplyr)
 
 row.names(prep_df_k0) <- NULL
 prep_df_k0$type <- gsub("X.Intercept", "Intercept", prep_df_k0$type)
-prep_df_k0$type <- gsub("short_listTRUE", "AWS", prep_df_k0$type)
-prep_df_k0$type <- gsub("genderFemale", "Non-AWS", prep_df_k0$type)
+prep_df_k0$type <- gsub("gender_slFemale_TRUE", "AWS", prep_df_k0$type)
+prep_df_k0$type <- gsub("gender_slFemale_FALSE", "Non-AWS", prep_df_k0$type)
 
 prep_df_k0 <- prep_df_k0 %>% rename("p" = "Pr(>|t|)")
 
@@ -1087,8 +1119,8 @@ kable(prep_df_k0_2, booktabs = TRUE, longtable = TRUE,
       col.names = c("", "Estimate", "Standard Error",
                     "t value", "Pr(>|t|)", ""),
       align = c("l","r","r","r","r", "l")) %>%
-  kable_styling(latex_options = c("HOLD_position",  "repeat_header",
-                                    "striped"), full_width = TRUE ) %>%
+  kable_styling(bootstrap_options = c("basic", "HOLD_position",  "repeat_header"),
+                full_width = TRUE ) %>%
    group_rows(index = c("Topic 1 -- Employment & unions" = 3,
                         "Topic 2 -- Legal system" = 3,
                         "Topic 3 -- Roads" = 3,
@@ -1278,7 +1310,7 @@ topic_dt_k0_4 <- topic_dt_k0_3 %>%
 
 ```
 
-Table \ref{tab:count-distribution} shows the number and percentage of speeches assigned to each topic, based on its $\theta$ value. The results in this table differ slightly from those in Table \ref{Topic Estimates}, as it uses a "winner-take-all" method to assign a topic to each speech.
+Table 10 shows the number and percentage of speeches assigned to each topic, based on its $\theta$ value. The results in this table differ slightly from those in Table 9, as it uses a "winner-take-all" method to assign an overall topic to each speech, rather than a prevalence of a given topic across all speeches.
 
 ```{r topic-summary-table-k0, echo=FALSE, results = 'asis'}
 library(knitr)
@@ -1290,15 +1322,14 @@ kable(topic_dt_k0_4, booktabs = TRUE, longtable = TRUE,
                     "Non-AWS Speeches", "Percent of non-AWS Speeches",
                     "Male MP Speeches", "Percent of Male MP Speeches"),
       align = c("l","r","r","r","r","r","r")) %>%
-    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
-                                    "striped"), full_width = TRUE ) %>%
+    kable_styling(bootstrap_options = c("basic", "HOLD_position",  "repeat_header"), full_width = TRUE ) %>%
   column_spec(1, width = "5cm")
 ```
 
 
 ### Topic Graphs
 
-The estimate effects in these graphs were extracted using the `tidystm` package by Mikael Poul Johannesson. Figure \ref{k0-topic-dot-plot} highlights nine topics with different expected proportions between male, AWS and non-AWS Labour MPs. See Figure \ref{k0-topic-bar-plot} for a graph of all 66 topics.
+The estimate effects in these graphs were extracted using the `tidystm` package by Mikael Poul Johannesson.[^2] Figure \ref{k0-topic-selected-bar-plot} highlights nine topics with different expected proportions between male, AWS and non-AWS Labour MPs, with the error bars representing 95% confidence intervals. See Figure \ref{k0-topic-bar-plot} for a graph of all 66 topics.
 
 ```{r tidystm-graphs, echo=FALSE, fig.cap="\\label{k0-topic-selected-bar-plot}Selected Topic Proportions", message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -1320,7 +1351,7 @@ aes(y = estimate, x = as.factor(label),
        y = "Expected Topic Proportion") +
   theme(legend.position = "bottom")
 
-ggsave("p08_k0_sel_bar.svg", plot = p_k0_sel_bar,
+ggsave("p09_k0_sel_bar.svg", plot = p_k0_sel_bar,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 p_k0_sel_bar
@@ -1341,15 +1372,18 @@ p_k0_bar <- ggplot(effect, aes(y = estimate, x = as.factor(topic),
   theme(legend.position = "bottom",
         axis.text.x = element_text(angle = 90, hjust = 1.1, vjust = 0.5))
 
-ggsave("p09_k0_bar.svg", plot = p_k0_bar,
+ggsave("p10_k0_bar.svg", plot = p_k0_bar,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 p_k0_bar
 ```
 
 
+### Word Occurences
 
-```{r stm-topic-words-k0, message=FALSE, warning=FALSE, include=FALSE}
+The table below shows the twenty most common words in each topic, and the twenty words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016]. We have named each topic based on the most common words and highest FREX score words in each topic.
+
+```{r stm-topic-words-prep, message=FALSE, warning=FALSE, include=FALSE}
 library(tidyr)
 topic_words <- labelTopics(topic_model_k0, n = 20, frexweight = 0.5)
 
@@ -1438,20 +1472,14 @@ topic_words2 <- topic_words_highest %>% left_join(topic_words_frex) %>%
                           "Topic 66" = "(66) Other"))
 ```
 
-
-### Word Occurences
-
-The table below shows the twenty most common words in each topic, and the twenty words with the highest FREX score, a measure that uses a harmonic mean of word exclusivity and topic coherence  [@airoldi2016]. We have named each topic based on the most common words and highest FREX score words in each topic.
-
 ```{r topic-words-table-k0, echo=FALSE, results = 'asis'}
 library(knitr)
 library(kableExtra)
 
 kable(topic_words2,  booktabs = TRUE, longtable = TRUE, 
-      caption = "Words in topic - k0",
+      caption = "Words in Topic",
       col.names = c("Topic Number", "Top Twenty Words", "Top Twenty FREX")) %>%
-    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
-                                    "striped"), full_width = TRUE ) %>% 
+    kable_styling(bootstrap_options = c("basic", "HOLD_position",  "repeat_header"), full_width = TRUE ) %>% 
   column_spec(2:3, width = "6cm")
 
 ```
@@ -1459,9 +1487,9 @@ kable(topic_words2,  booktabs = TRUE, longtable = TRUE,
 
 ### Manual Validation
 
-As STM is an unsupervised model, we used several different validation strategies to ensure the topics themselves are both interesting and relevant [@grimmer2013]. @quinn2010 suggest that topics are valid if they correspond to external events. Figure \ref{Middle East-plot-validity} shows the number of speeches by Labour MPs on the "Middle East" topic, with a spike in 2003 (at the start of the Iraq War), another spike in 2008 and 2009, as the bulk of British troops left Iraq, a small spike in 2011 coinciding with UK participation in NATO's military intervention in Libya, and debate in 2014--2016 over UK participation in military interventions in the Syrian Civil War. 
+We have validated both the topics produced by the model and our labels of those topics to ensure the topics themselves are both interesting and relevant. Validation is particularly important in unsupervised models including STM [@grimmer2013]. @quinn2010 suggest that topics are valid if they correspond to external events. Figure \ref{middle-east-plot-validity} shows the number of speeches by Labour MPs on the "Middle East" topic, with a spike in 2003 (at the start of the Iraq War), another spike in 2008 and 2009, as the bulk of British troops left Iraq, a small spike in 2011 coinciding with UK participation in NATO's military intervention in Libya, and another spike resulting from debate in 2014--2016 over UK participation in military interventions in the Syrian Civil War. 
 
-Figure \ref{wales-scotland-validity} shows debate over the devolved authorities of Wales and Scotland peaking in 2014, to coincide with Scotland's independence referendum. The post-2015 decline also likely stems from the SNP winning all but three seats in Scotland during the 2015 General Election. Figure \ref{eu-validity} shows the increase in debate over the European Union coinciding with the referendum on the UK's member of the European Union.
+Figure \ref{wales-scotland-validity} shows debate over the devolved authorities of Wales and Scotland peaking in 2014, to coincide with Scotland's independence referendum. The post-2015 decline also likely stems from the SNP winning all but three seats in Scotland during the 2015 General Election. Figure \ref{eu-validity} shows the increase in debate over the European Union coinciding with the referendum on the UK's member of the European Union. 
 
 ```{r validation-prep, include=FALSE}
 library(lubridate)
@@ -1483,8 +1511,7 @@ plot10
 
 ```
 
-
-```{r middle-east-plot, echo=FALSE,fig.cap="\\label{Middle East-plot-validity}Number of Speeches in \"Middle East\" Topic per Year"}
+```{r middle-east-plot, echo=FALSE,fig.cap="\\label{middle-east-plot-validity}Number of Speeches in \"Middle East\" Topic per Year", fig.height=4.5}
 test45 <- topic_dt_k0_valid %>% filter(assigned_topic == "Topic45")
 
 plot45 <- ggplot(aes(x=year, y = count), data = test45) +
@@ -1493,12 +1520,12 @@ plot45 <- ggplot(aes(x=year, y = count), data = test45) +
 
 plot45
 
-ggsave("p10_plot45.svg", plot = plot45,
+ggsave("p11_plot45.svg", plot = plot45,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 ```
 
-```{r wales-scotland-plot, echo=FALSE,fig.cap="\\label{wales-scotland-validity}Number of Speeches in \"Wales & Scotland\" Topic per Year"}
+```{r wales-scotland-plot, echo=FALSE,fig.cap="\\label{wales-scotland-validity}Number of Speeches in \"Wales & Scotland\" Topic per Year", fig.height=4.5}
 test34 <- topic_dt_k0_valid %>% filter(assigned_topic == "Topic34")
 
 plot34 <- ggplot(aes(x=year, y = count), data = test34) +
@@ -1507,13 +1534,12 @@ plot34 <- ggplot(aes(x=year, y = count), data = test34) +
 
 plot34
 
-ggsave("p11_plot34.svg", plot = plot34,
+ggsave("p12_plot34.svg", plot = plot34,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 ```
 
 
-
-```{r eu-plot, echo=FALSE,fig.cap="\\label{eu-validity}Number of Speeches in \"European Union\" Topic per Year"}
+```{r eu-plot, echo=FALSE,fig.cap="\\label{eu-validity}Number of Speeches in \"European Union\" Topic per Year", fig.height=4.5}
 
 test56 <- topic_dt_k0_valid %>% filter(assigned_topic == "Topic56")
 
@@ -1523,7 +1549,7 @@ plot56 <- ggplot(aes(x=year, y = count), data = test56) +
 
 plot56
 
-ggsave("p12_plot56.svg", plot = plot56,
+ggsave("p13_plot56.svg", plot = plot56,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 
 ```
@@ -1533,13 +1559,15 @@ ggsave("p12_plot56.svg", plot = plot56,
 
 There do not appear to be substantial or meaningful differences in the speaking styles of female Labour MPs selected through all women shortlists when compared to their female colleagues selected through open shortlists using LIWC. This is possibly due to the speaking style dominant in British parliamentary debate, which is more formal than the speech used in most day-to-day conversation. LIWC was developed by American researchers, and the LIWC dictionary may not be able to capture stylistic differences between American and British English, and may not include words commonly used in formal British English speech, limiting its usefulness in the context of British political debate.
 
-There is more gender distinction in some selected terms and topics. AWS MPs are far more likely to make reference to their constituency and their constituents. In the debate between whether MPs should be "delegates" or "trustees" -- the "mandate-independence controversy" outlined by @pitkin1967 -- the references to their constituents and constituencies suggests AWS MPs shy away from the Burkean concept of trusteeship and see themselves more as strict representatives of their constituents. In Andeweg & Thomassen's [-@andeweg2005] typology of _ex ante_/_ex post_ and above/below political representation, AWS MPs lean towards representation "from below", although their selection process is _ex ante_/_ex post_.
+There is more distinction between AWS and non-AWS MPs in terms and topics. [Naive Bayes classification](# Naive Bayes classification) was able to accurately determine the AWS status of female Labour MPs with slightly greater accuracy than it could distinguish between male and female Labour MPs (71.22% and 70.67%, respectively).
+
+AWS MPs are far more likely to make reference to their constituency and constituents. In the debate between whether MPs should be "delegates" or "trustees" -- the "mandate-independence controversy" outlined by @pitkin1967 -- the references to their constituents and constituencies suggests AWS MPs shy away from the Burkean concept of trusteeship and see themselves more as strict representatives of their constituents. In Andeweg & Thomassen's [-@andeweg2005] typology of _ex ante_/_ex post_ and above/below political representation, AWS MPs lean towards representation "from below", although their selection process is _ex ante_/_ex post_. AWS MPs also use events and individuals in their constituency as examples when speaking on a given topic (see the [Appendix](# AWS References to Constituents in Context) for more examples).
 
 AWS MPs refer to their constituents both specifically and in the abstract, particularly when criticising government policy. For example, in debate on 4th March 2015, Gemma Doyle, than the Labour MP for West Dunbartonshire (elected on an AWS in 2010), when asked if she would give way to Conservative MP Stephen Mosley, responded:
 
 >No, I will not [give way], because my constituents want me to make these points, not to give more time to Conservative Members.
 
-On 2nd June 2010, during debate on Israel-Palestine, Valerie Vaz, MP for Walsall South:
+On 2nd June 2010, during debate on Israel-Palestine, Valerie Vaz, MP for Walsall South, also used the views of her constituents to support her position:
 
 >My constituents want more than pressure. Will the Foreign Secretary come back to the House and report on a timetable for the discussions on a diplomatic solution, just as we did on Ireland?
 
@@ -1603,8 +1631,8 @@ kable(prep_df_k0_gender_2, booktabs = TRUE, longtable = TRUE,
       col.names = c("", "Estimate", "Standard Error",
                     "t value", "Pr(>|t|)", ""),
       align = c("l","r","r","r","r", "l")) %>%
-  kable_styling(latex_options = c("HOLD_position",  "repeat_header",
-                                    "striped"), full_width = TRUE ) %>%
+  kable_styling(bootstrap_options = c("basic", "HOLD_position",  "repeat_header"),
+                full_width = TRUE ) %>%
    group_rows(index = c("Topic 1 -- Employment & unions" = 2,
                         "Topic 2 -- Legal system" = 2,
                         "Topic 3 -- Roads" = 2,
@@ -1676,15 +1704,23 @@ kable(prep_df_k0_gender_2, booktabs = TRUE, longtable = TRUE,
 
 ## $\theta$ distribution
 
-```{r theta-boxplot, echo=FALSE, fig.height=7, fig.cap="\\label{k0-theta-boxplot}k0 Theta Values in Topic Assignment"}
+Figure \ref{k0-theta-boxplot} shows the distribution of $\theta$ scores used to assign overall topics to individual speeches in Table 10, per topic.
+
+
+```{r theta-boxplot, echo=FALSE, fig.height=7, fig.cap="\\label{k0-theta-boxplot}Theta Values in Topic Assignment"}
 library(ggplot2)
 
 p_theta <- ggplot(data = topic_dt_k0, aes(assigned_topic, theta)) + 
-  geom_boxplot() + 
+  geom_boxplot(alpha = 0.7) + 
   scale_x_discrete(labels = c(1:65)) + 
   labs(x = "Assigned Topic",
-       y = "Theta")
+       y = "Theta") +
+  theme(legend.position = "bottom",
+        axis.text.x = element_text(angle = 90, hjust = 1.1, vjust = 0.5))
   
+ggsave("p14_theta_distribution.svg", plot = p_theta,
+       path="plots", device = "svg", width = 20, height = 20, units = "cm")
+
 p_theta
 ```
 
@@ -1753,10 +1789,11 @@ constit_kwic$pre <- stri_replace_all_regex(constit_kwic$pre, " ([:punct:])", "$1
 kable(constit_kwic,  booktabs = TRUE, longtable = TRUE, 
       col.names = c("Pre", "Keyword", "Post"),
       caption = "A random sample of KWIC's", row.names = FALSE) %>%
-    kable_styling(latex_options = c("HOLD_position",  "repeat_header",
-                                    "striped"), full_width = TRUE )
+    kable_styling(bootstrap_options = c("basic", "HOLD_position",  "repeat_header"), full_width = TRUE )
 ```
 
 # References
 
 [^1]: e.g. a reference to "the member for Bethnal Green and Bow" in keeping with Parliamentary convention of identifying MPs by their seat rather than their name would be followed by "(Rushnara Ali)".
+
+[^2]: Available online at: https://github.com/mikajoh/tidystm
