@@ -60,8 +60,115 @@ lab_liwc <- lab_liwc %>% select(docname, Segment, WC, WPS, FK, everything())
 
 write_rds(lab_liwc, "data/lab_liwc.rds")
 
+lab_liwc_women <- filter(lab_liwc, gender=="Female",
+                         house_start_date >= "1997-05-01")
+
+write_rds(lab_liwc_women, "data/lab_liwc_women.rds")
 
 
+# Labour Men-Women --------------------------------------------------------
+fem_mac <- c("pronoun", "i", "we", "verb", "auxverb", "social", "posemo", 
+             "negemo", "tentat", "Sixltr",  "article", "prep",
+             "anger", "swear", "cogproc", "WPS", "WC", "FK")
+
+# lab_liwc_men_women2_subset <- lab_liwc_men_women2 %>%
+#   filter(attribute %in% fem_mac)
+
+fem_mac_df <- tibble::tibble(
+  word_type = fem_mac,
+  women = c(1:length(fem_mac)),
+  women_sd = c(1:length(fem_mac)),
+  men = c(1:length(fem_mac)),
+  men_sd = c(1:length(fem_mac)),
+  cohen_d = c(1:length(fem_mac)),
+  magnitude = c(1:length(fem_mac)))
+
+for (i in fem_mac) {
+  d <- (cohen.d(lab_liwc[[i]], lab_liwc$gender, na.rm = TRUE,
+                noncentral = FALSE, pooled = TRUE))
+  fem_mac_df$women[fem_mac_df$word_type==i] <- mean(lab_liwc[lab_liwc$gender == "Female", i], na.rm = TRUE)
+  fem_mac_df$men[fem_mac_df$word_type==i] <- mean(lab_liwc[lab_liwc$gender == "Male", i], na.rm = TRUE)
+  fem_mac_df$women_sd[fem_mac_df$word_type==i] <- sd(lab_liwc[lab_liwc$gender == "Female", i], na.rm = TRUE)
+  fem_mac_df$men_sd[fem_mac_df$word_type==i] <- sd(lab_liwc[lab_liwc$gender == "Male", i], na.rm = TRUE)
+  fem_mac_df$cohen_d[fem_mac_df$word_type==i] <- (d$estimate[[1]])
+  fem_mac_df$magnitude[fem_mac_df$word_type==i] <- as.character(d$magnitude[[1]])
+}
+
+#fem_mac_df
+
+fem_mac_df$word_type <- recode(fem_mac_df$word_type,
+                               "pronoun" = "All Pronouns",
+                               "i" = "First person singular pronouns",
+                               "verb" = "Verbs",
+                               "auxverb" = "Auxiliary verbs",
+                               "social" = "Social processes ",
+                               "posemo" = "Positive emotions",
+                               "negemo" = "Negative emotions",
+                               "tentat" = "Tentative words",
+                               "Sixltr" = "More than six letters",
+                               "we" = "First person plural pronouns",
+                               "article" = "Articles",
+                               "prep" = "Prepositions",
+                               "anger" = "Anger words",
+                               "swear" = "Swear words",
+                               "cogproc" = "Cognitive processes",
+                               "WPS" = "Words per Sentence",
+                               "WC" = "Total Word Count",
+                               "FK" = "Flesh-Kincaid Grade Level")
+
+write_rds(fem_mac_df, "data/fem_mac_df.rds")
+
+# Labour SL LIWC ----------------------------------------------------------
+
+fem_mac_df_sl <- tibble::tibble(
+  word_type = fem_mac,
+  short_list = c(1:length(fem_mac)),
+  short_list_sd = c(1:length(fem_mac)),
+  non_short_list = c(1:length(fem_mac)),
+  non_short_list_sd = c(1:length(fem_mac)),
+  cohen_d = c(1:length(fem_mac)),
+  magnitude = c(1:length(fem_mac)))
+
+lab_liwc_women$short_list <- as.factor(lab_liwc_women$short_list)
+
+for (i in fem_mac) {
+  d <- (cohen.d(lab_liwc_women[[i]], lab_liwc_women$short_list, na.rm = TRUE,
+                noncentral = FALSE, pooled = TRUE))
+  fem_mac_df_sl$short_list[fem_mac_df_sl$word_type==i] <-
+    mean(lab_liwc_women[lab_liwc_women$short_list == TRUE, i], na.rm = TRUE)
+  fem_mac_df_sl$non_short_list[fem_mac_df_sl$word_type==i] <- 
+    mean(lab_liwc_women[lab_liwc_women$short_list == FALSE, i], na.rm = TRUE)
+  fem_mac_df_sl$short_list_sd[fem_mac_df_sl$word_type==i]  <- 
+    sd(lab_liwc_women[lab_liwc_women$short_list == TRUE, i], na.rm = TRUE)
+  fem_mac_df_sl$non_short_list_sd[fem_mac_df_sl$word_type==i] <- 
+    sd(lab_liwc_women[lab_liwc_women$short_list == FALSE, i], na.rm = TRUE)
+  fem_mac_df_sl$cohen_d[fem_mac_df_sl$word_type == i] <- 
+    d$estimate[[1]]
+  fem_mac_df_sl$magnitude[fem_mac_df_sl$word_type == i] <-
+    as.character(d$magnitude[[1]])
+}
+
+fem_mac_df_sl$word_type <- recode(fem_mac_df_sl$word_type,
+                                  "pronoun" = "All Pronouns",
+                                  "i" = "First person singular pronouns",
+                                  "verb" = "Verbs",
+                                  "auxverb" = "Auxiliary verbs",
+                                  "social" = "Social processes ",
+                                  "posemo" = "Positive emotions",
+                                  "negemo" = "Negative emotions",
+                                  "tentat" = "Tentative words",
+                                  "Sixltr" = "More than six letters",
+                                  "we" = "First person plural pronouns",
+                                  "article" = "Articles",
+                                  "prep" = "Prepositions",
+                                  "anger" = "Anger words",
+                                  "swear" = "Swear words",
+                                  "cogproc" = "Cognitive processes",
+                                  "WPS" = "Words per Sentence",
+                                  "WC" = "Total Word Count",
+                                  "FK" = "Flesh-Kincaid Grade Level")
+
+write_rds(fem_mac_df_sl, "data/fem_mac_df_sl.rds")
 
 # Tory LIWC ---------------------------------------------------------------
 
@@ -249,6 +356,57 @@ write_rds(other_liwc, "data/other_liwc.rds")
 
 
 
+# Lab Con LIWC ------------------------------------------------------------
+
+con_liwc <- read_rds("data/con_liwc.rds")
+
+lab_liwc <- read_rds("data/lab_liwc.rds")
+
+lab_con_liwc <- bind_rows(con_liwc, lab_liwc)
+
+lab_con_df <- tibble::tibble(
+  word_type = fem_mac,
+  labour = c(1:length(fem_mac)),
+  labour_sd = c(1:length(fem_mac)),
+  tory = c(1:length(fem_mac)),
+  tory_sd = c(1:length(fem_mac)),
+  cohen_d = c(1:length(fem_mac)),
+  magnitude = c(1:length(fem_mac)))
+
+for (i in fem_mac) {
+  d <- (cohen.d(lab_con_liwc[[i]], lab_con_liwc$party_group, na.rm = TRUE,
+                noncentral = FALSE, pooled = TRUE))
+  lab_con_df$labour[lab_con_df$word_type==i] <- mean(lab_con_liwc[lab_con_liwc$party_group == "Labour", i], na.rm = TRUE)
+  lab_con_df$tory[lab_con_df$word_type==i] <- mean(lab_con_liwc[lab_con_liwc$party_group == "Conservative", i], na.rm = TRUE)
+  lab_con_df$labour_sd[lab_con_df$word_type==i] <- sd(lab_con_liwc[lab_con_liwc$party_group == "Labour", i], na.rm = TRUE)
+  lab_con_df$tory_sd[lab_con_df$word_type==i] <- sd(lab_con_liwc[lab_con_liwc$party_group == "Conservative", i], na.rm = TRUE)
+  lab_con_df$cohen_d[lab_con_df$word_type==i] <- (d$estimate[[1]])
+  lab_con_df$magnitude[lab_con_df$word_type==i] <- as.character(d$magnitude[[1]])
+}
+
+#lab_con_df
+
+lab_con_df$word_type <- recode(lab_con_df$word_type,
+                               "pronoun" = "All Pronouns",
+                               "i" = "First person singular pronouns",
+                               "verb" = "Verbs",
+                               "auxverb" = "Auxiliary verbs",
+                               "social" = "Social processes ",
+                               "posemo" = "Positive emotions",
+                               "negemo" = "Negative emotions",
+                               "tentat" = "Tentative words",
+                               "Sixltr" = "More than six letters",
+                               "we" = "First person plural pronouns",
+                               "article" = "Articles",
+                               "prep" = "Prepositions",
+                               "anger" = "Anger words",
+                               "swear" = "Swear words",
+                               "cogproc" = "Cognitive processes",
+                               "WPS" = "Words per Sentence",
+                               "WC" = "Total Word Count",
+                               "FK" = "Flesh-Kincaid Grade Level")
+
+write_rds(lab_con_df, "data/lab_con_df.rds")
 
 # All Parties Gender Diff -------------------------------------------------
 
