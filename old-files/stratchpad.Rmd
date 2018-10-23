@@ -3,6 +3,8 @@ title: "All Women Shortlists Scratchpad"
 output: html_notebook
 bibliography: women.bib
 link-citations: true
+editor_options: 
+  chunk_output_type: inline
 ---
 
 
