@@ -2,3 +2,5 @@
 pandoc -s methodology.html -o methodology.docx
 
 # need to manually fix tables
+
+# also need to use `rmarkdown::render("methodology.Rmd", clean = FALSE)` to prepare .tex file

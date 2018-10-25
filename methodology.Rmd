@@ -13,23 +13,17 @@ output:
       in_header: preamble.tex
     keep_tex: true
   bookdown::html_document2:
-    df_print: paged
     toc: yes
     toc_depth: 3
     number_sections: true
-  word_document:
-    toc: yes
-    toc_depth: 3
-    number_sections: true
-  bookdown::word_document2:
-    df_print: paged
-    toc: yes
-    toc_depth: 3
+    keep_md: true
 link-citations: yes
 editor_options:
   chunk_output_type: console
 always_allow_html: yes
 fig_caption: true
+date: "`r Sys.Date()`"
+author: "Evan Odell"
 ---
 
 ```{r global_options, include=FALSE}
@@ -93,13 +87,27 @@ kable(labour_intakes_table, booktabs = TRUE,
   column_spec(6:7, width = "1.5cm") %>%
   column_spec(8, width = "2cm") %>%
   kable_styling(latex_options = c("basic",  "HOLD_position"), full_width = FALSE)
-} else {
-
-labour_intakes_table <- regulartable(labour_intakes_table)
-labour_intakes_table <- labour_intakes_table %>%
-  align(align = "right", part = "all")
-labour_intakes_table
-}
+} else { 
+  kable(labour_intakes_table, booktabs = TRUE,
+      digits = 2,
+      align = c("r","r","r","r","r","r","r","r"),
+      caption = "Labour MPs and Intakes",
+      col.names = c("General Election",
+                    "Total MPs",
+                    "Labour MPs",
+                    "Female Labour MPs",
+                    "Labour MPs Intake",
+                    "Intake Women",
+                    "Intake Shortlist",
+                    "Nominated Shortlist")) %>% 
+  column_spec(1, width = "1.5cm") %>%
+  column_spec(2, width = "1cm") %>%
+  column_spec(3, width = "1.5cm") %>%
+  column_spec(4:5, width = "2cm") %>%
+  column_spec(6:7, width = "1.5cm") %>%
+  column_spec(8, width = "2cm") %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position"))
+  } 
 ```
 
 Table \@ref(tab:speech-stats-table) shows the total size of the dataset in speeches and words by each party, including by gender for each party, and in the case of female Labour MPs, by AWS status. Details on inclusion criteria are given [below](#methodology).
@@ -118,7 +126,6 @@ speech_sum_table <- read_rds("data/speech_sum_table.rds")
 
 lab_nums <- read_rds("data/lab_nums.rds")
 
-
 if (knitr::is_latex_output()) {
 speech_sum_table2 <- speech_sum_table %>% select(-party_group) %>%
   mutate(speeches = formatC(speeches, big.mark = ","),
@@ -135,21 +142,22 @@ kable(speech_sum_table2, booktabs = TRUE, digits = 2,
     group_rows("Other", 15, 17) %>%
   add_indent(c(9:10))
 } else {
-  speech_sum_table2 <- speech_sum_table %>% 
+  speech_sum_table2 <- speech_sum_table %>% select(-party_group) %>%
   mutate(speeches = formatC(speeches, big.mark = ","),
          words = formatC(words, big.mark = ","))
 
-speech_sum_table2 <- regulartable(speech_sum_table2)
-speech_sum_table2 <- merge_v(speech_sum_table2, ~ party_group) %>% 
-  italic(i = ~ gender == "Non-All Women Shortlists" | 
-          gender == "All Women Shortlists", 
-        j = ~ gender) %>%
-  align(j = c("party_group", "gender"), 
-              align = "left", part = "all") %>% 
-  align(j = c("speeches", "words"), 
-        align = "right", part = "all")  %>% autofit()
-speech_sum_table2
-}
+kable(speech_sum_table2, booktabs = TRUE, digits = 2, 
+      caption = "Number of Speeches and Words in Dataset",
+      col.names = c("Gender", "Speeches", "Words"),
+      align = c("l", "r", "r"))  %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position"))#  %>%
+  # group_rows("Conservatives", 4, 6) %>%
+  #   group_rows("Labour", 7, 11) %>%
+  # group_rows("Liberal Democrat", 12, 14) %>%
+  #   group_rows("Other", 15, 17) %>%
+  # add_indent(c(9:10))
+  
+  }
 ```
 
 
@@ -187,6 +195,8 @@ We also included mean words-per-sentence (WPS), total speach word count (WC) and
 
 ### Women vs Men
 
+Table \@ref(tab:gender-effect-sizes-table) shows there are no categories where gender differences meet the effect size threshold of $|0.2|$ suggested by Cohen [-@cohen1988, 25--26] to indicate a small effect. 4 categories -- words with more than six letters, prepositions, words-per-sentence and Flesh-Kincaid grade level -- met or exceeded the $|0.1|$ threshold suggested by @newman2008.
+
 ```{r gender-effect-sizes-table, echo=FALSE, results = 'asis'}
 library(readr)
 library(flextable)
@@ -201,17 +211,17 @@ if (knitr::is_latex_output()) {
   kable_styling(latex_options = c("basic",  "HOLD_position")) %>% 
   add_header_above(c(" " = 1, "Women" = 2, "Men" = 2, "Effect Size" = 2))
 
-} else {
-  fem_mac_df <- regulartable(fem_mac_df)
-  fem_mac_df <- fem_mac_df %>%  align(align = "right", part = "all")  %>%
-    align(j = c("word_type", "magnitude"), 
-                align = "left", part = "all")  %>% autofit()
-  fem_mac_df
-
-}
+} else { 
+    kable(fem_mac_df, booktabs = TRUE, digits = 2, 
+      caption = "Effect Sizes for Male and Female Labour MPs",
+      col.names = c("", "Women Mean", "Women SD", "Men Mean", "Men SD",
+                    "Cohen's d", "Magnitude") )  %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position")) #%>% 
+  #add_header_above(c(" " = 1, "Women" = 2, "Men" = 2, "Effect Size" = 2))
+  } 
 ```
 
-There are no categories where gender differences meet the effect size threshold of $|0.2|$ suggested by Cohen [-@cohen1988, 25--26] to indicate a small effect. 4 categories -- words with more than six letters, prepositions, words-per-sentence and Flesh-Kincaid grade level -- met or exceeded the $|0.1|$ threshold suggested by @newman2008.
+
 
 ### Shortlists vs Non-Shortlists
 
@@ -269,6 +279,8 @@ lab_liwc_women2_subset <- lab_liwc_women2 %>%
 
 Figure \@ref(fig:sl-key-y-since-start) shows changes in the occurrences of selected LIWC terms, words-per-sentence, total word count and Flesch–Kincaid grade level, over the course of an MP's career, as measured since the time an MP was first elected. There do not appear to be any notable changes in speaking style over the course of female Labour MPs' careers. Figure \@ref(fig:sl-key-date) shows changes in the occurrences of the same selected terms from 1997--2017. As in Figure \@ref(fig:sl-key-y-since-start), there do not appear to be any meaningful trends in the use of the selected terms over time.
 
+There are no categories among female Labour MPs by selection process meeting the $|0.2|$ threshold, as shown in Table \@ref(tab:sl-effect-sizes). Only one category - first person plural pronouns, _d_=0.19 -- exceeded $|0.1|$.
+
 ```{r sl-key-y-since-start, echo=FALSE, fig.cap="Occurrence of selected LIWC terms, by time as MP", fig.height=8}
 library(ggplot2)
 
@@ -308,7 +320,7 @@ p01_sl_y_since_start <- ggplot(data = lab_liwc_women2_subset %>%
   facet_wrap(~attribute) + 
   labs(colour = "",
        y = "Weighted Mean",
-       x = "Year") + 
+       x = "Years Since Elected") + 
   theme(legend.position = "bottom")
 
 ggsave("p01_sl_y_since_start.svg", plot = p01_sl_y_since_start,
@@ -419,19 +431,22 @@ if (knitr::is_latex_output()) {
   add_header_above(c(" " = 1, "All Women Shortlists" = 2,
                      "Open Shortlists" = 2, "Effect Size" = 2))
 } else {
-
-  fem_mac_df_sl <- regulartable(fem_mac_df_sl)
-  fem_mac_df_sl <- fem_mac_df_sl %>%  align(align = "right", part = "all") %>%
-    align(j = c("word_type", "magnitude"), 
-                align = "left", part = "all")  %>% autofit()
-  fem_mac_df_sl
-
+  kable(fem_mac_df_sl, booktabs = TRUE, digits = 2, 
+      caption = "Effect Sizes for Female Labour MPs by selection process",
+      col.names = c("", "All Women Shortlists Mean", "All Women Shortlists SD",
+                    "Open Shortlists Mean", "Open Shortlists SD",
+                    "Cohen's d", "Magnitude")) %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position")) #%>% 
+  # add_header_above(c(" " = 1, "All Women Shortlists" = 2,
+  #                    "Open Shortlists" = 2, "Effect Size" = 2))
 }
 ```
 
-There are no categories among female Labour MPs by selection process meeting the $|0.2|$ threshold. Only one category -- first person plural pronouns, _d_=0.19 -- exceeded $|0.1|$.
 
 ### Conservatives vs Labour
+
+As shown in Table \@ref(tab:tory-labour-effect-sizes-table), there are no categories with effect sizes exceeding $|0.2|$ between Labour and Conservative MPs, and only one (first person plural pronouns) exceeding $|0.1|$.
+
 
 ```{r tory-labour-effect-sizes-table, echo=FALSE, results = 'asis'}
 library(knitr)
@@ -448,16 +463,17 @@ if (knitr::is_latex_output()) {
   add_header_above(c(" " = 1, "Labour" = 2,
                      "Conservatives" = 2, "Effect Size" = 2))
 } else {
-
-lab_con_df <- regulartable(lab_con_df)
-lab_con_df <- lab_con_df %>%  align(align = "right", part = "all")  %>%
-  align(j = c("word_type", "magnitude"), 
-              align = "left", part = "all")  %>% autofit()
-lab_con_df
+  kable(lab_con_df, booktabs = TRUE, digits = 2, escape = FALSE,
+      caption = "Effect Sizes for All Labour and Conservative MPs",
+      col.names = c("", "Labour Mean", "Labour SD", "Conservatives Mean",
+                    "Conservatives SD", "Cohen's <em>d</em>", "Magnitude") )  %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position")) #%>% 
+  # add_header_above(c(" " = 1, "Labour" = 2,
+  #                    "Conservatives" = 2, "Effect Size" = 2))
 }
 ```
 
-There are no categories with effect sizes exceeding $|0.2|$ between Labour and Conservative MPs, and only one (first person plural pronouns) exceeding $|0.1|$.
+
 
 
 ### All MPs Gender Differences
@@ -478,15 +494,14 @@ if (knitr::is_latex_output()) {
   kable_styling(latex_options = c("basic",  "HOLD_position")) %>% 
   add_header_above(c(" " = 1, "Women" = 2,
                      "Men" = 2, "Effect Size" = 2))
-
 } else {
-
-all_party_gender_df <- regulartable(all_party_gender_df)
-all_party_gender_df <- all_party_gender_df %>%  
-  align(align = "right", part = "all")  %>%
-  align(j = c("word_type", "magnitude"), 
-              align = "left", part = "all")  %>% autofit()
-all_party_gender_df
+  kable(all_party_gender_df, booktabs = TRUE, digits = 2, 
+      caption = "Effect Sizes for Male and Female MPs, All Parties",
+      col.names = c("", "Women Mean", "Women SD", "Men Mean", "Men SD",
+                    "Cohen's d", "Magnitude")) %>%
+   kable_styling(bootstrap_options = c("basic",  "HOLD_position")) #%>% 
+  # add_header_above(c(" " = 1, "Women" = 2,
+  #                    "Men" = 2, "Effect Size" = 2))
 }
 ```
 
@@ -642,6 +657,8 @@ pos_df_sl[2:5] <- pos_df_sl[2:5] * 100
 
 ```
 
+Part-of-speech (POS) tagging was done using the `spaCy` library [@honnibal2017] and the `spacyr` package [@benoit2018a]. There is one small gender difference (_d_ = -0.22) in the use of plural nouns, which make up  `r paste0(formatC(pos_df_gender$Female_mean[pos_df_gender$type=="Plural Nouns"], digits = 3),"%")` of the words used by female Labour MPs, compared to  `r paste0(formatC(pos_df_gender$Male_mean[pos_df_gender$type=="Plural Nouns"], digits = 3),"%")` of words spoken by male Labour MPs  (Table \@ref(tab:pos-gender-table)). 
+
 ```{r pos-gender-table, echo=FALSE, results = 'asis'}
 
 if (knitr::is_latex_output()) {
@@ -654,15 +671,18 @@ if (knitr::is_latex_output()) {
   add_indent(c(2:3))
 
 } else {
-  pos_df_gender <- regulartable(pos_df_gender)
-  pos_df_gender <- pos_df_gender %>% 
-    align(align = "right", part = "all")  %>%
-    align(j = c("type", "magnitude"), 
-               align = "left", part = "all") %>% autofit()
-  pos_df_gender
+  kable(pos_df_gender, booktabs = TRUE, digits = 2, 
+      caption = "Part-of-Speech Effect Sizes for Male and Female Labour MPs",
+      col.names = c("Word Type", "Women Mean", "Women SD",
+                    "Men Mean", "Men SD",
+                    "Cohen's d", "Magnitude") )  %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position"))
 }
 
 ```
+
+
+As with LIWC, there are no categories where _d_ >= $|0.2|$ when comparing female Labour MPs by selection process, and only one category -- plural nouns -- with an effect size of _d_ >= $|0.1|$ (Table \@ref(tab:pos-sl-table)).
 
 ```{r pos-sl-table, echo=FALSE, results = 'asis'}
 
@@ -675,20 +695,17 @@ if (knitr::is_latex_output()) {
   add_header_above(c(" " = 1, "All Women Shortlists" = 2,
                      "Open Shorlists" = 2, "Effect Size" = 2)) %>%
   add_indent(c(2:3))
-  
   } else {
-
-pos_df_sl <- regulartable(pos_df_sl)
-pos_df_sl <- pos_df_sl %>% 
-  align(align = "right", part = "all")  %>%
-   align(j = c("type", "magnitude"), 
-               align = "left", part = "all") %>% autofit()
-pos_df_sl
-
+  kable(pos_df_sl, booktabs = TRUE, digits = 2, 
+      caption = "Part-of-Speech Effect Sizes for AWS and non-AWS Labour MPs",
+      col.names = c("Word Type", "All Women Shortlists Mean", 
+                    "All Women Shortlists SD", "Open Shorlists Mean",
+                    "Open Shorlists SD", "Cohen's d", "Magnitude"))  %>%
+  kable_styling(bootstrap_options = c("basic",  "HOLD_position"))
 }
 ```
 
-Part-of-speech (POS) tagging was done using the `spaCy` library [@honnibal2017] and the `spacyr` package [@benoit2018a]. There is one small gender difference (_d_ = -0.22) in the use of plural nouns, which make up  `r paste0(formatC(pos_df_gender$Female_mean[pos_df_gender$type=="Plural Nouns"], digits = 3),"%")` of the words used by female Labour MPs, compared to  `r paste0(formatC(pos_df_gender$Male_mean[pos_df_gender$type=="Plural Nouns"], digits = 3),"%")` of words spoken by male Labour MPs. As with LIWC, there are no categories where _d_ >= $|0.2|$ when comparing female Labour MPs by selection process, and only one category -- plural nouns -- with an effect size of _d_ >= $|0.1|$.
+
 
 ## Keyness
 
@@ -727,6 +744,8 @@ lab_keyness_plot
 ### Shortlists vs Non-Shortlists
 
 Keyness differences by selection process (Figure \@ref(fig:sl-keyness)) are not as obviously stereotypical. Nonetheless, the most common words amongst AWS MPs included "carers", "disabled", "bedroom" and "sen" (Special Educational Needs). Also of note is AWS MPs making more references to their "constituency" and its "constituents", suggesting that AWS MPs may draw more heavily on the fact they were elected by their constituents as a source political legitimacy, or are more likely to illustrate a point with an example from their constitutency, compared to non-AWS MPs.
+
+
 
 ```{r sl-keyness, echo=FALSE, fig.height=8, message=FALSE, warning=FALSE, fig.cap="Keyness between Female Labour MPs, by Selection Process"}
 
@@ -924,8 +943,6 @@ edges_k0 <- data.frame(plotcord_k0[edgelist_k0[,1],],
 colnames(edges_k0) <- c("X1","Y1","X2","Y2")
 
 plotcord_k0$topic <- as.numeric(row.names(plotcord_k0))
-  
-#plotcord_k0 <- plotcord_k0 %>% left_join(prep_df_k0)
 
 lab_corpus_stm$meta$eo_id <- docnames(lab_corpus_stm$documents)
 
@@ -933,7 +950,6 @@ topic_dt_k0 <- make.dt(topic_model_k0, lab_corpus_stm$meta)
 
 topic_dt_k0$assigned_topic <- as.factor(topic_dt_k0$assigned_topic)
 
-## Reordering x$assigned_topic
 topic_dt_k0$assigned_topic <- factor(topic_dt_k0$assigned_topic, 
                            levels=c("Topic1", "Topic2", "Topic3",
                                     "Topic4", "Topic5", "Topic6",
@@ -957,8 +973,6 @@ topic_dt_k0$assigned_topic <- factor(topic_dt_k0$assigned_topic,
                                     "Topic58", "Topic59", "Topic60",
                                     "Topic61", "Topic62", "Topic63",
                                     "Topic64", "Topic65", "Topic66"))
-
-## Get the sum for each topic in topic_dt_k0, as a proportion
 
 topic_dt_k0_2 <- topic_dt_k0 %>% 
   summarise_at(vars(Topic1:Topic66), sum, na.rm = TRUE) %>%
@@ -1031,86 +1045,7 @@ prep_df_k0_2 <- prep_df_k0 %>% mutate(
   p = paste(pixiedust::pval_string(p,  digits = 4), stars)) %>%
   select(topic, type, Estimate, `Std. Error`, `t value`, p)
 
-if (knitr::is_latex_output()) {
-
-  prep_df_k0_2 <- prep_df_k0_2 %>% select(-topic)
-  
-kable(prep_df_k0_2, booktabs = TRUE, longtable = TRUE, 
-      caption = "Topic Estimates",
-      col.names = c("", "Estimate", "Standard Error",
-                    "t value", "Pr(>|t|)"),
-      align = c("l","r","r","r","r")) %>%
-  kable_styling(latex_options = c("basic", "HOLD_position",  "repeat_header"),
-                full_width = TRUE ) %>%
-   group_rows(index = c("Topic 1 -- Employment & unions" = 3,
-                        "Topic 2 -- Legal system" = 3,
-                        "Topic 3 -- Roads" = 3,
-                        "Topic 4 -- Housing" = 3,
-                        "Topic 5 -- Police, firefighters & prison" = 3,
-                        "Topic 6 -- Northern Ireland" = 3,
-                        "Topic 7 -- Committee" = 3,
-                        "Topic 8 -- Schools" = 3,
-                        "Topic 9 -- Energy & climate change" = 3,
-                        "Topic 10 -- Defence" = 3,
-                        "Topic 11 -- Parliament" = 3,
-                        "Topic 12 -- International politics" = 3,
-                        "Topic 13 -- Ministers" = 3,
-                        "Topic 14 -- Policy impact" = 3,
-                        "Topic 15 -- Gender" = 3,
-                        "Topic 16 -- Regional development" = 3,
-                        "Topic 17 -- Communications" = 3,
-                        "Topic 18 -- Immigration" = 3,
-                        "Topic 19 -- Health system" = 3,
-                        "Topic 20 -- International development" = 3,
-                        "Topic 21 -- Benefits & disability" = 3,
-                        "Topic 22 -- Sport & culture" = 3,
-                        "Topic 23 -- History" = 3,
-                        "Topic 24 -- Higher education & skills" = 3,
-                        "Topic 25 -- Concurring point" = 3,
-                        "Topic 26 -- Pensions" = 3,
-                        "Topic 27 -- Points of order" = 3,
-                        "Topic 28 -- Issues" = 3,
-                        "Topic 29 -- Constituencies" = 3,
-                        "Topic 30 -- Ethnic groups & racism" = 3,
-                        "Topic 31 -- Amendments" = 3,
-                        "Topic 32 -- Reports" = 3,
-                        "Topic 33 -- People" = 3,
-                        "Topic 34 -- Wales & Scotland" = 3,
-                        "Topic 35 -- Alcohol & tobacco" = 3,
-                        "Topic 36 -- Place names" = 3,
-                        "Topic 37 -- Budget" = 3,
-                        "Topic 38 -- Tax" = 3,
-                        "Topic 39 -- Private companies" = 3,
-                        "Topic 40 -- Environment & fishing" = 3,
-                        "Topic 41 -- Crime" = 3,
-                        "Topic 42 -- Bills" = 3,
-                        "Topic 43 -- Children" = 3,
-                        "Topic 44 -- Utilities & PFI" = 3,
-                        "Topic 45 -- Middle East" = 3,
-                        "Topic 46 -- Local authorities" = 3,
-                        "Topic 47 -- Elections" = 3,
-                        "Topic 48 -- Debate" = 3,
-                        "Topic 49 -- Transport" = 3,
-                        "Topic 50 -- Questions" = 3,
-                        "Topic 51 -- Families" = 3,
-                        "Topic 52 -- Health research" = 3,
-                        "Topic 53 -- Dispatch box" = 3,
-                        "Topic 54 -- Parties" = 3,
-                        "Topic 55 -- Statements" = 3,
-                        "Topic 56 -- European Union" = 3,
-                        "Topic 57 -- Locations" = 3,
-                        "Topic 58 -- Jobs & manufacturing" = 3,
-                        "Topic 59 -- Small business" = 3,
-                        "Topic 60 -- Agreement & disagreement" = 3,
-                        "Topic 61 -- Voluntary sector" = 3,
-                        "Topic 62 -- Comments" = 3,
-                        "Topic 63 -- Social care" = 3,
-                        "Topic 64 -- Time" = 3,
-                        "Topic 65 -- Media & animals" = 3,
-                        "Topic 66 -- Other" = 3))
-} else {
-
-prep_df_k0_2$topic <- recode(prep_df_k0_2$topic, 
+prep_df_k0_2$topic <- recode(prep_df_k0_2$topic,
                           "1" = "(1) Employment & unions",
                           "2" = "(2) Legal system",
                           "3" = "(3) Roads",
@@ -1178,13 +1113,33 @@ prep_df_k0_2$topic <- recode(prep_df_k0_2$topic,
                           "65" = "(65) Media & animals",
                           "66" = "(66) Other")
 
-prep_df_k0_2 <- regulartable(prep_df_k0_2)
-prep_df_k0_2 <- merge_v(prep_df_k0_2, ~ topic)
-prep_df_k0_2 <- align(prep_df_k0_2, j = c("topic", "type"), 
-              align = "left", part = "all") %>% 
-  align(j = c("Estimate", "Std. Error", "t value", "p"), 
-        align = "right", part = "all") %>% autofit()
-prep_df_k0_2
+if (knitr::is_latex_output()) {
+  
+kable(prep_df_k0_2, booktabs = TRUE, longtable = TRUE, 
+      caption = "Topic Estimates",
+      col.names = c("", "", "Estimate", "Standard Error",
+                    "t value", "Pr(>|t|)"),
+      align = c("l","r","r","r","r")) %>%
+  kable_styling(latex_options = c("basic", "HOLD_position",  "repeat_header"),
+                full_width = TRUE ) %>%
+  collapse_rows(columns = 1, valign = "middle")
+} else {
+
+kable(prep_df_k0_2, booktabs = TRUE,
+      caption = "Topic Estimates",
+      col.names = c("Topic", "Variables", "Estimate", "Standard Error",
+                    "t value", "Pr(>|t|)"),
+      align = c("l","r","r","r","r")) %>%
+  kable_styling(bootstrap_options = c("basic", "HOLD_position")) %>%
+  collapse_rows(columns = 1, valign = "middle")
+
+# prep_df_k0_2 <- regulartable(prep_df_k0_2)
+# prep_df_k0_2 <- merge_v(prep_df_k0_2, ~ topic)
+# prep_df_k0_2 <- align(prep_df_k0_2, j = c("topic", "type"),
+#               align = "left", part = "all") %>%
+#   align(j = c("Estimate", "Std. Error", "t value", "p"),
+#         align = "right", part = "all") %>% autofit()
+# knit_print(prep_df_k0_2)
 
 }
 ```
@@ -1333,12 +1288,14 @@ if (knitr::is_latex_output()) {
                   full_width = TRUE ) %>%
   column_spec(1, width = "5cm")
 } else {
-topic_dt_assign_2 <- regulartable(topic_dt_assign_2)
-topic_dt_assign_2 <- topic_dt_assign_2 %>% align( 
-        align = "right", part = "all") %>%
-  align(j = "assigned_topic",
-              align = "left", part = "all") %>% autofit()
-topic_dt_assign_2
+  kable(topic_dt_assign_2, booktabs = TRUE, longtable = TRUE, 
+      caption = "Count and Distribution of Topics",
+      col.names = c("Topic", "AWS Speeches", "Percent of AWS Speeches",
+                    "Non-AWS Speeches", "Percent of non-AWS Speeches",
+                    "Male MP Speeches", "Percent of Male MP Speeches"),
+      align = c("l","r","r","r","r","r","r")) %>%
+    kable_styling(bootstrap_options = c("basic", "HOLD_position",
+                                        "repeat_header")) 
 }
 ```
 
@@ -1428,66 +1385,66 @@ topic_words2 <- topic_words_highest %>% left_join(topic_words_frex) %>%
                         "4" = "(4) Housing",
                         "5" = "(5) Police, firefighters & prison",
                         "6" = "(6) Northern Ireland",
-                          "7" = "(7) Committee",
-                          "8" = "(8) Schools",
-                          "9" = "(9) Energy & climate change",
-                          "10" = "(10) Defence",
-                          "11" = "(11) Parliament",
-                          "12" = "(12) International politics",
-                          "13" = "(13) Ministers",
-                          "14" = "(14) Policy impact",
-                          "15" = "(15) Gender",
-                          "16" = "(16) Regional development",
-                          "17" = "(17) Communications",
-                          "18" = "(18) Immigration",
-                          "19" = "(19) Health system",
-                          "20" = "(20) International development",
-                          "21" = "(21) Benefits & disability",
-                          "22" = "(22) Sport & culture",
-                          "23" = "(23) History",
-                          "24" = "(24) Higher education & skills",
-                          "25" = "(25) Concurring point",
-                          "26" = "(26) Pensions",
-                          "27" = "(27) Points of order",
-                          "28" = "(28) Issues",
-                          "29" = "(29) Constituencies",
-                          "30" = "(30) Ethnic groups & racism",
-                          "31" = "(31) Amendments",
-                          "32" = "(32) Reports",
-                          "33" = "(33) People",
-                          "34" = "(34) Wales & Scotland",
-                          "35" = "(35) Alcohol & tobacco",
-                          "36" = "(36) Place names",
-                          "37" = "(37) Budget",
-                          "38" = "(38) Tax",
-                          "39" = "(39) Private companies",
-                          "40" = "(40) Environment & fishing",
-                          "41" = "(41) Crime",
-                          "42" = "(42) Bills",
-                          "43" = "(43) Children",
-                          "44" = "(44) Utilities & PFI",
-                          "45" = "(45) Middle East",
-                          "46" = "(46) Local authorities",
-                          "47" = "(47) Elections",
-                          "48" = "(48) Debate",
-                          "49" = "(49) Transport",
-                          "50" = "(50) Questions",
-                          "51" = "(51) Families",
-                          "52" = "(52) Health research",
-                          "53" = "(53) Dispatch box",
-                          "54" = "(54) Parties",
-                          "55" = "(55) Statements",
-                          "56" = "(56) European Union",
-                          "57" = "(57) Locations",
-                          "58" = "(58) Jobs & manufacturing",
-                          "59" = "(59) Small business",
-                          "60" = "(60) Agreement & disagreement",
-                          "61" = "(61) Voluntary sector",
-                          "62" = "(62) Comments",
-                          "63" = "(63) Social care",
-                          "64" = "(64) Time",
-                          "65" = "(65) Media & animals",
-                          "66" = "(66) Other"))
+                        "7" = "(7) Committee",
+                        "8" = "(8) Schools",
+                        "9" = "(9) Energy & climate change",
+                        "10" = "(10) Defence",
+                        "11" = "(11) Parliament",
+                        "12" = "(12) International politics",
+                        "13" = "(13) Ministers",
+                        "14" = "(14) Policy impact",
+                        "15" = "(15) Gender",
+                        "16" = "(16) Regional development",
+                        "17" = "(17) Communications",
+                        "18" = "(18) Immigration",
+                        "19" = "(19) Health system",
+                        "20" = "(20) International development",
+                        "21" = "(21) Benefits & disability",
+                        "22" = "(22) Sport & culture",
+                        "23" = "(23) History",
+                        "24" = "(24) Higher education & skills",
+                        "25" = "(25) Concurring point",
+                        "26" = "(26) Pensions",
+                        "27" = "(27) Points of order",
+                        "28" = "(28) Issues",
+                        "29" = "(29) Constituencies",
+                        "30" = "(30) Ethnic groups & racism",
+                        "31" = "(31) Amendments",
+                        "32" = "(32) Reports",
+                        "33" = "(33) People",
+                        "34" = "(34) Wales & Scotland",
+                        "35" = "(35) Alcohol & tobacco",
+                        "36" = "(36) Place names",
+                        "37" = "(37) Budget",
+                        "38" = "(38) Tax",
+                        "39" = "(39) Private companies",
+                        "40" = "(40) Environment & fishing",
+                        "41" = "(41) Crime",
+                        "42" = "(42) Bills",
+                        "43" = "(43) Children",
+                        "44" = "(44) Utilities & PFI",
+                        "45" = "(45) Middle East",
+                        "46" = "(46) Local authorities",
+                        "47" = "(47) Elections",
+                        "48" = "(48) Debate",
+                        "49" = "(49) Transport",
+                        "50" = "(50) Questions",
+                        "51" = "(51) Families",
+                        "52" = "(52) Health research",
+                        "53" = "(53) Dispatch box",
+                        "54" = "(54) Parties",
+                        "55" = "(55) Statements",
+                        "56" = "(56) European Union",
+                        "57" = "(57) Locations",
+                        "58" = "(58) Jobs & manufacturing",
+                        "59" = "(59) Small business",
+                        "60" = "(60) Agreement & disagreement",
+                        "61" = "(61) Voluntary sector",
+                        "62" = "(62) Comments",
+                        "63" = "(63) Social care",
+                        "64" = "(64) Time",
+                        "65" = "(65) Media & animals",
+                        "66" = "(66) Other"))
 ```
 
 ```{r topic-words-table-k0, echo=FALSE, results = 'asis'}
@@ -1496,16 +1453,15 @@ library(flextable)
 if (knitr::is_latex_output()) {
 kable(topic_words2, booktabs = TRUE, longtable = TRUE,
       caption = "Words in Topic",
-      col.names = c("Topic Number", "Top Twenty Words", "Top Twenty FREX")) %>%
-    kable_styling(latex_options = c("basic", "HOLD_position",  "repeat_header"), full_width = TRUE ) %>%
+      col.names = c("Topic", "Top Twenty Words", "Top Twenty FREX")) %>%
+    kable_styling(latex_options = c("basic", "HOLD_position",
+                                    "repeat_header"), full_width = TRUE ) %>%
   column_spec(2:3, width = "6cm")
 } else {
-
-topic_words2 <- regulartable(topic_words2)
-topic_words2 <- topic_words2 %>%
-  align(align = "left", part = "all")
-
-topic_words2
+kable(topic_words2, booktabs = TRUE, longtable = TRUE,
+      caption = "Words in Topic",
+      col.names = c("Topic Number", "Top Twenty Words", "Top Twenty FREX")) %>%
+    kable_styling(bootstrap_options = c("basic", "HOLD_position"))
 }
 ```
 
@@ -1520,20 +1476,9 @@ Figure \@ref(fig:wales-scotland-plot) shows debate over the devolved authorities
 library(lubridate)
 library(ggplot2)
 
-#head(topic_dt_assign)
-
 topic_dt_k0_valid <- topic_dt_assign %>% 
   group_by(assigned_topic, year) %>%
   summarise(count = n())
-
-# test10 <- topic_dt_k0_valid %>% filter(assigned_topic == "Topic10")
-# 
-# plot10 <- ggplot(aes(x=year, y = count), data = test10) +
-#   geom_line() + 
-#   labs(x = "Year", y = "Number of Speeches")
-# 
-# plot10
-
 ```
 
 ```{r middle-east-plot, echo=FALSE,fig.cap="Number of Speeches in \"Middle East\" Topic per Year", fig.height=4.5}
@@ -1580,9 +1525,6 @@ ggsave("p13_eu_valid.svg", plot = plot56,
 
 
 ## Differences between Male, AWS and non-AWS Labour MPs
-
-From Table \@ref(tab:estimate-table-k0) we can see the relationship between the frequency of topics among AWS, non-AWS and male Labour MPs.
-
 
 
 ```{r aws-dif-table-making, include=FALSE}
@@ -1830,7 +1772,7 @@ effect_compare2 <- effect_compare2 %>% tibble::as_tibble() %>%
    cv = (apply(effect_compare2[2:4], 1, raster::cv)),
    cv_fem = (apply(select(effect_compare2, AWS, `Non-AWS`), 1, raster::cv)),
    cv_sl_men = (apply(select(effect_compare2, AWS, Male), 1, raster::cv)),
-   cv_non_sl_men = (apply(select(effect_compare2, Male, `Non-AWS`), 1, raster::cv)),
+   cv_non_sl_men = (apply(select(effect_compare2, Male, `Non-AWS`), 1, raster::cv))
    )
 
 summary(effect_compare2$fem_relative)
@@ -1868,6 +1810,9 @@ combined_effect3 <- combined_effect %>%
 
 ```
 
+
+From Table \@ref(tab:estimate-table-k0) we can see the relationship between the frequency of topics among AWS, non-AWS and male Labour MPs.
+
 There are `r nrow(aws_diff)` topics where the frequency AWS MPs is significantly different from male MPs, but where its frequency amongst non-AWS MPs is not significantly different. They are topics `r aws_diff$topic`. `r nrow(aws_diff_higher)` topics are proportionally greater among AWS MPs (`r aws_diff_higher$topic_name`) and `r nrow(aws_diff_lower)` topics are less common (`r aws_diff_lower$topic_name`). 
 
 There are `r nrow(non_aws_diff)` topics where its proportion amongst non-AWS MPs is significantly different from male MPs, but where its proportion amongst AWS MPs is not significantly different. They are topics `r non_aws_diff$topic`. `r nrow(non_aws_diff_higher)` topics are proportionally greater among AWS MPs (`r non_aws_diff_higher$topic_name`) and `r nrow(non_aws_diff_lower)` topics are less common (`r non_aws_diff_lower$topic_name`). 
@@ -1876,154 +1821,9 @@ There is `r nrow(gender_diff)` topic (`r gender_diff$topic_name`) where there is
 
 There are `r length(unique(women_split$topic_name))` topics where AWS and non-AWS MPs differ significantly in proportion from male Labour MPs, but are not both higher/lower than male MPs. AWS MPs are significantly more likely to mention `r nrow(women_split_aws_higher)` topics (`r women_split_aws_higher$topic_name`) than male MPs, while non-AWS mps are significantly less likely to mention those topics. The opposite is true for the other `r nrow(women_split_aws_lower)` topics (`r women_split_aws_lower$topic_name`), which AWS MPs are significantly less likely and non-AWS MPs are significantly more likely to mention than male Labour MPs.
 
-Using the frequency of a topic among male MPs as a baseline, there are `r sum(effect_compare2$fem_relative == "AWS more like male")` topics where the frequency among AWS MPs is proportionally closer, in absolute terms, than the frequency of the topic among female MPs. The inverse is true for the remaining `r sum(effect_compare2$fem_relative == "Non-AWS more like male")` topics.
+However, an estimate being statistically significant -- i.e. estimates for AWS and non-AWS MPs where the _p_ value as reported in Table \@ref(tab:estimate-table-k0) is < 0.05 -- does not tell us anything about the relative value of those frequency differences. For example, in topic 21, Benefits and disability, frequency estimates for both AWS and non-AWS MPs are  significantly different (_p_ < 0.05) from the frequency estimate for male Labour MPs. However, while the frequency value for the benefits and disability topic is `r scales::percent(as.numeric(effect_compare$estimate[effect_compare$type=="Male" & effect_compare$topic==21]))` for male MPs, and `r scales::percent(as.numeric(effect_compare$estimate[effect_compare$type=="Non-AWS" & effect_compare$topic==21]))` for non-AWS MPs, it is `r scales::percent(as.numeric(effect_compare$estimate[effect_compare$type=="AWS" & effect_compare$topic==21]))` for AWS MPs. Non-AWS Labour MPs are only slightly more likely to bring up benefits and disability than male Labour MPs, while AWS MPs discuss it almost twice as much as their male colleagues. 
 
-Relative to each other, there are `r sum(effect_compare2$all_diffs == "Women more similar to each other")` topics where the frequency between AWS and non-AWS MPs are closer to each other than either is to the topic frequency in male MPs. In `r sum(effect_compare2$all_diffs == "AWS more like male")` topics, the frequency between AWS and male MPs are the most similar, and in the remaining `r sum(effect_compare2$all_diffs == "Non-AWS more like male")` topics the difference in frequency are smallest between non-AWS and male MPs. See \@ref(tab:absolute-differences) for details.
-
-
-```{r absolute-differences, echo=FALSE}
-
-effect_compare3 <- effect_compare2 %>%
-  select(assigned_topic, fem_relative, all_diffs)
-
-
-if (knitr::is_latex_output()) {
-kable(effect_compare3, booktabs = TRUE, longtable = TRUE,
-      caption = "Absolute Differences",
-      col.names = c("Topic", "Women Relative to Male MPs",
-                    "Most Similar")) %>%
-    kable_styling(latex_options = c("basic", "HOLD_position",
-                                    "repeat_header"), full_width = TRUE) %>%
-  column_spec(3, width = "6cm")
-} else {
-
-effect_compare3 <- regulartable(effect_compare3)
-effect_compare3 <- effect_compare3 %>%
-  align(align = "left", part = "all")
-
-effect_compare3
-}
-
-```
-
-
-
-```{r aws-difs1, eval=FALSE, include=FALSE}
-topic_model_k0 <- read_rds("data/topic_model_k0_m.rds")
-
-prep_k0 <- read_rds("data/prep_k0_m.rds")
-
-effect_compare <- extract.estimateEffect(x = prep_k0,
-                                  covariate = "gender_sl",
-                                  model = topic_model_k0) %>%
-  mutate(assigned_topic = recode(topic,
-                        "1" = "(1) Employment & unions",
-                        "2" = "(2) Legal system",
-                        "3" = "(3) Roads",
-                        "4" = "(4) Housing",
-                        "5" = "(5) Police, firefighters & prison",
-                        "6" = "(6) Northern Ireland",
-                        "7" = "(7) Committee",
-                          "8" = "(8) Schools",
-                          "9" = "(9) Energy & climate change",
-                          "10" = "(10) Defence",
-                          "11" = "(11) Parliament",
-                          "12" = "(12) International politics",
-                          "13" = "(13) Ministers",
-                          "14" = "(14) Policy impact",
-                          "15" = "(15) Gender",
-                          "16" = "(16) Regional development",
-                          "17" = "(17) Communications",
-                          "18" = "(18) Immigration",
-                          "19" = "(19) Health system",
-                          "20" = "(20) International development",
-                          "21" = "(21) Benefits & disability",
-                          "22" = "(22) Sport & culture",
-                          "23" = "(23) History",
-                          "24" = "(24) Higher education & skills",
-                          "25" = "(25) Concurring point",
-                          "26" = "(26) Pensions",
-                          "27" = "(27) Points of order",
-                          "28" = "(28) Issues",
-                          "29" = "(29) Constituencies",
-                          "30" = "(30) Ethnic groups & racism",
-                          "31" = "(31) Amendments",
-                          "32" = "(32) Reports",
-                          "33" = "(33) People",
-                          "34" = "(34) Wales & Scotland",
-                          "35" = "(35) Alcohol & tobacco",
-                          "36" = "(36) Place names",
-                          "37" = "(37) Budget",
-                          "38" = "(38) Tax",
-                          "39" = "(39) Private companies",
-                          "40" = "(40) Environment & fishing",
-                          "41" = "(41) Crime",
-                          "42" = "(42) Bills",
-                          "43" = "(43) Children",
-                          "44" = "(44) Utilities & PFI",
-                          "45" = "(45) Middle East",
-                          "46" = "(46) Local authorities",
-                          "47" = "(47) Elections",
-                          "48" = "(48) Debate",
-                          "49" = "(49) Transport",
-                          "50" = "(50) Questions",
-                          "51" = "(51) Families",
-                          "52" = "(52) Health research",
-                          "53" = "(53) Dispatch box",
-                          "54" = "(54) Parties",
-                          "55" = "(55) Statements",
-                          "56" = "(56) European Union",
-                          "57" = "(57) Locations",
-                          "58" = "(58) Jobs & manufacturing",
-                          "59" = "(59) Small business",
-                          "60" = "(60) Agreement & disagreement",
-                          "61" = "(61) Voluntary sector",
-                          "62" = "(62) Comments",
-                          "63" = "(63) Social care",
-                          "64" = "(64) Time",
-                          "65" = "(65) Media & animals",
-                          "66" = "(66) Other")) %>%
-  select(-method, -covariate, -label, -ci.level)
-
-
-#library(tidyr)
-
-#effect_compare2 <-  effect_compare %>% spread(covariate.value, test)
-# 
-# test <- split(effect_compare,effect_compare$covariate.value)
-# 
-# names(test[[1]])[3:7] <- paste0(names(test[[1]])[3:7], "_male")
-# names(test[[2]])[3:7] <- paste0(names(test[[2]])[3:7], "_non_aws")
-# names(test[[3]])[3:7] <- paste0(names(test[[3]])[3:7], "_aws")
-# 
-# test2 <- bind_cols(test)
-# 
-# df <- data.frame(month=rep(1:3,2),
-#                  student=rep(c("Amy", "Bob"), each=3),
-#                  A=c(9, 7, 6, 8, 6, 9),
-#                  B=c(6, 7, 8, 5, 6, 7))
-# 
-# 
-# effect_compare2 <- list(c("estimate", "std.error", 
-#                           "ci.level", "ci.lower", "ci.upper")) %>%
-#  map2(lst(mean=mean, funs(sd(., na.rm=TRUE))),
-#   ~ effect_compare %>%
-#    group_by(covariate.value, topic) %>%
-#    summarise_at(.x, .y)) 
-
-
-```
-
-
-On the hypothesis that non-AWS MPs are more similar to male MPs in their topic selection, the following are topics with the largest absolute differences between AWS and other MPs.
-
-
-Figure \@ref(fig:p-effect1) shows the frequency for the topics where AWS and non-AWS MPs differ the most. Figure \@ref(fig:p-effect2) shows the frequency for the topics where AWS and non-AWS MPs are most similar to each other, regardless of their similarity to male Labour MPs. Figure \@ref(fig:p-effect-cv) is the topics with the most variation, between AWS, non-AWS and male Labour MPs. Figures \@ref(fig:p-effect1), \@ref(fig:p-effect2) and \@ref(fig:p-effect-cv) all use the coefficient of variation to measure variance between each group of MPs. Figures \@ref(fig:p-effect1) and \@ref(fig:p-effect2) only use female Labour MPS, Figure \@ref(fig:p-effect-cv) uses all three groups.
-
-
-- Measuring and comparing Coefficients of Variation
-
-- use the CV equality function to compare variations?
+Figure \@ref(fig:p-effect1) shows the frequency for the topics where AWS and non-AWS MPs differ the most. Figure \@ref(fig:p-effect2) shows the frequency for the topics where AWS and non-AWS MPs are most similar to each other, regardless of their similarity to male Labour MPs. Figure \@ref(fig:p-effect-cv) is the topics with the most variation, between AWS, non-AWS and male Labour MPs. Figures \@ref(fig:p-effect1), \@ref(fig:p-effect2) and \@ref(fig:p-effect-cv) all use the coefficient of variation to measure variance between each group of MPs. Figures \@ref(fig:p-effect1) and \@ref(fig:p-effect2) only use female Labour MPS, Figure \@ref(fig:p-effect-cv) uses all three groups. Errors bars in all three sets of figures are for 95% confidence intervals.
 
 ```{r p-effect1, echo=FALSE, fig.height=9, fig.width=7, fig.cap="Where AWS MPs are most distinct from non-AWS female MPs"}
 
@@ -2041,8 +1841,9 @@ p_effect <- ggplot(effect_compare %>%
                                                        unique(assigned_topic))),
                      aes(y = estimate, x = covariate.value,
                          color = covariate.value)) + 
-    geom_linerange(aes(ymin = ci.lower, ymax = ci.upper)) + 
-    geom_point() + 
+    geom_errorbar(aes(ymin = ci.lower, ymax = ci.upper),
+                  size = 0.5, width = 0.2) + 
+    geom_point(size = 1, alpha = 0.8) + 
     scale_y_continuous(labels = scale_perc) + 
     scale_colour_manual(values = c("#cb6a49", "#7aa457", "#a06dba" ),
                       labels = c("Men", "Non-AWS", "AWS"),
@@ -2078,8 +1879,9 @@ p_effect_diff <- ggplot(effect_compare %>%
                                                        unique(assigned_topic))),
                      aes(y = estimate, x = covariate.value,
                          color = covariate.value)) + 
-    geom_linerange(aes(ymin = ci.lower, ymax = ci.upper)) + 
-    geom_point() + 
+    geom_errorbar(aes(ymin = ci.lower, ymax = ci.upper),
+                  size = 0.5, width = 0.2) + 
+    geom_point(size = 1, alpha = 0.8) + 
     scale_y_continuous(labels = scale_perc) + 
     scale_colour_manual(values = c("#cb6a49", "#7aa457", "#a06dba" ),
                       labels = c("Men", "Non-AWS", "AWS"),
@@ -2101,8 +1903,6 @@ ggsave("p15_effect_diff.svg", plot = p_effect_diff,
 ```
 
 
-
-
 ```{r p-effect-cv, echo=FALSE, fig.height=9, fig.width=7, fig.cap="Topics with the greatest frequency coefficient of variation"}
 
 topic_list_cv <- top_n(effect_compare2, 12, cv)
@@ -2116,8 +1916,9 @@ p_effect_cv <- ggplot(effect_compare %>%
                                                        unique(assigned_topic))),
                      aes(y = estimate, x = covariate.value,
                          color = covariate.value)) + 
-    geom_linerange(aes(ymin = ci.lower, ymax = ci.upper)) + 
-    geom_point() + 
+    geom_errorbar(aes(ymin = ci.lower, ymax = ci.upper),
+                  size = 0.5, width = 0.2) + 
+    geom_point(size = 1, alpha = 0.8) + 
     scale_y_continuous(labels = scale_perc) + 
     scale_colour_manual(values = c("#cb6a49", "#7aa457", "#a06dba" ),
                       labels = c("Men", "Non-AWS", "AWS"),
@@ -2138,10 +1939,6 @@ ggsave("p16_effect_diff.svg", plot = p_effect_cv,
        path="plots", device = "svg", width = 20, height = 20, units = "cm")
 ```
 
-
-
-
-[Stuff on categories with extensive differences]
 
 # Discussion
 
@@ -2170,7 +1967,7 @@ On 4th April 2001, Betty Williams, member for Conwy from 1997--2010, raised the 
 
 ## Gender effect estimates
 
-Estimate effects of different topics, using only gender.
+Estimate effects of different topics, using only gender (Table \@ref(tab:estimate-table-gender)).
 
 ```{r estimate-table-gender, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 library(knitr)
@@ -2203,11 +2000,6 @@ prep_df_k0_gender <- prep_df_k0_gender %>% rename(
   "p" = "Pr(>|t|)"
 )
 
-# prep_df_k0_gender$stars <- case_when(prep_df_k0_gender$p < 0.001 ~ "***", 
-#                               prep_df_k0_gender$p < 0.01 ~ "**",
-#                               prep_df_k0_gender$p < 0.05 ~ "*", 
-#                               TRUE ~ "")
-
 prep_df_k0_gender_2 <- prep_df_k0_gender %>% mutate(
   stars = case_when(p < 0.001 ~ "***", 
                     p < 0.01 ~ "**",
@@ -2215,83 +2007,6 @@ prep_df_k0_gender_2 <- prep_df_k0_gender %>% mutate(
                     TRUE ~ ""),
   p = paste(pixiedust::pval_string(p,  digits = 4), stars)) %>%
   select(topic, type, Estimate, `Std. Error`, `t value`, p)
-
-if (knitr::is_latex_output()) {
-  kable(prep_df_k0_gender_2, booktabs = TRUE, longtable = TRUE, 
-      caption = "Topic Estimates",
-      col.names = c("", "Estimate", "Standard Error",
-                    "t value", "Pr(>|t|)", ""),
-      align = c("l","r","r","r","r", "l")) %>%
-  kable_styling(latex_options = c("basic", "HOLD_position",  "repeat_header"),
-                full_width = TRUE ) %>%
-   group_rows(index = c("Topic 1 -- Employment & unions" = 2,
-                        "Topic 2 -- Legal system" = 2,
-                        "Topic 3 -- Roads" = 2,
-                        "Topic 4 -- Housing" = 2,
-                        "Topic 5 -- Police, firefighters & prison" = 2,
-                        "Topic 6 -- Northern Ireland" = 2,
-                        "Topic 7 -- Committee" = 2,
-                        "Topic 8 -- Schools" = 2,
-                        "Topic 9 -- Energy & climate change" = 2,
-                        "Topic 10 -- Defence" = 2,
-                        "Topic 11 -- Parliament" = 2,
-                        "Topic 12 -- International politics" = 2,
-                        "Topic 13 -- Ministers" = 2,
-                        "Topic 14 -- Policy impact" = 2,
-                        "Topic 15 -- Gender" = 2,
-                        "Topic 16 -- Regional development" = 2,
-                        "Topic 17 -- Communications" = 2,
-                        "Topic 18 -- Immigration" = 2,
-                        "Topic 19 -- Health system" = 2,
-                        "Topic 20 -- International development" = 2,
-                        "Topic 21 -- Benefits & disability" = 2,
-                        "Topic 22 -- Sport & culture" = 2,
-                        "Topic 23 -- History" = 2,
-                        "Topic 24 -- Higher education & skills" = 2,
-                        "Topic 25 -- Concurring point" = 2,
-                        "Topic 26 -- Pensions" = 2,
-                        "Topic 27 -- Points of order" = 2,
-                        "Topic 28 -- Issues" = 2,
-                        "Topic 29 -- Constituencies" = 2,
-                        "Topic 30 -- Ethnic groups & racism" = 2,
-                        "Topic 31 -- Amendments" = 2,
-                        "Topic 32 -- Reports" = 2,
-                        "Topic 33 -- People" = 2,
-                        "Topic 34 -- Wales & Scotland" = 2,
-                        "Topic 35 -- Alcohol & tobacco" = 2,
-                        "Topic 36 -- Place names" = 2,
-                        "Topic 37 -- Budget" = 2,
-                        "Topic 38 -- Tax" = 2,
-                        "Topic 39 -- Private companies" = 2,
-                        "Topic 40 -- Environment & fishing" = 2,
-                        "Topic 41 -- Crime" = 2,
-                        "Topic 42 -- Bills" = 2,
-                        "Topic 43 -- Children" = 2,
-                        "Topic 44 -- Utilities & PFI" = 2,
-                        "Topic 45 -- Middle East" = 2,
-                        "Topic 46 -- Local authorities" = 2,
-                        "Topic 47 -- Elections" = 2,
-                        "Topic 48 -- Debate" = 2,
-                        "Topic 49 -- Transport" = 2,
-                        "Topic 50 -- Questions" = 2,
-                        "Topic 51 -- Families" = 2,
-                        "Topic 52 -- Health research" = 2,
-                        "Topic 53 -- Dispatch box" = 2,
-                        "Topic 54 -- Parties" = 2,
-                        "Topic 55 -- Statements" = 2,
-                        "Topic 56 -- European Union" = 2,
-                        "Topic 57 -- Locations" = 2,
-                        "Topic 58 -- Jobs & manufacturing" = 2,
-                        "Topic 59 -- Small business" = 2,
-                        "Topic 60 -- Agreement & disagreement" = 2,
-                        "Topic 61 -- Voluntary sector" = 2,
-                        "Topic 62 -- Comments" = 2,
-                        "Topic 63 -- Social care" = 2,
-                        "Topic 64 -- Time" = 2,
-                        "Topic 65 -- Media & animals" = 2,
-                        "Topic 66 -- Other" = 2))
-  
- } else {
 
 prep_df_k0_gender_2$topic <- recode(prep_df_k0_gender_2$topic, 
                           "1" = "(1) Employment & unions",
@@ -2361,15 +2076,137 @@ prep_df_k0_gender_2$topic <- recode(prep_df_k0_gender_2$topic,
                           "65" = "(65) Media & animals",
                           "66" = "(66) Other")
 
+if (knitr::is_latex_output()) {
+  kable(prep_df_k0_gender_2, booktabs = TRUE, longtable = TRUE, 
+      caption = "Topic Estimates",
+      col.names = c("", "", "Estimate", "Standard Error",
+                    "t value", "Pr(>|t|)"),
+      align = c("l","r","r","r","r", "l")) %>%
+  kable_styling(latex_options = c("basic", "HOLD_position",  "repeat_header"),
+                full_width = TRUE) %>% 
+  collapse_rows(columns = 1, valign = "middle")
+  
+ } else  { #if (knitr::is_html_output()) {
+   
+# this is becoming a list and fucking up tables when it starts with the number, 
+   # have tried changing it to end with the topic number instead 
+   # to see if that works
+kable(prep_df_k0_gender_2, booktabs = TRUE, longtable = TRUE,
+      caption = "Topic Estimates (Gender)",
+      col.names = c("", "", "Estimate", "Standard Error",
+                    "t value", "Pr(>|t|)"),
+      align = c("l","r","r","r","r", "l")) %>%
+    kable_styling(bootstrap_options = c("basic", "HOLD_position")) %>%
+  collapse_rows(columns = 1, valign = "middle")
+#  } else {
+# prep_df_k0_gender_2 <- regulartable(prep_df_k0_gender_2)
+# prep_df_k0_gender_2 <- merge_v(prep_df_k0_gender_2, ~ topic)
+# prep_df_k0_gender_2 <- align(prep_df_k0_gender_2, j = c("topic", "type"),
+#               align = "left", part = "all") %>%
+#   align(j = c("Estimate", "Std. Error", "t value", "p"),
+#         align = "right", part = "all") %>% autofit() %>% knit_print()
+# prep_df_k0_gender_2
+ }
+```
 
-prep_df_k0_gender_2 <- regulartable(prep_df_k0_gender_2)
-prep_df_k0_gender_2 <- merge_v(prep_df_k0_gender_2, ~ topic)
-prep_df_k0_gender_2 <- align(prep_df_k0_gender_2, j = c("topic", "type"), 
-              align = "left", part = "all") %>% 
-  align(j = c("Estimate", "Std. Error", "t value", "p"), 
-        align = "right", part = "all") %>% autofit()
-prep_df_k0_gender_2
+
+## Closeness in frequency for each topic
+
+Using the frequency of a topic among male MPs as a baseline, there are `r sum(effect_compare2$fem_relative == "AWS more like male")` topics where the frequency among AWS MPs is proportionally closer, in absolute terms, than the frequency of the topic among female MPs. The inverse is true for the remaining `r sum(effect_compare2$fem_relative == "Non-AWS more like male")` topics.
+
+Relative to each other, there are `r sum(effect_compare2$all_diffs == "Women more similar to each other")` topics where the frequency between AWS and non-AWS MPs are closer to each other than either is to the topic frequency in male MPs. In `r sum(effect_compare2$all_diffs == "AWS more like male")` topics, the frequency between AWS and male MPs are the most similar, and in the remaining `r sum(effect_compare2$all_diffs == "Non-AWS more like male")` topics the difference in frequency are smallest between non-AWS and male MPs. See Table \@ref(tab:absolute-differences) for details.
+
+```{r absolute-differences, echo=FALSE}
+
+effect_compare3 <- effect_compare2 %>%
+  select(assigned_topic, fem_relative, all_diffs)
+
+# effect_compare3$assigned_topic <- recode(
+#   effect_compare3$assigned_topic,
+#   "(1) Employment & unions" = "Employment & unions (1)",
+#   "(2) Legal system" = "Legal system (2)",
+#   "(3) Roads" = "Roads (3)",
+#   "(4) Housing" = "Housing (4)",
+#   "(5) Police firefighters & prison" = "Police firefighters & prison (5)",
+#   "(6) Northern Ireland" = "Northern Ireland (6)",
+#   "(7) Committee" = "Committee (7)",
+#   "(8) Schools" = "Schools (8)",
+#   "(9) Energy & climate change" = "Energy & climate change (9)",
+#   "(10) Defence" = "Defence (10)",
+#   "(11) Parliament" = "Parliament (11)",
+#   "(12) International politics" = "International politics (12)",
+#   "(13) Ministers" = "Ministers (13)",
+#   "(14) Policy impact" = "Policy impact (14)",
+#   "(15) Gender" = "Gender (15)",
+#   "(16) Regional development" = "Regional development (16)",
+#   "(17) Communications" = "Communications (17)",
+#   "(18) Immigration" = "Immigration (18)",
+#   "(19) Health system" = "Health system (19)",
+#   "(20) International development" = "International development (20)",
+#   "(21) Benefits & disability" = "Benefits & disability (21)",
+#   "(22) Sport & culture" = "Sport & culture (22)",
+#   "(23) History" = "History (23)",
+#   "(24) Higher education & skills" = "Higher education & skills (24)",
+#   "(25) Concurring point" = "Concurring point (25)",
+#   "(26) Pensions" = "Pensions (26)",
+#   "(27) Points of order" = "Points of order (27)",
+#   "(28) Issues" = "Issues (28)",
+#   "(29) Constituencies" = "Constituencies (29)",
+#   "(30) Ethnic groups & racism" = "Ethnic groups & racism (30)",
+#   "(31) Amendments" = "Amendments (31)",
+#   "(32) Reports" = "Reports (32)",
+#   "(33) People" = "People (33)",
+#   "(34) Wales & Scotland" = "Wales & Scotland (34)",
+#   "(35) Alcohol & tobacco" = "Alcohol & tobacco (35)",
+#   "(36) Place names" = "Place names (36)",
+#   "(37) Budget" = "Budget (37)",
+#   "(38) Tax" = "Tax (38)",
+#   "(39) Private companies" = "Private companies (39)",
+#   "(40) Environment & fishing" = "Environment & fishing (40)",
+#   "(41) Crime" = "Crime (41)",
+#   "(42) Bills" = "Bills (42)",
+#   "(43) Children" = "Children (43)",
+#   "(44) Utilities & PFI" = "Utilities & PFI (44)",
+#   "(45) Middle East" = "Middle East (45)",
+#   "(46) Local authorities" = "Local authorities (46)",
+#   "(47) Elections" = "Elections (47)",
+#   "(48) Debate" = "Debate (48)",
+#   "(49) Transport" = "Transport (49)",
+#   "(50) Questions" = "Questions (50)",
+#   "(51) Families" = "Families (51)",
+#   "(52) Health research" = "Health research (52)",
+#   "(53) Dispatch box" = "Dispatch box (53)",
+#   "(54) Parties" = "Parties (54)",
+#   "(55) Statements" = "Statements (55)",
+#   "(56) European Union" = "European Union (56)",
+#   "(57) Locations" = "Locations (57)",
+#   "(58) Jobs & manufacturing" = "Jobs & manufacturing (58)",
+#   "(59) Small business" = "Small business (59)",
+#   "(60) Agreement & disagreement" = "Agreement & disagreement (60)",
+#   "(61) Voluntary sector" = "Voluntary sector (61)",
+#   "(62) Comments" = "Comments (62)",
+#   "(63) Social care" = "Social care (63)",
+#   "(64) Time" = "Time (64)",
+#   "(65) Media & animals" = "Media & animals (65)",
+#   "(66) Other" = "(66) Other")
+
+if (knitr::is_latex_output()) {
+kable(effect_compare3, booktabs = TRUE, longtable = TRUE,
+      caption = "Absolute Differences",
+      col.names = c("Topic", "Women Relative to Male MPs",
+                    "Most Similar")) %>%
+    kable_styling(latex_options = c("basic", "HOLD_position",
+                                    "repeat_header"), full_width = TRUE) %>%
+  column_spec(3, width = "6cm")
+} else {
+
+kable(effect_compare3, booktabs = TRUE, longtable = TRUE,
+      caption = "Absolute Differences",
+      col.names = c("Topic", "Women Relative to Male MPs",
+                    "Most Similar")) %>%
+    kable_styling(bootstrap_options = c("basic", "HOLD_position"))
 }
+
 ```
 
 
@@ -2426,8 +2263,6 @@ lab_speech$speech <- stri_replace_all_regex(lab_speech$speech, "\\ n\\s", " ")
 
 lab_speech$speech <- stri_replace_all_regex(lab_speech$speech, "\ n\\s", " ")
 
-#head(lab_speech$speech)
-
 lab_fem_sl <- lab_speech %>% 
   filter(gender == "Female" & short_list == TRUE)
 
@@ -2468,13 +2303,14 @@ if (knitr::is_latex_output()) {
 kable(constit_kwic, booktabs = TRUE, longtable = TRUE,
       col.names = c("Pre", "Keyword", "Post"),
       caption = "A random sample of KWIC's", row.names = FALSE) %>%
-    kable_styling(latex_options = c("basic", "HOLD_position",  "repeat_header"), full_width = TRUE )
+    kable_styling(latex_options = c("basic", "HOLD_position",
+                                    "repeat_header"), full_width = TRUE)
 } else {
-  constit_kwic <- regulartable(constit_kwic)
-  constit_kwic <- constit_kwic %>%
-    align(align = "center", part = "all") 
-  
-  constit_kwic
+kable(constit_kwic, booktabs = TRUE, longtable = TRUE,
+      col.names = c("Pre", "Keyword", "Post"),
+      caption = "A random sample of KWIC's", row.names = FALSE) %>%
+    kable_styling(bootstrap_options = c("basic", "HOLD_position",
+                                        "repeat_header"))
 }
 
 ```

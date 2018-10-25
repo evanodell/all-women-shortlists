@@ -25,13 +25,11 @@
 \usepackage{hyperref}
 \hypersetup{unicode=true,
             pdftitle={All Women Shortlists Methodology},
+            pdfauthor={Evan Odell},
             pdfborder={0 0 0},
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
-<<<<<<< HEAD
 \usepackage{longtable,booktabs}
-=======
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 \usepackage{graphicx,grffile}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -80,11 +78,14 @@
   \title{All Women Shortlists Methodology}
     \pretitle{\vspace{\droptitle}\centering\huge}
   \posttitle{\par}
-    \author{}
-    \preauthor{}\postauthor{}
-    \date{}
-    \predate{}\postdate{}
-  
+    \author{Evan Odell}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2018-10-25}
+
+\usepackage{array}
 \usepackage{float}
 \let\origfigure\figure
 \let\endorigfigure\endfigure
@@ -108,7 +109,6 @@
 \usepackage[normalem]{ulem}
 \usepackage{makecell}
 
-<<<<<<< HEAD
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}{Lemma}[section]
@@ -123,8 +123,6 @@
 \theoremstyle{remark}
 \newtheorem*{remark}{Remark}
 \newtheorem*{solution}{Solution}
-=======
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 \begin{document}
 \maketitle
 
@@ -139,7 +137,6 @@
 \hypertarget{descriptive-statistics}{%
 \section{Descriptive Statistics}\label{descriptive-statistics}}
 
-<<<<<<< HEAD
 Table \ref{tab:lab-desc-stats-table} shows the number of Labour MPs
 elected in each general election from 1997 to 2015, including newly
 elected MPs (the ``intake''), the number of newly elected MPs from all
@@ -151,18 +148,6 @@ from the House of Commons Library (Audickas, Hawkins, \& Cracknell,
 used by Labour during the 2001 General Election.
 
 \begin{table}[H]
-=======
-Table 1 shows the number of Labour MPs elected in each general election
-from 1997 to 2015, including newly elected MPs (the ``intake''), the
-number of newly elected MPs from all women shortlists (AWS), and the
-number of candidates selected through all women shortlists. Data in
-Table 1 is from the House of Commons Library (Audickas, Hawkins, \&
-Cracknell, \protect\hyperlink{ref-audickas2017}{2017}; Kelly \& White,
-\protect\hyperlink{ref-kelly2016}{2016}). All women shortlists were not
-used by Labour during the 2001 General Election.
-
-\begin{table}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \caption{\label{tab:lab-desc-stats-table}Labour MPs and Intakes}
 \centering
@@ -179,21 +164,12 @@ General Election & Total MPs & Labour MPs & Female Labour MPs & Labour MPs Intak
 \end{tabular}
 \end{table}
 
-<<<<<<< HEAD
 Table \ref{tab:speech-stats-table} shows the total size of the dataset
 in speeches and words by each party, including by gender for each party,
 and in the case of female Labour MPs, by AWS status. Details on
 inclusion criteria are given \protect\hyperlink{methodology}{below}.
 
 \begin{table}[H]
-=======
-Table 2 shows the total size of the dataset in speeches and words by
-each party, including by gender for each party, and in the case of
-female Labour MPs, by AWS status. Details on inclusion criteria are
-given \protect\hyperlink{methodology}{below}.
-
-\begin{table}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \caption{\label{tab:speech-stats-table}Number of Speeches and Words in Dataset}
 \centering
@@ -349,11 +325,15 @@ We also included mean words-per-sentence (WPS), total speach word count
 \hypertarget{women-vs-men}{%
 \subsubsection{Women vs Men}\label{women-vs-men}}
 
-<<<<<<< HEAD
+Table \ref{tab:gender-effect-sizes-table} shows there are no categories
+where gender differences meet the effect size threshold of \(|0.2|\)
+suggested by Cohen (\protect\hyperlink{ref-cohen1988}{1988}, pp. 25--26)
+to indicate a small effect. 4 categories -- words with more than six
+letters, prepositions, words-per-sentence and Flesh-Kincaid grade level
+-- met or exceeded the \(|0.1|\) threshold suggested by Newman et al.
+(\protect\hyperlink{ref-newman2008}{2008}).
+
 \begin{table}[H]
-=======
-\begin{table}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \caption{\label{tab:gender-effect-sizes-table}Effect Sizes for Male and Female Labour MPs}
 \centering
@@ -388,19 +368,10 @@ Flesh-Kincaid Grade Level & 10.97 & 7.77 & 9.91 & 7.96 & -0.13 & negligible\\
 \end{tabular}
 \end{table}
 
-There are no categories where gender differences meet the effect size
-threshold of \(|0.2|\) suggested by Cohen
-(\protect\hyperlink{ref-cohen1988}{1988}, pp. 25--26) to indicate a
-small effect. 4 categories -- words with more than six letters,
-prepositions, words-per-sentence and Flesh-Kincaid grade level -- met or
-exceeded the \(|0.1|\) threshold suggested by Newman et al.
-(\protect\hyperlink{ref-newman2008}{2008}).
-
 \hypertarget{shortlists-vs-non-shortlists}{%
 \subsubsection{Shortlists vs
 Non-Shortlists}\label{shortlists-vs-non-shortlists}}
 
-<<<<<<< HEAD
 Figure \ref{fig:sl-key-y-since-start} shows changes in the occurrences
 of selected LIWC terms, words-per-sentence, total word count and
 Flesch--Kincaid grade level, over the course of an MP's career, as
@@ -409,43 +380,27 @@ be any notable changes in speaking style over the course of female
 Labour MPs' careers. Figure \ref{fig:sl-key-date} shows changes in the
 occurrences of the same selected terms from 1997--2017. As in Figure
 \ref{fig:sl-key-y-since-start}, there do not appear to be any meaningful
-=======
-Figure \ref{sl-key-y-since-start} shows changes in the occurences of
-selected LIWC terms, words-per-sentence, total word count and
-Flesch--Kincaid grade level, over the course of an MP's career, as
-measured since the time an MP was first elected. There do not appear to
-be any notable changes in speaking style over the course of female
-Labour MPs' careers. Figure \ref{sl-key-date} shows changes in the
-occurences of the same selected terms from 1997--2017. As in Figure
-\ref{sl-key-y-since-start}, there do not appear to be any meaningful
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 trends in the use of the selected terms over time.
+
+There are no categories among female Labour MPs by selection process
+meeting the \(|0.2|\) threshold, as shown in Table
+\ref{tab:sl-effect-sizes}. Only one category - first person plural
+pronouns, \emph{d}=0.19 -- exceeded \(|0.1|\).
 
 \begin{figure}
 \centering
 \includegraphics{methodology_files/figure-latex/sl-key-y-since-start-1.pdf}
-<<<<<<< HEAD
 \caption{\label{fig:sl-key-y-since-start}Occurrence of selected LIWC terms,
-=======
-\caption{\label{sl-key-y-since-start}Occurence of selected LIWC terms,
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 by time as MP}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics{methodology_files/figure-latex/sl-key-date-1.pdf}
-<<<<<<< HEAD
 \caption{\label{fig:sl-key-date}Occurrence of selected LIWC terms, by date}
 \end{figure}
 
 \begin{table}[H]
-=======
-\caption{\label{sl-key-date}Occurence of selected LIWC terms, by date}
-\end{figure}
-
-\begin{table}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \caption{\label{tab:sl-effect-sizes}Effect Sizes for Female Labour MPs by selection process}
 \centering
@@ -480,18 +435,15 @@ Flesh-Kincaid Grade Level & 11.13 & 8.06 & 10.64 & 7.15 & 0.07 & negligible\\
 \end{tabular}
 \end{table}
 
-There are no categories among female Labour MPs by selection process
-meeting the \(|0.2|\) threshold. Only one category -- first person
-plural pronouns, \emph{d}=0.19 -- exceeded \(|0.1|\).
-
 \hypertarget{conservatives-vs-labour}{%
 \subsubsection{Conservatives vs Labour}\label{conservatives-vs-labour}}
 
-<<<<<<< HEAD
+As shown in Table \ref{tab:tory-labour-effect-sizes-table}, there are no
+categories with effect sizes exceeding \(|0.2|\) between Labour and
+Conservative MPs, and only one (first person plural pronouns) exceeding
+\(|0.1|\).
+
 \begin{table}[H]
-=======
-\begin{table}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \caption{\label{tab:tory-labour-effect-sizes-table}Effect Sizes for All Labour and Conservative MPs}
 \centering
@@ -526,10 +478,6 @@ Flesh-Kincaid Grade Level & 10.25 & 7.91 & 10.54 & 7.99 & 0.04 & negligible\\
 \end{tabular}
 \end{table}
 
-There are no categories with effect sizes exceeding \(|0.2|\) between
-Labour and Conservative MPs, and only one (first person plural pronouns)
-exceeding \(|0.1|\).
-
 \hypertarget{all-mps-gender-differences}{%
 \subsubsection{All MPs Gender
 Differences}\label{all-mps-gender-differences}}
@@ -540,11 +488,7 @@ only one category, ``Articles'', with an effect size of 0.11, greater
 than the \(|0.1|\) threshold suggested by Newman et al.
 (\protect\hyperlink{ref-newman2008}{2008}).
 
-<<<<<<< HEAD
 \begin{table}[H]
-=======
-\begin{table}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \caption{\label{tab:all-party-effect-sizes}Effect Sizes for Male and Female MPs, All Parties}
 \centering
@@ -582,11 +526,15 @@ Flesh-Kincaid Grade Level & 10.95 & 7.82 & 10.43 & 8.08 & -0.07 & negligible\\
 \hypertarget{pos-analysis}{%
 \subsection{POS Analysis}\label{pos-analysis}}
 
-<<<<<<< HEAD
+Part-of-speech (POS) tagging was done using the \texttt{spaCy} library
+(Honnibal \& Montani, \protect\hyperlink{ref-honnibal2017}{2017}) and
+the \texttt{spacyr} package (Benoit \& Matsuo,
+\protect\hyperlink{ref-benoit2018a}{2018}). There is one small gender
+difference (\emph{d} = -0.22) in the use of plural nouns, which make up
+5.86\% of the words used by female Labour MPs, compared to 5.04\% of
+words spoken by male Labour MPs (Table \ref{tab:pos-gender-table}).
+
 \begin{table}[H]
-=======
-\begin{table}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \caption{\label{tab:pos-gender-table}Part-of-Speech Effect Sizes for Male and Female Labour MPs}
 \centering
@@ -606,11 +554,12 @@ Verbs & 20.97 & 9.52 & 20.81 & 10.28 & -0.02 & negligible\\
 \end{tabular}
 \end{table}
 
-<<<<<<< HEAD
+As with LIWC, there are no categories where \emph{d} \textgreater{}=
+\(|0.2|\) when comparing female Labour MPs by selection process, and
+only one category -- plural nouns -- with an effect size of \emph{d}
+\textgreater{}= \(|0.1|\) (Table \ref{tab:pos-sl-table}).
+
 \begin{table}[H]
-=======
-\begin{table}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \caption{\label{tab:pos-sl-table}Part-of-Speech Effect Sizes for AWS and non-AWS Labour MPs}
 \centering
@@ -630,17 +579,6 @@ Verbs & 20.92 & 9.02 & 21.00 & 9.77 & -0.02 & negligible\\
 \end{tabular}
 \end{table}
 
-Part-of-speech (POS) tagging was done using the \texttt{spaCy} library
-(Honnibal \& Montani, \protect\hyperlink{ref-honnibal2017}{2017}) and
-the \texttt{spacyr} package (Benoit \& Matsuo,
-\protect\hyperlink{ref-benoit2018a}{2018}). There is one small gender
-difference (\emph{d} = -0.22) in the use of plural nouns, which make up
-5.86\% of the words used by female Labour MPs, compared to 5.04\% of
-words spoken by male Labour MPs. As with LIWC, there are no categories
-where \emph{d} \textgreater{}= \(|0.2|\) when comparing female Labour
-MPs by selection process, and only one category -- plural nouns -- with
-an effect size of \emph{d} \textgreater{}= \(|0.1|\).
-
 \hypertarget{keyness}{%
 \subsection{Keyness}\label{keyness}}
 
@@ -659,11 +597,7 @@ disproportionately common words among each group, as determined by
 Keyness -- a linguistic measure of the frequency of different words in
 two groups of texts -- reveals clear gender differences in the most
 disproportionately common words used by female and male Labour MPs,
-<<<<<<< HEAD
 illustrated in Figure \ref{fig:gender-keyness-plot}.
-=======
-illustrated in Figure \ref{gender-keyness}.
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 Unsurprisingly, despite male MPs saying almost twice as many words
 (65,827,133 vs 34,159,304) as their female colleagues, female Labour MPs
@@ -685,25 +619,16 @@ processes of the parliamentary system than their female colleagues.
 \begin{figure}
 \centering
 \includegraphics{methodology_files/figure-latex/gender-keyness-plot-1.pdf}
-<<<<<<< HEAD
 \caption{\label{fig:gender-keyness-plot}Keyness between Labour MPs, by
 Gender}
-=======
-\caption{\label{gender-keyness}Keyness between Labour MPs, by Gender}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 \end{figure}
 
 \hypertarget{shortlists-vs-non-shortlists-1}{%
 \subsubsection{Shortlists vs
 Non-Shortlists}\label{shortlists-vs-non-shortlists-1}}
 
-<<<<<<< HEAD
 Keyness differences by selection process (Figure \ref{fig:sl-keyness})
 are not as obviously stereotypical. Nonetheless, the most common words
-=======
-Keyness differences by selection process (Figure \ref{sl-keyness}) are
-not as obviously stereotypical. Nonetheless, the most common words
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 amongst AWS MPs included ``carers'', ``disabled'', ``bedroom'' and
 ``sen'' (Special Educational Needs). Also of note is AWS MPs making more
 references to their ``constituency'' and its ``constituents'',
@@ -714,20 +639,14 @@ constitutency, compared to non-AWS MPs.
 
 \begin{figure}
 \centering
-<<<<<<< HEAD
 \includegraphics{methodology_files/figure-latex/sl-keyness-1.pdf}
 \caption{\label{fig:sl-keyness}Keyness between Female Labour MPs, by
-=======
-\includegraphics{methodology_files/figure-latex/short-list-keyness-plot-1.pdf}
-\caption{\label{sl-keyness}Keyness between Female Labour MPs, by
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 Selection Process}
 \end{figure}
 
 \hypertarget{labour-vs-conservative}{%
 \subsubsection{Labour vs Conservative}\label{labour-vs-conservative}}
 
-<<<<<<< HEAD
 The keyness differences (Figure \ref{fig:lab-con-keyness}) between
 Labour and Conservative MPs are much greater than gender or AWS
 differences within Labour. The very high use of ``Lady'' by Conservative
@@ -735,24 +654,11 @@ MPs is reflective of the greater proportion of female MPs in other
 parties, as it is often used to refer to comments by other members of
 the house. It may also represent a greater use of traditional house
 decorum by Conservative MPs.
-=======
-The keyness differences (Figure \ref{party-keyness}) between Labour and
-Conservative MPs are much greater than gender or AWS differences within
-Labour. The very high use of ``Lady'' by Conservative MPs is reflective
-of the greater proportion of female MPs in other parties, as it is often
-used to refer to comments by other members of the house. It may also
-represent a greater use of traditional hosue decorum by Conservative
-MPs.
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \begin{figure}
 \centering
 \includegraphics{methodology_files/figure-latex/lab-con-keyness-1.pdf}
-<<<<<<< HEAD
 \caption{\label{fig:lab-con-keyness}Keyness between Labour and Conservative
-=======
-\caption{\label{party-keyness}Keyness between Labour and Conservative
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 MPs}
 \end{figure}
 
@@ -760,7 +666,6 @@ MPs}
 \subsection{Bigrams}\label{bigrams}}
 
 We created bigrams of all first person plural and singular pronouns for
-<<<<<<< HEAD
 female Labour MPs (Figure \ref{fig:bigrams-sl-keyness}). As above, AWS
 MPs are far more likely to make references to their constituency or
 their constituents, and the use of bigrams confirms these references are
@@ -772,16 +677,6 @@ MPs, or constituencies in general.
 \includegraphics{methodology_files/figure-latex/bigrams-sl-keyness-1.pdf}
 \caption{\label{fig:bigrams-sl-keyness}Bigram Keyness in Female Labour MPs
 by Selection Process}
-=======
-female Labour MPs. As above, AWS MPs are far more likely to make
-references to their constituency or their constituents.
-
-\begin{figure}
-\centering
-\includegraphics{methodology_files/figure-latex/bigrams-short-list-keyness-1.pdf}
-\caption{\label{bigrams-keyness}Bigram Keyness in Female Labour MPs by
-Selection Process}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 \end{figure}
 
 \hypertarget{naive-bayes-classification}{%
@@ -840,7 +735,6 @@ and gender variables.
 We incorporated the AWS status of speakers and their gender as
 prevalence covariates into our topic model.
 
-<<<<<<< HEAD
 We created six topic models with different numbers of topics (\emph{K}).
 We created models with 30, 45, 60, 80 and 100 topics, and used a topic
 selection algorithm developed by Lee \& Mimno
@@ -893,351 +787,416 @@ variable and model covariates (AWS status and gender) as independent
 variables. The intercept in this model is all speeches by male Labour
 MPs.
 
-\begin{longtabu} to \linewidth {>{\raggedright}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X}
+\begin{longtabu} to \linewidth {>{\raggedright}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedright}X}
 \caption{\label{tab:estimate-table-k0}Topic Estimates}\\
 \toprule
- & Estimate & Standard Error & t value & Pr(>|t|)\\
+ &  & Estimate & Standard Error & t value & Pr(>|t|)\\
 \midrule
 \endfirsthead
 \caption[]{\label{tab:estimate-table-k0}Topic Estimates \textit{(continued)}}\\
 \toprule
- & Estimate & Standard Error & t value & Pr(>|t|)\\
+ &  & Estimate & Standard Error & t value & Pr(>|t|)\\
 \midrule
 \endhead
 \
 \endfoot
 \bottomrule
 \endlastfoot
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 1 -- Employment \& unions}}\\
-\hspace{1em}Intercept & 0.0120862 & 0.0001184 & 102.0514999 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0003799 & 0.0003228 & -1.1766212 & 0.24\\
-\hspace{1em}AWS & -0.0013394 & 0.0002463 & -5.4389520 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 2 -- Legal system}}\\
-\hspace{1em}Intercept & 0.0167032 & 0.0001793 & 93.1606154 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0069690 & 0.0005410 & 12.8821364 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0033040 & 0.0003299 & -10.0153800 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 3 -- Roads}}\\
-\hspace{1em}Intercept & 0.0116638 & 0.0001505 & 77.4900594 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0014892 & 0.0004117 & -3.6174617 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0019496 & 0.0002949 & -6.6116237 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 4 -- Housing}}\\
-\hspace{1em}Intercept & 0.0112839 & 0.0001700 & 66.3580229 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0044549 & 0.0004888 & 9.1138451 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0060414 & 0.0003719 & 16.2452789 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 5 -- Police, firefighters \& prison}}\\
-\hspace{1em}Intercept & 0.0140713 & 0.0001765 & 79.7077064 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0032607 & 0.0005310 & 6.1405587 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0003205 & 0.0003598 & -0.8906177 & 0.37\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 6 -- Northern Ireland}}\\
-\hspace{1em}Intercept & 0.0089512 & 0.0000476 & 188.1040345 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0000912 & 0.0001259 & 0.7243872 & 0.47\\
-\hspace{1em}AWS & -0.0003743 & 0.0001139 & -3.2875592 & 0.001 **\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 7 -- Committee}}\\
-\hspace{1em}Intercept & 0.0213277 & 0.0001401 & 152.2393713 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0007069 & 0.0003793 & -1.8634845 & 0.062\\
-\hspace{1em}AWS & -0.0019503 & 0.0002692 & -7.2457231 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 8 -- Schools}}\\
-\hspace{1em}Intercept & 0.0147218 & 0.0001996 & 73.7524738 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0009633 & 0.0005047 & -1.9086784 & 0.056\\
-\hspace{1em}AWS & 0.0021242 & 0.0004257 & 4.9894237 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 9 -- Energy \& climate change}}\\
-\hspace{1em}Intercept & 0.0170582 & 0.0001996 & 85.4566489 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0011694 & 0.0005192 & -2.2524645 & 0.024 *\\
-\hspace{1em}AWS & -0.0035142 & 0.0004352 & -8.0751172 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 10 -- Defence}}\\
-\hspace{1em}Intercept & 0.0157860 & 0.0001938 & 81.4435774 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0075456 & 0.0004654 & -16.2134656 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0054174 & 0.0003678 & -14.7292498 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 11 -- Parliament}}\\
-\hspace{1em}Intercept & 0.0118988 & 0.0000785 & 151.5356984 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0036960 & 0.0002025 & -18.2504201 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0010972 & 0.0001535 & -7.1492967 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 12 -- International politics}}\\
-\hspace{1em}Intercept & 0.0126072 & 0.0001309 & 96.3364797 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0042348 & 0.0003192 & -13.2669303 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0054787 & 0.0002561 & -21.3901700 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 13 -- Ministers}}\\
-\hspace{1em}Intercept & 0.0167416 & 0.0001104 & 151.6885875 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0029753 & 0.0002833 & -10.5039388 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0031499 & 0.0002370 & 13.2901248 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 14 -- Policy impact}}\\
-\hspace{1em}Intercept & 0.0115296 & 0.0000460 & 250.5201444 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0002501 & 0.0001402 & 1.7838929 & 0.074\\
-\hspace{1em}AWS & 0.0013692 & 0.0001041 & 13.1500213 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 15 -- Gender}}\\
-\hspace{1em}Intercept & 0.0048725 & 0.0001184 & 41.1676413 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0123752 & 0.0003738 & 33.1029141 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0119884 & 0.0003415 & 35.1095704 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 16 -- Regional development}}\\
-\hspace{1em}Intercept & 0.0230411 & 0.0001283 & 179.5583409 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0070435 & 0.0003614 & 19.4874058 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0002605 & 0.0002557 & 1.0188203 & 0.31\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 17 -- Communications}}\\
-\hspace{1em}Intercept & 0.0097585 & 0.0001199 & 81.4042658 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0006802 & 0.0003543 & -1.9200223 & 0.055\\
-\hspace{1em}AWS & -0.0012008 & 0.0002623 & -4.5784156 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 18 -- Immigration}}\\
-\hspace{1em}Intercept & 0.0087077 & 0.0000961 & 90.5799857 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0007341 & 0.0002708 & 2.7113024 & 0.007 **\\
-\hspace{1em}AWS & -0.0004178 & 0.0001887 & -2.2136439 & 0.027 *\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 19 -- Health system}}\\
-\hspace{1em}Intercept & 0.0161572 & 0.0002158 & 74.8710588 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0112570 & 0.0006451 & 17.4495585 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0062992 & 0.0004682 & 13.4533589 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 20 -- International development}}\\
-\hspace{1em}Intercept & 0.0160712 & 0.0001998 & 80.4544519 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0004256 & 0.0005224 & 0.8147287 & 0.42\\
-\hspace{1em}AWS & -0.0033515 & 0.0003870 & -8.6602597 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 21 -- Benefits \& disability}}\\
-\hspace{1em}Intercept & 0.0120341 & 0.0001418 & 84.8889126 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0009239 & 0.0003845 & 2.4028394 & 0.016 *\\
-\hspace{1em}AWS & 0.0120278 & 0.0003165 & 37.9965526 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 22 -- Sport \& culture}}\\
-\hspace{1em}Intercept & 0.0127175 & 0.0001618 & 78.6004689 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0024666 & 0.0004094 & -6.0242852 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0007466 & 0.0003289 & 2.2696559 & 0.023 *\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 23 -- History}}\\
-\hspace{1em}Intercept & 0.0137416 & 0.0001065 & 129.0349444 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0060877 & 0.0002707 & -22.4908633 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0040068 & 0.0002038 & -19.6633448 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 24 -- Higher education \& skills}}\\
-\hspace{1em}Intercept & 0.0143130 & 0.0001657 & 86.3994893 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0010222 & 0.0004387 & -2.3299284 & 0.020 *\\
-\hspace{1em}AWS & -0.0001155 & 0.0003378 & -0.3418543 & 0.73\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 25 -- Concurring point}}\\
-\hspace{1em}Intercept & 0.0155249 & 0.0000455 & 340.8643243 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0018970 & 0.0001204 & -15.7591726 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0030025 & 0.0000881 & -34.0898947 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 26 -- Pensions}}\\
-\hspace{1em}Intercept & 0.0146921 & 0.0001656 & 88.7061087 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0007088 & 0.0004266 & 1.6614446 & 0.097\\
-\hspace{1em}AWS & 0.0026239 & 0.0003306 & 7.9358847 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 27 -- Points of order}}\\
-\hspace{1em}Intercept & 0.0177825 & 0.0001312 & 135.5164893 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0065270 & 0.0003204 & -20.3722927 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0048112 & 0.0002530 & -19.0151971 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 28 -- Issues}}\\
-\hspace{1em}Intercept & 0.0344884 & 0.0000992 & 347.7808680 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0070252 & 0.0002815 & 24.9548904 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0025891 & 0.0001988 & -13.0261303 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 29 -- Constituencies}}\\
-\hspace{1em}Intercept & 0.0131813 & 0.0000489 & 269.7079872 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0011059 & 0.0001440 & 7.6807265 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0029681 & 0.0001078 & 27.5384439 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 30 -- Ethnic groups \& racism}}\\
-\hspace{1em}Intercept & 0.0085768 & 0.0000759 & 113.0279104 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0019119 & 0.0002180 & 8.7682209 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0019284 & 0.0001703 & 11.3231174 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 31 -- Amendments}}\\
-\hspace{1em}Intercept & 0.0149882 & 0.0001575 & 95.1836747 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0017636 & 0.0004298 & -4.1035700 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0033144 & 0.0003282 & -10.0985521 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 32 -- Reports}}\\
-\hspace{1em}Intercept & 0.0169549 & 0.0001064 & 159.3397451 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0012137 & 0.0002922 & 4.1538908 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0013410 & 0.0002357 & 5.6894508 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 33 -- People}}\\
-\hspace{1em}Intercept & 0.0377531 & 0.0001138 & 331.6403748 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0022831 & 0.0002859 & -7.9846749 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0010462 & 0.0002441 & -4.2855238 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 34 -- Wales \& Scotland}}\\
-\hspace{1em}Intercept & 0.0135400 & 0.0001613 & 83.9505531 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0047679 & 0.0003714 & -12.8373417 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0023185 & 0.0003053 & -7.5932499 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 35 -- Alcohol \& tobacco}}\\
-\hspace{1em}Intercept & 0.0108964 & 0.0001606 & 67.8441920 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0008338 & 0.0004299 & -1.9396388 & 0.052\\
-\hspace{1em}AWS & 0.0011983 & 0.0003138 & 3.8193041 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 36 -- Place names}}\\
-\hspace{1em}Intercept & 0.0083690 & 0.0000676 & 123.7103735 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0000216 & 0.0001854 & 0.1164329 & 0.91\\
-\hspace{1em}AWS & 0.0011689 & 0.0001439 & 8.1255803 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 37 -- Budget}}\\
-\hspace{1em}Intercept & 0.0246573 & 0.0001698 & 145.1771858 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0023164 & 0.0004581 & -5.0570503 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0007141 & 0.0003659 & 1.9518902 & 0.051\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 38 -- Tax}}\\
-\hspace{1em}Intercept & 0.0193483 & 0.0001813 & 106.7409141 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0013548 & 0.0005218 & -2.5962669 & 0.009 **\\
-\hspace{1em}AWS & 0.0054422 & 0.0003783 & 14.3865019 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 39 -- Private companies}}\\
-\hspace{1em}Intercept & 0.0123819 & 0.0001248 & 99.2533292 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0005534 & 0.0003533 & 1.5666914 & 0.12\\
-\hspace{1em}AWS & -0.0018003 & 0.0002481 & -7.2565512 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 40 -- Environment \& fishing}}\\
-\hspace{1em}Intercept & 0.0094616 & 0.0001525 & 62.0389897 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0031014 & 0.0003574 & -8.6766592 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0021450 & 0.0002959 & -7.2480571 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 41 -- Crime}}\\
-\hspace{1em}Intercept & 0.0141431 & 0.0001677 & 84.3317735 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0086019 & 0.0005406 & 15.9126521 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0034662 & 0.0003583 & 9.6741306 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 42 -- Bills}}\\
-\hspace{1em}Intercept & 0.0244474 & 0.0001473 & 165.9430659 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0021314 & 0.0004092 & 5.2087163 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0029693 & 0.0002791 & -10.6387333 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 43 -- Children}}\\
-\hspace{1em}Intercept & 0.0076744 & 0.0001331 & 57.6710441 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0092062 & 0.0004013 & 22.9397861 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0095694 & 0.0002847 & 33.6152819 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 44 -- Utilities \& PFI}}\\
-\hspace{1em}Intercept & 0.0123349 & 0.0000949 & 130.0192965 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0007792 & 0.0002348 & -3.3180194 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0002424 & 0.0001874 & 1.2930126 & 0.20\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 45 -- Middle East}}\\
-\hspace{1em}Intercept & 0.0174954 & 0.0002047 & 85.4622512 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0028459 & 0.0005239 & -5.4327115 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0017174 & 0.0004254 & -4.0366447 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 46 -- Local authorities}}\\
-\hspace{1em}Intercept & 0.0179705 & 0.0001441 & 124.7140327 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0044460 & 0.0004071 & 10.9222685 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0001175 & 0.0003132 & 0.3752453 & 0.71\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 47 -- Elections}}\\
-\hspace{1em}Intercept & 0.0181739 & 0.0001770 & 102.6990229 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0091578 & 0.0004206 & -21.7748190 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0068048 & 0.0003441 & -19.7752340 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 48 -- Debate}}\\
-\hspace{1em}Intercept & 0.0180055 & 0.0000744 & 242.1652775 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0034976 & 0.0002004 & -17.4542734 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0009784 & 0.0001449 & -6.7535198 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 49 -- Transport}}\\
-\hspace{1em}Intercept & 0.0164420 & 0.0001989 & 82.6554691 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0027373 & 0.0005170 & -5.2949484 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0008817 & 0.0003929 & 2.2442760 & 0.025 *\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 50 -- Questions}}\\
-\hspace{1em}Intercept & 0.0161734 & 0.0000751 & 215.2147452 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0001342 & 0.0001892 & 0.7091762 & 0.48\\
-\hspace{1em}AWS & 0.0002145 & 0.0001590 & 1.3487738 & 0.18\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 51 -- Families}}\\
-\hspace{1em}Intercept & 0.0101048 & 0.0001120 & 90.2329097 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0019115 & 0.0003350 & 5.7063441 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0058736 & 0.0002492 & 23.5724036 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 52 -- Health research}}\\
-\hspace{1em}Intercept & 0.0088039 & 0.0001515 & 58.0975570 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0076307 & 0.0004391 & 17.3765585 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0036093 & 0.0003241 & 11.1360045 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 53 -- Dispatch box}}\\
-\hspace{1em}Intercept & 0.0075509 & 0.0000222 & 339.5595793 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0011340 & 0.0000541 & -20.9643113 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0009568 & 0.0000449 & -21.2874906 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 54 -- Parties}}\\
-\hspace{1em}Intercept & 0.0248198 & 0.0001254 & 197.9714514 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0066223 & 0.0003402 & -19.4685926 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0060013 & 0.0002642 & -22.7136997 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 55 -- Statements}}\\
-\hspace{1em}Intercept & 0.0211136 & 0.0000691 & 305.6748570 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0045069 & 0.0001825 & -24.6888834 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0014969 & 0.0001322 & -11.3235789 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 56 -- European Union}}\\
-\hspace{1em}Intercept & 0.0163497 & 0.0001622 & 100.7685715 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0024147 & 0.0004613 & -5.2346807 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0053902 & 0.0003339 & -16.1442216 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 57 -- Locations}}\\
-\hspace{1em}Intercept & 0.0100655 & 0.0001093 & 92.0882958 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0025098 & 0.0002662 & -9.4300170 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0000362 & 0.0002079 & 0.1739532 & 0.86\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 58 -- Jobs \& manufacturing}}\\
-\hspace{1em}Intercept & 0.0175808 & 0.0001699 & 103.5079359 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0016172 & 0.0004389 & -3.6845577 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0012164 & 0.0003493 & 3.4822434 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 59 -- Small business}}\\
-\hspace{1em}Intercept & 0.0070661 & 0.0000727 & 97.2469297 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0005518 & 0.0001980 & 2.7872106 & 0.005 **\\
-\hspace{1em}AWS & -0.0003661 & 0.0001477 & -2.4786832 & 0.013 *\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 60 -- Agreement \& disagreement}}\\
-\hspace{1em}Intercept & 0.0328535 & 0.0001167 & 281.6339411 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0089898 & 0.0003000 & -29.9708198 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0109420 & 0.0002069 & -52.8929433 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 61 -- Voluntary sector}}\\
-\hspace{1em}Intercept & 0.0187146 & 0.0001254 & 149.2922884 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0111175 & 0.0003750 & 29.6443690 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0056545 & 0.0002501 & 22.6080984 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 62 -- Comments}}\\
-\hspace{1em}Intercept & 0.0152723 & 0.0000672 & 227.1040587 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0029204 & 0.0001703 & -17.1477213 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0040206 & 0.0001217 & -33.0261801 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 63 -- Social care}}\\
-\hspace{1em}Intercept & 0.0090477 & 0.0001161 & 77.9622405 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0094855 & 0.0003807 & 24.9132885 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0073834 & 0.0002806 & 26.3138604 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 64 -- Time}}\\
-\hspace{1em}Intercept & 0.0213815 & 0.0000677 & 315.7329637 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0020748 & 0.0001766 & -11.7516924 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0016508 & 0.0001430 & -11.5468764 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 65 -- Media \& animals}}\\
-\hspace{1em}Intercept & 0.0121377 & 0.0001639 & 74.0746788 & < 0.001 ***\\
-\hspace{1em}Non-AWS & -0.0057058 & 0.0004023 & -14.1823871 & < 0.001 ***\\
-\hspace{1em}AWS & -0.0017740 & 0.0003206 & -5.5328038 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{5}{l}{\textbf{Topic 66 -- Other}}\\
-\hspace{1em}Intercept & 0.0038248 & 0.0000114 & 334.2824056 & < 0.001 ***\\
-\hspace{1em}Non-AWS & 0.0002529 & 0.0000296 & 8.5582161 & < 0.001 ***\\
-\hspace{1em}AWS & 0.0003065 & 0.0000251 & 12.2093927 & < 0.001 ***\\*
+ & Intercept & 0.0120888 & 0.0001178 & 102.6207609 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0003789 & 0.0003148 & -1.2036179 & 0.23\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (1) Employment \& unions} & AWS & -0.0013465 & 0.0002461 & -5.4715603 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0167059 & 0.0001793 & 93.1509772 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0069636 & 0.0005470 & 12.7297775 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (2) Legal system} & AWS & -0.0033126 & 0.0003299 & -10.0398744 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0116653 & 0.0001534 & 76.0329657 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0014865 & 0.0004064 & -3.6575949 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (3) Roads} & AWS & -0.0019506 & 0.0002972 & -6.5626439 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0112840 & 0.0001700 & 66.3851110 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0044556 & 0.0004910 & 9.0743223 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (4) Housing} & AWS & 0.0060384 & 0.0003726 & 16.2079091 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0140706 & 0.0001766 & 79.6599038 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0032594 & 0.0005306 & 6.1425132 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (5) Police, firefighters \& prison} & AWS & -0.0003211 & 0.0003580 & -0.8968734 & 0.37\\
+\cmidrule{1-6}
+ & Intercept & 0.0089512 & 0.0000479 & 186.9687383 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0000927 & 0.0001254 & 0.7393203 & 0.46\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (6) Northern Ireland} & AWS & -0.0003742 & 0.0001135 & -3.2957187 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0213286 & 0.0001401 & 152.2480371 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0007067 & 0.0003755 & -1.8820056 & 0.060\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (7) Committee} & AWS & -0.0019549 & 0.0002695 & -7.2543909 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0147204 & 0.0001992 & 73.8942771 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0009650 & 0.0005007 & -1.9273270 & 0.054\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (8) Schools} & AWS & 0.0021256 & 0.0004195 & 5.0664763 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0170560 & 0.0001989 & 85.7313081 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0011700 & 0.0005276 & -2.2175468 & 0.027 *\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (9) Energy \& climate change} & AWS & -0.0035130 & 0.0004327 & -8.1187179 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0157885 & 0.0001961 & 80.4931880 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0075479 & 0.0004673 & -16.1523984 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (10) Defence} & AWS & -0.0054199 & 0.0003717 & -14.5803283 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0118988 & 0.0000782 & 152.2137390 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0036969 & 0.0001975 & -18.7170311 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (11) Parliament} & AWS & -0.0010975 & 0.0001545 & -7.1029189 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0126074 & 0.0001317 & 95.7202390 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0042376 & 0.0003207 & -13.2148342 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (12) International politics} & AWS & -0.0054751 & 0.0002571 & -21.2971219 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0167425 & 0.0001100 & 152.1375443 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0029751 & 0.0002869 & -10.3699452 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (13) Ministers} & AWS & 0.0031476 & 0.0002360 & 13.3392646 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0115301 & 0.0000456 & 252.8430854 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0002514 & 0.0001393 & 1.8045725 & 0.071\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (14) Policy impact} & AWS & 0.0013687 & 0.0001043 & 13.1181516 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0048744 & 0.0001190 & 40.9513068 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0123730 & 0.0003703 & 33.4134974 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (15) Gender} & AWS & 0.0119844 & 0.0003383 & 35.4273254 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0230391 & 0.0001296 & 177.7745625 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0070479 & 0.0003631 & 19.4089078 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (16) Regional development} & AWS & 0.0002662 & 0.0002556 & 1.0417083 & 0.30\\
+\cmidrule{1-6}
+ & Intercept & 0.0097590 & 0.0001216 & 80.2448598 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0006791 & 0.0003558 & -1.9084009 & 0.056\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (17) Communications} & AWS & -0.0012030 & 0.0002652 & -4.5359044 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0087070 & 0.0000954 & 91.2701772 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0007389 & 0.0002708 & 2.7288967 & 0.006 **\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (18) Immigration} & AWS & -0.0004165 & 0.0001877 & -2.2188444 & 0.026 *\\
+\cmidrule{1-6}
+ & Intercept & 0.0161560 & 0.0002152 & 75.0578742 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0112569 & 0.0006412 & 17.5569007 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (19) Health system} & AWS & 0.0062978 & 0.0004711 & 13.3680540 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0160721 & 0.0002007 & 80.0858640 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0004169 & 0.0005295 & 0.7874512 & 0.43\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (20) International development} & AWS & -0.0033585 & 0.0003930 & -8.5459568 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0120356 & 0.0001420 & 84.7801002 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0009219 & 0.0003825 & 2.4103441 & 0.016 *\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (21) Benefits \& disability} & AWS & 0.0120237 & 0.0003162 & 38.0267946 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0127186 & 0.0001621 & 78.4784337 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0024710 & 0.0004093 & -6.0365993 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (22) Sport \& culture} & AWS & 0.0007438 & 0.0003253 & 2.2865634 & 0.022 *\\
+\cmidrule{1-6}
+ & Intercept & 0.0137409 & 0.0001075 & 127.8576615 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0060868 & 0.0002725 & -22.3355410 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (23) History} & AWS & -0.0040067 & 0.0002053 & -19.5138660 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0143147 & 0.0001663 & 86.1011887 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0010212 & 0.0004363 & -2.3408242 & 0.019 *\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (24) Higher education \& skills} & AWS & -0.0001187 & 0.0003390 & -0.3501880 & 0.73\\
+\cmidrule{1-6}
+ & Intercept & 0.0155251 & 0.0000455 & 341.5239093 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0018965 & 0.0001198 & -15.8370625 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (25) Concurring point} & AWS & -0.0030028 & 0.0000881 & -34.0822282 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0146922 & 0.0001644 & 89.3585721 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0007062 & 0.0004256 & 1.6591475 & 0.097\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (26) Pensions} & AWS & 0.0026268 & 0.0003314 & 7.9260121 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0177826 & 0.0001289 & 137.9560812 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0065299 & 0.0003217 & -20.2995950 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (27) Points of order} & AWS & -0.0048147 & 0.0002501 & -19.2542330 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0344876 & 0.0000989 & 348.5758700 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0070279 & 0.0002802 & 25.0789103 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (28) Issues} & AWS & -0.0025848 & 0.0001992 & -12.9759967 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0131823 & 0.0000487 & 270.4829494 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0011043 & 0.0001413 & 7.8140933 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (29) Constituencies} & AWS & 0.0029672 & 0.0001077 & 27.5623637 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0085769 & 0.0000759 & 113.0238684 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0019127 & 0.0002216 & 8.6305954 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (30) Ethnic groups \& racism} & AWS & 0.0019284 & 0.0001713 & 11.2560787 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0149888 & 0.0001574 & 95.2276588 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0017672 & 0.0004317 & -4.0930192 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (31) Amendments} & AWS & -0.0033169 & 0.0003271 & -10.1410478 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0169545 & 0.0001051 & 161.3924505 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0012142 & 0.0002876 & 4.2211628 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (32) Reports} & AWS & 0.0013433 & 0.0002351 & 5.7149497 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0377535 & 0.0001141 & 330.9959877 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0022839 & 0.0002856 & -7.9959376 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (33) People} & AWS & -0.0010469 & 0.0002403 & -4.3563656 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0135426 & 0.0001626 & 83.3072241 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0047668 & 0.0003660 & -13.0248683 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (34) Wales \& Scotland} & AWS & -0.0023237 & 0.0003017 & -7.7013426 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0108970 & 0.0001602 & 68.0157187 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0008332 & 0.0004344 & -1.9179306 & 0.055\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (35) Alcohol \& tobacco} & AWS & 0.0011896 & 0.0003157 & 3.7684825 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0083687 & 0.0000669 & 125.1467071 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0000215 & 0.0001852 & 0.1160818 & 0.91\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (36) Place names} & AWS & 0.0011694 & 0.0001457 & 8.0260801 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0246559 & 0.0001707 & 144.4057423 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0023121 & 0.0004551 & -5.0808110 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (37) Budget} & AWS & 0.0007186 & 0.0003700 & 1.9421831 & 0.052\\
+\cmidrule{1-6}
+ & Intercept & 0.0193463 & 0.0001839 & 105.2177025 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0013507 & 0.0005222 & -2.5866393 & 0.010 **\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (38) Tax} & AWS & 0.0054452 & 0.0003801 & 14.3241563 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0123822 & 0.0001231 & 100.5622646 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0005476 & 0.0003530 & 1.5512923 & 0.12\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (39) Private companies} & AWS & -0.0017986 & 0.0002410 & -7.4637103 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0094593 & 0.0001554 & 60.8703332 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0030966 & 0.0003590 & -8.6256246 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (40) Environment \& fishing} & AWS & -0.0021431 & 0.0002972 & -7.2104552 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0141414 & 0.0001678 & 84.2838152 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0086017 & 0.0005357 & 16.0583471 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (41) Crime} & AWS & 0.0034713 & 0.0003588 & 9.6742449 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0244505 & 0.0001479 & 165.3707381 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0021315 & 0.0004154 & 5.1316135 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (42) Bills} & AWS & -0.0029731 & 0.0002794 & -10.6403551 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0076732 & 0.0001334 & 57.5213940 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0092120 & 0.0004022 & 22.9048156 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (43) Children} & AWS & 0.0095672 & 0.0002849 & 33.5775063 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0123341 & 0.0000950 & 129.8832950 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0007809 & 0.0002313 & -3.3755091 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (44) Utilities \& PFI} & AWS & 0.0002427 & 0.0001882 & 1.2893503 & 0.20\\
+\cmidrule{1-6}
+ & Intercept & 0.0174911 & 0.0002032 & 86.0965148 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0028426 & 0.0005205 & -5.4610156 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (45) Middle East} & AWS & -0.0017124 & 0.0004241 & -4.0379736 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0179690 & 0.0001440 & 124.7990299 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0044436 & 0.0004047 & 10.9809236 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (46) Local authorities} & AWS & 0.0001255 & 0.0003158 & 0.3973772 & 0.69\\
+\cmidrule{1-6}
+ & Intercept & 0.0181760 & 0.0001744 & 104.2304478 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0091719 & 0.0004160 & -22.0467462 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (47) Elections} & AWS & -0.0068107 & 0.0003435 & -19.8249723 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0180051 & 0.0000740 & 243.4560321 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0034963 & 0.0001993 & -17.5442276 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (48) Debate} & AWS & -0.0009781 & 0.0001463 & -6.6838588 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0164409 & 0.0001990 & 82.6102476 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0027435 & 0.0005152 & -5.3246978 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (49) Transport} & AWS & 0.0008858 & 0.0003919 & 2.2601217 & 0.024 *\\
+\cmidrule{1-6}
+ & Intercept & 0.0161734 & 0.0000754 & 214.4489860 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0001322 & 0.0001922 & 0.6881049 & 0.49\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (50) Questions} & AWS & 0.0002167 & 0.0001602 & 1.3530847 & 0.18\\
+\cmidrule{1-6}
+ & Intercept & 0.0101064 & 0.0001123 & 90.0068284 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0019112 & 0.0003357 & 5.6937074 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (51) Families} & AWS & 0.0058679 & 0.0002503 & 23.4470168 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0088047 & 0.0001527 & 57.6752383 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0076317 & 0.0004412 & 17.2968701 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (52) Health research} & AWS & 0.0036096 & 0.0003276 & 11.0195896 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0075507 & 0.0000226 & 334.4435527 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0011339 & 0.0000539 & -21.0226709 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (53) Dispatch box} & AWS & -0.0009564 & 0.0000454 & -21.0477435 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0248192 & 0.0001247 & 199.0509225 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0066206 & 0.0003398 & -19.4818710 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (54) Parties} & AWS & -0.0059979 & 0.0002615 & -22.9408627 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0211142 & 0.0000693 & 304.7907001 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0045072 & 0.0001847 & -24.3999682 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (55) Statements} & AWS & -0.0014965 & 0.0001320 & -11.3348121 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0163483 & 0.0001622 & 100.8162901 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0024198 & 0.0004562 & -5.3044297 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (56) European Union} & AWS & -0.0053884 & 0.0003326 & -16.2000849 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0100671 & 0.0001093 & 92.1437166 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0025131 & 0.0002671 & -9.4076381 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (57) Locations} & AWS & 0.0000336 & 0.0002075 & 0.1618511 & 0.87\\
+\cmidrule{1-6}
+ & Intercept & 0.0175837 & 0.0001670 & 105.3211770 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0016196 & 0.0004317 & -3.7511794 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (58) Jobs \& manufacturing} & AWS & 0.0012056 & 0.0003445 & 3.4992705 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0070669 & 0.0000724 & 97.5560125 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0005501 & 0.0001993 & 2.7606461 & 0.006 **\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (59) Small business} & AWS & -0.0003673 & 0.0001454 & -2.5262114 & 0.012 *\\
+\cmidrule{1-6}
+ & Intercept & 0.0328532 & 0.0001147 & 286.3644270 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0089896 & 0.0003028 & -29.6843140 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (60) Agreement \& disagreement} & AWS & -0.0109445 & 0.0002035 & -53.7940555 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0187127 & 0.0001243 & 150.5063327 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0111185 & 0.0003722 & 29.8746792 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (61) Voluntary sector} & AWS & 0.0056586 & 0.0002496 & 22.6728341 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0152725 & 0.0000669 & 228.1931718 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0029228 & 0.0001709 & -17.1025255 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (62) Comments} & AWS & -0.0040217 & 0.0001204 & -33.3916425 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0090473 & 0.0001163 & 77.8049643 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0094874 & 0.0003827 & 24.7908780 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (63) Social care} & AWS & 0.0073846 & 0.0002802 & 26.3574994 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0213818 & 0.0000679 & 314.7746216 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0020761 & 0.0001751 & -11.8564587 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (64) Time} & AWS & -0.0016514 & 0.0001432 & -11.5355536 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0121387 & 0.0001644 & 73.8313247 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & -0.0057090 & 0.0004043 & -14.1203754 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (65) Media \& animals} & AWS & -0.0017755 & 0.0003183 & -5.5781252 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0038249 & 0.0000114 & 334.6396884 & < 0.001 ***\\
+\cmidrule{2-6}
+ & Non-AWS & 0.0002529 & 0.0000292 & 8.6594542 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-3}{*}{\raggedright\arraybackslash (66) Other} & AWS & 0.0003060 & 0.0000249 & 12.2797016 & < 0.001 ***\\*
 \end{longtabu}
 
 Table \ref{tab:topic-summary-table} shows the number and percentage of
@@ -1269,412 +1228,6 @@ Topic & AWS Speeches & Percent of AWS Speeches & Non-AWS Speeches & Percent of n
 \endfoot
 \bottomrule
 \endlastfoot
-=======
-\begin{figure}
-\centering
-\includegraphics{methodology_files/figure-latex/topic-model-selection-plot-1.pdf}
-\caption{\label{topic-model-selection}Topic Model Selection}
-\end{figure}
-
-We created six topic models with different numbers of topics (\emph{K}).
-We created models with 30, 45, 60, 80 and 100 topics, and used an
-algorithm developed by Lee \& Mimno
-(\protect\hyperlink{ref-lee2014c}{2014}), implemented in the
-\texttt{stm} package (Roberts et al.,
-\protect\hyperlink{ref-roberts2018}{2018}), which resulted in \emph{K} =
-66. Figure \ref{topic-model-selection} shows, clockwise from the
-top-left, heldout likelihood {[}explain{]}, lower bound {[}explain{]},
-semantic coherence (Mimno, Wallach, Talley, Leenders, \& McCallum,
-\protect\hyperlink{ref-mimno2011}{2011}), and the multinomial dispersion
-of the STM residuals (Taddy, \protect\hyperlink{ref-taddy2012}{2012}),
-
-As seen in Figure \ref{topic-model-selection}, the \emph{K} = 66 result
-appears to produce the best result, a topic model with 66 topics, across
-251,072 speeches with a dictionary of 241,625 words. All models were
-created using the ``spectral'' method developed by Arora et al.
-(\protect\hyperlink{ref-arora2013}{2013}), implemented in the
-\texttt{stm} package by Roberts et al.
-(\protect\hyperlink{ref-roberts2018}{2018}).
-
-One of the topics -- Topic 66 -- is never the most likely topic in the
-matrix of number of documents by number of topics -- labelled \(\theta\)
-by Roberts et al. (\protect\hyperlink{ref-roberts2018}{2018}) -- and so
-while it is included in the model, assignment of single topics to
-speeches uses the highest \(\theta\) for each speech. Other topics are
-rarely used -- Topic 53, which we labelled ``Dispatch Box'', only has
-five topics assigned to it, four from Male MPs and one from an AWS MP.
-
-Figure \ref{k0-network} is a Fruchterman-Reingold force-directed diagram
-(Fruchterman \& Reingold, \protect\hyperlink{ref-fruchterman1991}{1991})
-of correlations between different topics. Larger vertices indicate more
-common topics, and the colour scale indicates the proportion of speeches
-classed in that topic made by AWS and non-AWS female Labour MPs,
-respectively. Edges indicate positive correlations between the two
-linked topics.
-
-\begin{figure}
-\centering
-\includegraphics{methodology_files/figure-latex/stm-analysis-k0-network-graph-1.pdf}
-\caption{\label{k0-network}Fruchterman-Reingold plot of Topic Network}
-\end{figure}
-
-The \texttt{stm} package includes the \texttt{estimateEffect} function,
-which creates a regression model (Table 9) using individual documents
-(speeches) as observations, with the proportion of a each document
-fitting each topic as the dependent variable and model covariates (AWS
-status and gender) as independent variables. The intercept in this model
-is all speeches by male Labour MPs.
-
-\begin{longtabu} to \linewidth {>{\raggedright}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedright}X}
-\caption{\label{tab:estimate-table-k0}Topic Estimates}\\
-\toprule
- & Estimate & Standard Error & t value & Pr(>|t|) & \\
-\midrule
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 1 -- Employment \& unions}}\\
-\hspace{1em}Intercept & 0.0120891 & 0.0001171 & 103.2623686 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0003812 & 0.0003185 & -1.1969884 & 0.23 & \\
-\hspace{1em}AWS & -0.0013440 & 0.0002473 & -5.4341893 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 2 -- Legal system}}\\
-\hspace{1em}Intercept & 0.0167070 & 0.0001792 & 93.2460815 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0069686 & 0.0005350 & 13.0260625 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0033163 & 0.0003308 & -10.0260970 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 3 -- Roads}}\\
-\hspace{1em}Intercept & 0.0116633 & 0.0001517 & 76.9090249 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0014843 & 0.0004073 & -3.6446130 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0019486 & 0.0002959 & -6.5849731 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 4 -- Housing}}\\
-\hspace{1em}Intercept & 0.0112806 & 0.0001706 & 66.1115971 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0044631 & 0.0004893 & 9.1207176 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0060440 & 0.0003704 & 16.3184317 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 5 -- Police, firefighters \& prison}}\\
-\hspace{1em}Intercept & 0.0140713 & 0.0001763 & 79.8237868 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0032487 & 0.0005225 & 6.2175444 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0003232 & 0.0003606 & -0.8961750 & 0.37 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 6 -- Northern Ireland}}\\
-\hspace{1em}Intercept & 0.0089505 & 0.0000472 & 189.5233510 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0000923 & 0.0001252 & 0.7376152 & 0.46 & \\
-\hspace{1em}AWS & -0.0003726 & 0.0001132 & -3.2910920 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 7 -- Committee}}\\
-\hspace{1em}Intercept & 0.0213266 & 0.0001410 & 151.3057926 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0007062 & 0.0003795 & -1.8606279 & 0.063 & \\
-\hspace{1em}AWS & -0.0019515 & 0.0002710 & -7.2021243 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 8 -- Schools}}\\
-\hspace{1em}Intercept & 0.0147223 & 0.0002002 & 73.5538614 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0009593 & 0.0005019 & -1.9112460 & 0.056 & \\
-\hspace{1em}AWS & 0.0021188 & 0.0004150 & 5.1059367 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 9 -- Energy \& climate change}}\\
-\hspace{1em}Intercept & 0.0170599 & 0.0002023 & 84.3467725 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0011707 & 0.0005255 & -2.2280013 & 0.026 & *\\
-\hspace{1em}AWS & -0.0035113 & 0.0004348 & -8.0753251 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 10 -- Defence}}\\
-\hspace{1em}Intercept & 0.0157904 & 0.0001951 & 80.9223634 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0075491 & 0.0004615 & -16.3565794 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0054210 & 0.0003682 & -14.7210977 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 11 -- Parliament}}\\
-\hspace{1em}Intercept & 0.0118983 & 0.0000787 & 151.1983839 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0036974 & 0.0001989 & -18.5865788 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0010950 & 0.0001532 & -7.1461072 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 12 -- International politics}}\\
-\hspace{1em}Intercept & 0.0126079 & 0.0001317 & 95.7274314 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0042357 & 0.0003207 & -13.2086430 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0054808 & 0.0002564 & -21.3748081 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 13 -- Ministers}}\\
-\hspace{1em}Intercept & 0.0167416 & 0.0001099 & 152.2933087 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0029761 & 0.0002841 & -10.4736792 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0031455 & 0.0002371 & 13.2686889 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 14 -- Policy impact}}\\
-\hspace{1em}Intercept & 0.0115302 & 0.0000453 & 254.5142837 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0002493 & 0.0001390 & 1.7933845 & 0.073 & \\
-\hspace{1em}AWS & 0.0013677 & 0.0001038 & 13.1706690 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 15 -- Gender}}\\
-\hspace{1em}Intercept & 0.0048722 & 0.0001191 & 40.9180488 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0123742 & 0.0003704 & 33.4083319 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0119868 & 0.0003403 & 35.2289776 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 16 -- Regional development}}\\
-\hspace{1em}Intercept & 0.0230398 & 0.0001292 & 178.3867210 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0070454 & 0.0003617 & 19.4793030 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0002638 & 0.0002547 & 1.0358713 & 0.30 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 17 -- Communications}}\\
-\hspace{1em}Intercept & 0.0097562 & 0.0001193 & 81.7731945 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0006745 & 0.0003538 & -1.9064376 & 0.057 & \\
-\hspace{1em}AWS & -0.0012003 & 0.0002629 & -4.5662421 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 18 -- Immigration}}\\
-\hspace{1em}Intercept & 0.0087075 & 0.0000951 & 91.5555515 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0007343 & 0.0002703 & 2.7169865 & 0.007 & **\\
-\hspace{1em}AWS & -0.0004173 & 0.0001888 & -2.2100217 & 0.027 & *\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 19 -- Health system}}\\
-\hspace{1em}Intercept & 0.0161559 & 0.0002151 & 75.1202226 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0112546 & 0.0006426 & 17.5139477 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0062970 & 0.0004684 & 13.4449510 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 20 -- International development}}\\
-\hspace{1em}Intercept & 0.0160699 & 0.0001994 & 80.5926211 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0004222 & 0.0005210 & 0.8102890 & 0.42 & \\
-\hspace{1em}AWS & -0.0033529 & 0.0003851 & -8.7063334 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 21 -- Benefits \& disability}}\\
-\hspace{1em}Intercept & 0.0120363 & 0.0001402 & 85.8312969 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0009190 & 0.0003855 & 2.3841965 & 0.017 & *\\
-\hspace{1em}AWS & 0.0120213 & 0.0003157 & 38.0803328 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 22 -- Sport \& culture}}\\
-\hspace{1em}Intercept & 0.0127187 & 0.0001613 & 78.8294565 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0024687 & 0.0004118 & -5.9953149 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0007481 & 0.0003274 & 2.2845997 & 0.022 & *\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 23 -- History}}\\
-\hspace{1em}Intercept & 0.0137409 & 0.0001064 & 129.1367284 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0060856 & 0.0002729 & -22.2977510 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0040069 & 0.0002070 & -19.3530523 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 24 -- Higher education \& skills}}\\
-\hspace{1em}Intercept & 0.0143145 & 0.0001671 & 85.6873231 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0010183 & 0.0004366 & -2.3325986 & 0.020 & *\\
-\hspace{1em}AWS & -0.0001206 & 0.0003383 & -0.3564897 & 0.72 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 25 -- Concurring point}}\\
-\hspace{1em}Intercept & 0.0155257 & 0.0000457 & 339.7039641 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0018957 & 0.0001187 & -15.9701611 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0030036 & 0.0000880 & -34.1308572 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 26 -- Pensions}}\\
-\hspace{1em}Intercept & 0.0146924 & 0.0001649 & 89.1100033 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0007064 & 0.0004274 & 1.6527656 & 0.098 & \\
-\hspace{1em}AWS & 0.0026261 & 0.0003314 & 7.9239166 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 27 -- Points of order}}\\
-\hspace{1em}Intercept & 0.0177829 & 0.0001285 & 138.3876592 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0065277 & 0.0003205 & -20.3685715 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0048155 & 0.0002488 & -19.3525538 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 28 -- Issues}}\\
-\hspace{1em}Intercept & 0.0344879 & 0.0000996 & 346.2962898 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0070259 & 0.0002809 & 25.0159501 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0025851 & 0.0001972 & -13.1110468 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 29 -- Constituencies}}\\
-\hspace{1em}Intercept & 0.0131821 & 0.0000489 & 269.4382453 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0011050 & 0.0001416 & 7.8057774 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0029671 & 0.0001061 & 27.9627861 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 30 -- Ethnic groups \& racism}}\\
-\hspace{1em}Intercept & 0.0085769 & 0.0000761 & 112.7126014 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0019128 & 0.0002209 & 8.6582981 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0019284 & 0.0001705 & 11.3117826 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 31 -- Amendments}}\\
-\hspace{1em}Intercept & 0.0149871 & 0.0001568 & 95.5819004 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0017608 & 0.0004312 & -4.0838741 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0033127 & 0.0003266 & -10.1414687 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 32 -- Reports}}\\
-\hspace{1em}Intercept & 0.0169556 & 0.0001055 & 160.6943686 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0012163 & 0.0002894 & 4.2030247 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0013407 & 0.0002339 & 5.7326876 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 33 -- People}}\\
-\hspace{1em}Intercept & 0.0377526 & 0.0001136 & 332.3950745 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0022827 & 0.0002846 & -8.0217958 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0010510 & 0.0002410 & -4.3600669 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 34 -- Wales \& Scotland}}\\
-\hspace{1em}Intercept & 0.0135416 & 0.0001610 & 84.1197430 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0047739 & 0.0003636 & -13.1278668 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0023208 & 0.0003019 & -7.6878368 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 35 -- Alcohol \& tobacco}}\\
-\hspace{1em}Intercept & 0.0108953 & 0.0001601 & 68.0483548 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0008317 & 0.0004312 & -1.9286382 & 0.054 & \\
-\hspace{1em}AWS & 0.0011968 & 0.0003135 & 3.8171833 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 36 -- Place names}}\\
-\hspace{1em}Intercept & 0.0083688 & 0.0000674 & 124.1045216 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0000220 & 0.0001864 & 0.1181421 & 0.91 & \\
-\hspace{1em}AWS & 0.0011691 & 0.0001440 & 8.1202738 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 37 -- Budget}}\\
-\hspace{1em}Intercept & 0.0246540 & 0.0001686 & 146.2090379 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0023156 & 0.0004519 & -5.1247185 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0007220 & 0.0003678 & 1.9630266 & 0.050 & *\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 38 -- Tax}}\\
-\hspace{1em}Intercept & 0.0193476 & 0.0001834 & 105.5150331 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0013531 & 0.0005282 & -2.5616868 & 0.010 & *\\
-\hspace{1em}AWS & 0.0054486 & 0.0003760 & 14.4902258 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 39 -- Private companies}}\\
-\hspace{1em}Intercept & 0.0123822 & 0.0001244 & 99.5456622 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0005525 & 0.0003491 & 1.5825867 & 0.11 & \\
-\hspace{1em}AWS & -0.0018020 & 0.0002445 & -7.3713025 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 40 -- Environment \& fishing}}\\
-\hspace{1em}Intercept & 0.0094610 & 0.0001545 & 61.2357278 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0031018 & 0.0003615 & -8.5810384 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0021429 & 0.0002942 & -7.2843850 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 41 -- Crime}}\\
-\hspace{1em}Intercept & 0.0141429 & 0.0001689 & 83.7423605 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0085989 & 0.0005439 & 15.8085376 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0034671 & 0.0003581 & 9.6814271 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 42 -- Bills}}\\
-\hspace{1em}Intercept & 0.0244490 & 0.0001488 & 164.3476171 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0021297 & 0.0004159 & 5.1212772 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0029701 & 0.0002815 & -10.5521932 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 43 -- Children}}\\
-\hspace{1em}Intercept & 0.0076758 & 0.0001334 & 57.5359908 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0092066 & 0.0003967 & 23.2070117 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0095684 & 0.0002819 & 33.9422242 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 44 -- Utilities \& PFI}}\\
-\hspace{1em}Intercept & 0.0123335 & 0.0000948 & 130.0372558 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0007794 & 0.0002321 & -3.3587188 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0002446 & 0.0001870 & 1.3081184 & 0.19 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 45 -- Middle East}}\\
-\hspace{1em}Intercept & 0.0174960 & 0.0002044 & 85.5929310 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0028535 & 0.0005275 & -5.4095905 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0017163 & 0.0004280 & -4.0096226 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 46 -- Local authorities}}\\
-\hspace{1em}Intercept & 0.0179694 & 0.0001450 & 123.8880538 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0044455 & 0.0004057 & 10.9577388 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0001267 & 0.0003144 & 0.4028757 & 0.69 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 47 -- Elections}}\\
-\hspace{1em}Intercept & 0.0181744 & 0.0001765 & 102.9497483 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0091616 & 0.0004148 & -22.0851165 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0068046 & 0.0003419 & -19.9003955 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 48 -- Debate}}\\
-\hspace{1em}Intercept & 0.0180053 & 0.0000734 & 245.1927206 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0034961 & 0.0001982 & -17.6391079 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0009782 & 0.0001460 & -6.7006514 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 49 -- Transport}}\\
-\hspace{1em}Intercept & 0.0164425 & 0.0001990 & 82.6427947 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0027430 & 0.0005159 & -5.3163751 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0008821 & 0.0003945 & 2.2360306 & 0.025 & *\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 50 -- Questions}}\\
-\hspace{1em}Intercept & 0.0161736 & 0.0000746 & 216.9057853 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0001341 & 0.0001920 & 0.6986268 & 0.48 & \\
-\hspace{1em}AWS & 0.0002153 & 0.0001608 & 1.3388028 & 0.18 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 51 -- Families}}\\
-\hspace{1em}Intercept & 0.0101070 & 0.0001109 & 91.1768927 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0019089 & 0.0003364 & 5.6738570 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0058670 & 0.0002501 & 23.4550089 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 52 -- Health research}}\\
-\hspace{1em}Intercept & 0.0088050 & 0.0001508 & 58.3747911 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0076284 & 0.0004387 & 17.3876242 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0036073 & 0.0003279 & 11.0008155 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 53 -- Dispatch box}}\\
-\hspace{1em}Intercept & 0.0075509 & 0.0000226 & 334.7859886 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0011341 & 0.0000548 & -20.6977472 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0009563 & 0.0000451 & -21.2182588 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 54 -- Parties}}\\
-\hspace{1em}Intercept & 0.0248217 & 0.0001249 & 198.7333287 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0066239 & 0.0003420 & -19.3654362 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0060041 & 0.0002642 & -22.7268717 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 55 -- Statements}}\\
-\hspace{1em}Intercept & 0.0211136 & 0.0000700 & 301.8023934 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0045082 & 0.0001837 & -24.5461726 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0014970 & 0.0001329 & -11.2672909 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 56 -- European Union}}\\
-\hspace{1em}Intercept & 0.0163479 & 0.0001616 & 101.1579610 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0024183 & 0.0004596 & -5.2613051 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0053910 & 0.0003300 & -16.3343313 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 57 -- Locations}}\\
-\hspace{1em}Intercept & 0.0100662 & 0.0001086 & 92.6547100 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0025120 & 0.0002638 & -9.5235518 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0000330 & 0.0002100 & 0.1573262 & 0.87 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 58 -- Jobs \& manufacturing}}\\
-\hspace{1em}Intercept & 0.0175851 & 0.0001674 & 105.0202341 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0016203 & 0.0004362 & -3.7145427 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0012024 & 0.0003464 & 3.4714816 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 59 -- Small business}}\\
-\hspace{1em}Intercept & 0.0070661 & 0.0000723 & 97.7862953 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0005540 & 0.0001997 & 2.7734635 & 0.006 & **\\
-\hspace{1em}AWS & -0.0003647 & 0.0001458 & -2.5021624 & 0.012 & *\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 60 -- Agreement \& disagreement}}\\
-\hspace{1em}Intercept & 0.0328514 & 0.0001139 & 288.3389079 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0089912 & 0.0003010 & -29.8694567 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0109392 & 0.0002018 & -54.2025068 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 61 -- Voluntary sector}}\\
-\hspace{1em}Intercept & 0.0187120 & 0.0001248 & 149.9916069 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0111162 & 0.0003692 & 30.1056958 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0056600 & 0.0002482 & 22.8017875 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 62 -- Comments}}\\
-\hspace{1em}Intercept & 0.0152719 & 0.0000671 & 227.4825852 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0029219 & 0.0001701 & -17.1777050 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0040200 & 0.0001199 & -33.5137972 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 63 -- Social care}}\\
-\hspace{1em}Intercept & 0.0090487 & 0.0001160 & 77.9791723 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0094889 & 0.0003814 & 24.8776033 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0073799 & 0.0002801 & 26.3493862 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 64 -- Time}}\\
-\hspace{1em}Intercept & 0.0213817 & 0.0000674 & 317.1344195 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0020744 & 0.0001749 & -11.8572812 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0016511 & 0.0001422 & -11.6104252 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 65 -- Media \& animals}}\\
-\hspace{1em}Intercept & 0.0121365 & 0.0001639 & 74.0328158 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & -0.0057059 & 0.0004047 & -14.0990404 & < 0.001 & ***\\
-\hspace{1em}AWS & -0.0017690 & 0.0003177 & -5.5679291 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 66 -- Other}}\\
-\hspace{1em}Intercept & 0.0038250 & 0.0000116 & 331.0146770 & < 0.001 & ***\\
-\hspace{1em}Non-AWS & 0.0002530 & 0.0000297 & 8.5160303 & < 0.001 & ***\\
-\hspace{1em}AWS & 0.0003063 & 0.0000252 & 12.1788034 & < 0.001 & ***\\
-\bottomrule
-\end{longtabu}
-
-Table 10 shows the number and percentage of speeches assigned to each
-topic, based on its \(\theta\) value. The results in this table differ
-slightly from those in Table 9, as it uses a ``winner-take-all'' method
-to assign an overall topic to each speech, rather than a prevalence of a
-given topic across all speeches.
-
-\begin{longtabu} to \linewidth {>{\raggedright\arraybackslash}p{5cm}>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X}
-\caption{\label{tab:topic-summary-table-k0}Count and Distribution of Topics}\\
-\toprule
-Topic & AWS Speeches & Percent of AWS Speeches & Non-AWS Speeches & Percent of non-AWS Speeches & Male MP Speeches & Percent of Male MP Speeches\\
-\midrule
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 (1) Employment \& unions & 452 & 0.84\% & 260 & 0.93\% & 2,149 & 1.27\%\\
 (2) Legal system & 865 & 1.61\% & 1,096 & 3.93\% & 3,884 & 2.29\%\\
 (3) Roads & 558 & 1.04\% & 298 & 1.07\% & 2,142 & 1.26\%\\
@@ -1751,12 +1304,7 @@ Topic & AWS Speeches & Percent of AWS Speeches & Non-AWS Speeches & Percent of n
 (62) Comments & 108 & 0.20\% & 95 & 0.34\% & 865 & 0.51\%\\
 (63) Social care & 865 & 1.61\% & 521 & 1.87\% & 1,187 & 0.70\%\\
 (64) Time & 208 & 0.39\% & 103 & 0.37\% & 930 & 0.55\%\\
-<<<<<<< HEAD
 (65) Media \& animals & 741 & 1.38\% & 190 & 0.68\% & 2,811 & 1.66\%\\*
-=======
-(65) Media \& animals & 741 & 1.38\% & 190 & 0.68\% & 2,811 & 1.66\%\\
-\bottomrule
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 \end{longtabu}
 
 \hypertarget{topic-graphs}{%
@@ -1765,45 +1313,25 @@ Topic & AWS Speeches & Percent of AWS Speeches & Non-AWS Speeches & Percent of n
 The estimate effects in these graphs were extracted using the
 \texttt{tidystm} package by Mikael Poul Johannesson.\footnote{Available
   online at: \url{https://github.com/mikajoh/tidystm}} Figure
-<<<<<<< HEAD
 \ref{fig:tidystm-graphs} highlights nine topics with different expected
 proportions between male, AWS and non-AWS Labour MPs, with the error
 bars representing 95\% confidence intervals. See Figure
 \ref{fig:topic-bar} for a graph of all 66 topics.
-=======
-\ref{k0-topic-selected-bar-plot} highlights nine topics with different
-expected proportions between male, AWS and non-AWS Labour MPs, with the
-error bars representing 95\% confidence intervals. See Figure
-\ref{k0-topic-bar-plot} for a graph of all 66 topics.
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \begin{figure}
 \centering
 \includegraphics{methodology_files/figure-latex/tidystm-graphs-1.pdf}
-<<<<<<< HEAD
 \caption{\label{fig:tidystm-graphs}Selected Topic Proportions}
-=======
-\caption{\label{k0-topic-selected-bar-plot}Selected Topic Proportions}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 \end{figure}
 
 \begin{figure}
 \centering
-<<<<<<< HEAD
 \includegraphics{methodology_files/figure-latex/topic-bar-1.pdf}
 \caption{\label{fig:topic-bar}All Topic Proportions}
 \end{figure}
 
 \hypertarget{word-occurrences}{%
 \subsubsection{Word Occurrences}\label{word-occurrences}}
-=======
-\includegraphics{methodology_files/figure-latex/k0-topic-bar-1.pdf}
-\caption{\label{k0-topic-bar-plot}All Topic Proportions}
-\end{figure}
-
-\hypertarget{word-occurences}{%
-\subsubsection{Word Occurences}\label{word-occurences}}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 The table below shows the twenty most common words in each topic, and
 the twenty words with the highest FREX score, a measure that uses a
@@ -1815,21 +1343,18 @@ each topic.
 \begin{longtabu} to \linewidth {>{\raggedright}X>{\raggedright\arraybackslash}p{6cm}>{\raggedright\arraybackslash}p{6cm}}
 \caption{\label{tab:topic-words-table-k0}Words in Topic}\\
 \toprule
-Topic Number & Top Twenty Words & Top Twenty FREX\\
+Topic & Top Twenty Words & Top Twenty FREX\\
 \midrule
-<<<<<<< HEAD
 \endfirsthead
 \caption[]{\label{tab:topic-words-table-k0}Words in Topic \textit{(continued)}}\\
 \toprule
-Topic Number & Top Twenty Words & Top Twenty FREX\\
+Topic & Top Twenty Words & Top Twenty FREX\\
 \midrule
 \endhead
 \
 \endfoot
 \bottomrule
 \endlastfoot
-=======
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 (1) Employment \& unions & rights, workers, law, human, civil, trade, union, protection, employers, act, employment, unions, safety, employees, work, service, staff, employer, legislation, protect & tupe, blacklisting, acas, rights, gangmasters, civil, dispute, protections, unions, dismissal, servants, human, disputes, workers, employer, num, certification, employees, tuc, employers\\
 (2) Legal system & cases, court, legal, case, justice, law, courts, evidence, lord, appeal, system, criminal, judicial, investigation, judge, aid, prosecution, circumstances, trial, lawyers & judicial, attorney-general, court, prosecutor, judges, carlile, defendant, extradition, cps, judiciary, admissible, pre-charge, jury, solicitors, lawyers, solicitor, courts, lawyer, detention, judge\\
 (3) Roads & road, planning, site, land, sites, car, vehicles, residents, roads, safety, use, driving, vehicle, park, development, traffic, drivers, area, cars, speed & bikes, cyclists, pedestrians, gypsy, off-road, cycling, encampments, parking, highways, masts, drivers, belt, roads, highway, road, gypsies, vehicles, site, vehicle, bike\\
@@ -1907,12 +1432,7 @@ Topic Number & Top Twenty Words & Top Twenty FREX\\
 (63) Social care & care, services, social, carers, people, need, service, needs, support, provision, older, provide, quality, home, centres, access, elderly, provided, providers, homes & carers, hospices, dentists, dental, care, dementia, hospice, dentistry, respite, carer, advocacy, elderly, older, caring, palliative, milton, dentist, social, keynes, cared\\
 (64) Time & years, time, last, two, one, first, now, three, past, week, months, next, ago, every, 10, five, four, weeks, days, six & years, three, two, last, months, ago, past, time, four, week, weeks, six, five, first, next, days, 10, seven, half, now\\
 (65) Media \& animals & bbc, farmers, digital, television, internet, animals, animal, media, radio, dogs, licence, dog, news, ban, farming, welfare, hunting, fee, online, farm & bbc, dogs, hunting, cull, bbc's, badgers, badger, bovine, switchover, broadcasters, gm, fur, mink, poultry, circuses, analogue, hare, hounds, puppies, swine\\
-<<<<<<< HEAD
 (66) Other & given, can, aware, may, recently, across, welcome, fact, government, well, take, close, result, seeking, indeed, support, confident, responsible, know, including & given, aware, can, recently, may, across, close, welcome, fact, confident, seeking, result, well, take, responsible, indeed, keep, regret, far, reconsider\\*
-=======
-(66) Other & given, can, aware, may, recently, across, welcome, fact, government, well, take, close, result, seeking, indeed, support, confident, responsible, know, including & given, aware, can, recently, may, across, close, welcome, fact, confident, seeking, result, well, take, responsible, indeed, keep, regret, far, reconsider\\
-\bottomrule
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 \end{longtabu}
 
 \hypertarget{manual-validation}{%
@@ -1925,7 +1445,6 @@ including STM (Grimmer \& Stewart,
 \protect\hyperlink{ref-grimmer2013}{2013}). Quinn, Monroe, Colaresi,
 Crespin, \& Radev (\protect\hyperlink{ref-quinn2010}{2010}) suggest that
 topics are valid if they correspond to external events. Figure
-<<<<<<< HEAD
 \ref{fig:middle-east-plot} shows the number of speeches by Labour MPs on
 the ``Middle East'' topic, with a spike in 2003 (at the start of the
 Iraq War), another spike in 2008 and 2009, as the bulk of British troops
@@ -1939,51 +1458,26 @@ authorities of Wales and Scotland peaking in 2014, to coincide with
 Scotland's independence referendum. The post-2015 decline also likely
 stems from the SNP winning all but three seats in Scotland during the
 2015 General Election. Figure \ref{fig:eu-plot} shows the increase in
-=======
-\ref{middle-east-plot-validity} shows the number of speeches by Labour
-MPs on the ``Middle East'' topic, with a spike in 2003 (at the start of
-the Iraq War), another spike in 2008 and 2009, as the bulk of British
-troops left Iraq, a small spike in 2011 coinciding with UK participation
-in NATO's military intervention in Libya, and another spike resulting
-from debate in 2014--2016 over UK participation in military
-interventions in the Syrian Civil War.
-
-Figure \ref{wales-scotland-validity} shows debate over the devolved
-authorities of Wales and Scotland peaking in 2014, to coincide with
-Scotland's independence referendum. The post-2015 decline also likely
-stems from the SNP winning all but three seats in Scotland during the
-2015 General Election. Figure \ref{eu-validity} shows the increase in
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 debate over the European Union coinciding with the referendum on the
 UK's member of the European Union.
 
 \begin{figure}
 \centering
 \includegraphics{methodology_files/figure-latex/middle-east-plot-1.pdf}
-<<<<<<< HEAD
 \caption{\label{fig:middle-east-plot}Number of Speeches in ``Middle East''
 Topic per Year}
-=======
-\caption{\label{middle-east-plot-validity}Number of Speeches in ``Middle
-East'' Topic per Year}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics{methodology_files/figure-latex/wales-scotland-plot-1.pdf}
-<<<<<<< HEAD
 \caption{\label{fig:wales-scotland-plot}Number of Speeches in ``Wales \&
-=======
-\caption{\label{wales-scotland-validity}Number of Speeches in ``Wales \&
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 Scotland'' Topic per Year}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics{methodology_files/figure-latex/eu-plot-1.pdf}
-<<<<<<< HEAD
 \caption{\label{fig:eu-plot}Number of Speeches in ``European Union'' Topic
 per Year}
 \end{figure}
@@ -2029,6 +1523,419 @@ Immigration, Topic 28, Issues, Topic 42, Bills, Topic 59, Small
 business), which AWS MPs are significantly less likely and non-AWS MPs
 are significantly more likely to mention than male Labour MPs.
 
+However, an estimate being statistically significant -- i.e.~estimates
+for AWS and non-AWS MPs where the \emph{p} value as reported in Table
+\ref{tab:estimate-table-k0} is \textless{} 0.05 -- does not tell us
+anything about the relative value of those frequency differences. For
+example, in topic 21, Benefits and disability, frequency estimates for
+both AWS and non-AWS MPs are significantly different (\emph{p}
+\textless{} 0.05) from the frequency estimate for male Labour MPs.
+However, while the frequency value for the benefits and disability topic
+is 1.20\% for male MPs, and 1.30\% for non-AWS MPs, it is 2.41\% for AWS
+MPs. Non-AWS Labour MPs are only slightly more likely to bring up
+benefits and disability than male Labour MPs, while AWS MPs discuss it
+almost twice as much as their male colleagues.
+
+Figure \ref{fig:p-effect1} shows the frequency for the topics where AWS
+and non-AWS MPs differ the most. Figure \ref{fig:p-effect2} shows the
+frequency for the topics where AWS and non-AWS MPs are most similar to
+each other, regardless of their similarity to male Labour MPs. Figure
+\ref{fig:p-effect-cv} is the topics with the most variation, between
+AWS, non-AWS and male Labour MPs. Figures \ref{fig:p-effect1},
+\ref{fig:p-effect2} and \ref{fig:p-effect-cv} all use the coefficient of
+variation to measure variance between each group of MPs. Figures
+\ref{fig:p-effect1} and \ref{fig:p-effect2} only use female Labour MPS,
+Figure \ref{fig:p-effect-cv} uses all three groups. Errors bars in all
+three sets of figures are for 95\% confidence intervals.
+
+\begin{figure}
+\centering
+\includegraphics{methodology_files/figure-latex/p-effect1-1.pdf}
+\caption{\label{fig:p-effect1}Where AWS MPs are most distinct from non-AWS
+female MPs}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{methodology_files/figure-latex/p-effect2-1.pdf}
+\caption{\label{fig:p-effect2}Where AWS MPs are most similar to non-AWS
+female MPs}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{methodology_files/figure-latex/p-effect-cv-1.pdf}
+\caption{\label{fig:p-effect-cv}Topics with the greatest frequency
+coefficient of variation}
+\end{figure}
+
+\hypertarget{discussion}{%
+\section{Discussion}\label{discussion}}
+
+There do not appear to be substantial or meaningful differences in the
+speaking styles of female Labour MPs selected through all women
+shortlists when compared to their female colleagues selected through
+open shortlists using LIWC. This is possibly due to the speaking style
+dominant in British parliamentary debate, which is more formal than the
+speech used in most day-to-day conversation. LIWC was developed by
+American researchers, and the LIWC dictionary may not be able to capture
+stylistic differences between American and British English, and may not
+include words commonly used in formal British English speech, limiting
+its usefulness in the context of British political debate.
+
+There is more distinction between AWS and non-AWS MPs in terms and
+topics.
+\protect\hyperlink{ux5cux2520Naiveux5cux2520Bayesux5cux2520classification}{Naive
+Bayes classification} was able to accurately determine the AWS status of
+female Labour MPs with slightly greater accuracy than it could
+distinguish between male and female Labour MPs (71.22\% and 70.67\%,
+respectively).
+
+AWS MPs are far more likely to make reference to their constituency and
+constituents. In the debate between whether MPs should be ``delegates''
+or ``trustees'' -- the ``mandate-independence controversy'' outlined by
+Pitkin (\protect\hyperlink{ref-pitkin1967}{1967}) -- the references to
+their constituents and constituencies suggests AWS MPs shy away from the
+Burkean concept of trusteeship and see themselves more as strict
+representatives of their constituents. In Andeweg \& Thomassen's
+(\protect\hyperlink{ref-andeweg2005}{2005}) typology of \emph{ex
+ante}/\emph{ex post} and above/below political representation, AWS MPs
+lean towards representation ``from below'', although their selection
+process is \emph{ex ante}/\emph{ex post}. AWS MPs also use events and
+individuals in their constituency as examples when speaking on a given
+topic (see the
+\protect\hyperlink{ux5cux2520AWSux5cux2520Referencesux5cux2520toux5cux2520Constituentsux5cux2520inux5cux2520Context}{Appendix}
+for more examples).
+
+AWS MPs refer to their constituents both specifically and in the
+abstract, particularly when criticising government policy. For example,
+in debate on 4th March 2015, Gemma Doyle, than the Labour MP for West
+Dunbartonshire (elected on an AWS in 2010), when asked if she would give
+way to Conservative MP Stephen Mosley, responded:
+
+\begin{quote}
+No, I will not {[}give way{]}, because my constituents want me to make
+these points, not to give more time to Conservative Members.
+\end{quote}
+
+On 2nd June 2010, during debate on Israel-Palestine, Valerie Vaz, MP for
+Walsall South, also used the views of her constituents to support her
+position:
+
+\begin{quote}
+My constituents want more than pressure. Will the Foreign Secretary come
+back to the House and report on a timetable for the discussions on a
+diplomatic solution, just as we did on Ireland?
+\end{quote}
+
+On 4th April 2001, Betty Williams, member for Conwy from 1997--2010,
+raised the case of a wilderness guide in her constituency unable to
+access parts of the countryside due to foot and mouth disease:
+
+\begin{quote}
+Is my right hon. Friend aware that there is continuing concern about the
+limited access to the countryside and crags of north Wales? May I draw
+his attention to the circumstances of my constituent, Ric Potter? Like
+many others, he has had to travel to Scotland, where there is greater
+access. Will my right hon. Friend help us to enable people such as Ric
+Potter to find work in outdoor pursuits?
+\end{quote}
+
+\clearpage
+
+\hypertarget{appendix}{%
+\section{Appendix}\label{appendix}}
+
+\hypertarget{gender-effect-estimates}{%
+\subsection{Gender effect estimates}\label{gender-effect-estimates}}
+
+Estimate effects of different topics, using only gender (Table
+\ref{tab:estimate-table-gender}).
+
+\begin{longtabu} to \linewidth {>{\raggedright}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedright}X}
+\caption{\label{tab:estimate-table-gender}Topic Estimates}\\
+\toprule
+ &  & Estimate & Standard Error & t value & Pr(>|t|)\\
+\midrule
+\endfirsthead
+\caption[]{\label{tab:estimate-table-gender}Topic Estimates \textit{(continued)}}\\
+\toprule
+ &  & Estimate & Standard Error & t value & Pr(>|t|)\\
+\midrule
+\endhead
+\
+\endfoot
+\bottomrule
+\endlastfoot
+ & Intercept & 0.0120561 & 0.0001233 & 97.7458509 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (1) Employment \& unions} & Female & -0.0009786 & 0.0002204 & -4.4396315 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0167102 & 0.0001677 & 99.6358100 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (2) Legal system} & Female & 0.0001861 & 0.0002867 & 0.6492618 & 0.52\\
+\cmidrule{1-6}
+ & Intercept & 0.0116864 & 0.0001469 & 79.5274864 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (3) Roads} & Female & -0.0018110 & 0.0002574 & -7.0349793 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0112593 & 0.0001746 & 64.4711132 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (4) Housing} & Female & 0.0054870 & 0.0002870 & 19.1204992 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0140238 & 0.0001747 & 80.2546259 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (5) Police, firefighters \& prison} & Female & 0.0008970 & 0.0002998 & 2.9917221 & 0.003 **\\
+\cmidrule{1-6}
+ & Intercept & 0.0089592 & 0.0000450 & 198.8903532 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (6) Northern Ireland} & Female & -0.0002231 & 0.0000821 & -2.7163043 & 0.007 **\\
+\cmidrule{1-6}
+ & Intercept & 0.0213132 & 0.0001509 & 141.2139750 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (7) Committee} & Female & -0.0015245 & 0.0002307 & -6.6073185 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0147366 & 0.0001975 & 74.6029960 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (8) Schools} & Female & 0.0009898 & 0.0003519 & 2.8128100 & 0.005 **\\
+\cmidrule{1-6}
+ & Intercept & 0.0170286 & 0.0002027 & 84.0111642 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (9) Energy \& climate change} & Female & -0.0026669 & 0.0003638 & -7.3306532 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0157819 & 0.0001837 & 85.9128350 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (10) Defence} & Female & -0.0061172 & 0.0003240 & -18.8794191 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0119042 & 0.0000790 & 150.6173576 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (11) Parliament} & Female & -0.0019543 & 0.0001429 & -13.6787831 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0125948 & 0.0001249 & 100.8499998 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (12) International politics} & Female & -0.0050786 & 0.0002170 & -23.4024173 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0167087 & 0.0001064 & 157.0415815 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (13) Ministers} & Female & 0.0011454 & 0.0001923 & 5.9551523 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0115397 & 0.0000460 & 251.1090985 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (14) Policy impact} & Female & 0.0009556 & 0.0000875 & 10.9167682 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0048738 & 0.0001146 & 42.5372998 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (15) Gender} & Female & 0.0121863 & 0.0002379 & 51.2176906 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0230313 & 0.0001276 & 180.4911579 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (16) Regional development} & Female & 0.0026193 & 0.0002503 & 10.4645867 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0097462 & 0.0001202 & 81.0915937 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (17) Communications} & Female & -0.0009899 & 0.0002069 & -4.7848162 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0087105 & 0.0000900 & 96.8147319 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (18) Immigration} & Female & -0.0000391 & 0.0001635 & -0.2394474 & 0.81\\
+\cmidrule{1-6}
+ & Intercept & 0.0161788 & 0.0001976 & 81.8627819 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (19) Health system} & Female & 0.0079743 & 0.0003600 & 22.1488945 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0160465 & 0.0001897 & 84.5865773 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (20) International development} & Female & -0.0020679 & 0.0003358 & -6.1579789 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0120722 & 0.0001441 & 83.8028248 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (21) Benefits \& disability} & Female & 0.0080944 & 0.0002832 & 28.5770350 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0127412 & 0.0001526 & 83.4724542 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (22) Sport \& culture} & Female & -0.0003753 & 0.0002649 & -1.4166824 & 0.16\\
+\cmidrule{1-6}
+ & Intercept & 0.0137581 & 0.0001117 & 123.2082084 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (23) History} & Female & -0.0046801 & 0.0001833 & -25.5317143 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0143325 & 0.0001641 & 87.3629912 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (24) Higher education \& skills} & Female & -0.0004494 & 0.0003006 & -1.4950418 & 0.13\\
+\cmidrule{1-6}
+ & Intercept & 0.0155213 & 0.0000474 & 327.6313660 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (25) Concurring point} & Female & -0.0026315 & 0.0000760 & -34.6035104 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0147019 & 0.0001709 & 86.0482540 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (26) Pensions} & Female & 0.0019874 & 0.0002808 & 7.0777074 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0177894 & 0.0001316 & 135.2139528 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (27) Points of order} & Female & -0.0054025 & 0.0002166 & -24.9447457 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0345025 & 0.0000980 & 352.1646087 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (28) Issues} & Female & 0.0006780 & 0.0001716 & 3.9511379 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0131800 & 0.0000540 & 244.1589822 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (29) Constituencies} & Female & 0.0023276 & 0.0001069 & 21.7824341 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0085781 & 0.0000728 & 117.8578866 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (30) Ethnic groups \& racism} & Female & 0.0019552 & 0.0001365 & 14.3196680 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0150304 & 0.0001578 & 95.2713075 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (31) Amendments} & Female & -0.0028669 & 0.0002705 & -10.5980156 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0169724 & 0.0001117 & 151.9867135 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (32) Reports} & Female & 0.0012779 & 0.0001865 & 6.8516021 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0377446 & 0.0001213 & 311.2792086 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (33) People} & Female & -0.0014521 & 0.0002123 & -6.8400753 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0135410 & 0.0001549 & 87.4194387 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (34) Wales \& Scotland} & Female & -0.0031743 & 0.0002506 & -12.6669967 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0108579 & 0.0001486 & 73.0683773 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (35) Alcohol \& tobacco} & Female & 0.0005320 & 0.0002832 & 1.8786468 & 0.060\\
+\cmidrule{1-6}
+ & Intercept & 0.0083659 & 0.0000671 & 124.6776088 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (36) Place names} & Female & 0.0007972 & 0.0001241 & 6.4237856 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0246505 & 0.0001775 & 138.8996009 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (37) Budget} & Female & -0.0003435 & 0.0002961 & -1.1599722 & 0.25\\
+\cmidrule{1-6}
+ & Intercept & 0.0193082 & 0.0001896 & 101.8596764 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (38) Tax} & Female & 0.0030544 & 0.0003310 & 9.2272811 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0123871 & 0.0001199 & 103.3046194 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (39) Private companies} & Female & -0.0009559 & 0.0002220 & -4.3062780 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0094757 & 0.0001428 & 66.3605526 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (40) Environment \& fishing} & Female & -0.0024801 & 0.0002435 & -10.1854049 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0141387 & 0.0001700 & 83.1774783 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (41) Crime} & Female & 0.0052430 & 0.0003115 & 16.8290865 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0244386 & 0.0001508 & 162.0410131 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (42) Bills} & Female & -0.0012130 & 0.0002557 & -4.7439287 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0076822 & 0.0001213 & 63.3511535 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (43) Children} & Female & 0.0094502 & 0.0002461 & 38.3935766 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0123659 & 0.0000838 & 147.6006401 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (44) Utilities \& PFI} & Female & -0.0001325 & 0.0001597 & -0.8294008 & 0.41\\
+\cmidrule{1-6}
+ & Intercept & 0.0174606 & 0.0002080 & 83.9606437 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (45) Middle East} & Female & -0.0020795 & 0.0003607 & -5.7649929 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0179838 & 0.0001437 & 125.1849736 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (46) Local authorities} & Female & 0.0015586 & 0.0002836 & 5.4965933 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0181834 & 0.0001549 & 117.3877176 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (47) Elections} & Female & -0.0075879 & 0.0002715 & -27.9430467 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0180191 & 0.0000681 & 264.6774024 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (48) Debate} & Female & -0.0018256 & 0.0001238 & -14.7506463 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0163759 & 0.0001857 & 88.1991855 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (49) Transport} & Female & -0.0002969 & 0.0003477 & -0.8538425 & 0.39\\
+\cmidrule{1-6}
+ & Intercept & 0.0161647 & 0.0000757 & 213.4856091 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (50) Questions} & Female & 0.0001682 & 0.0001301 & 1.2927442 & 0.20\\
+\cmidrule{1-6}
+ & Intercept & 0.0101120 & 0.0001164 & 86.8890866 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (51) Families} & Female & 0.0044922 & 0.0002501 & 17.9608814 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0087873 & 0.0001603 & 54.8116345 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (52) Health research} & Female & 0.0050129 & 0.0002923 & 17.1518648 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0075482 & 0.0000252 & 299.9335737 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (53) Dispatch box} & Female & -0.0010058 & 0.0000411 & -24.4759297 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0248257 & 0.0001495 & 166.0099980 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (54) Parties} & Female & -0.0062183 & 0.0002451 & -25.3739370 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0211074 & 0.0000674 & 313.1127111 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (55) Statements} & Female & -0.0025215 & 0.0001226 & -20.5654157 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0163664 & 0.0001702 & 96.1683285 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (56) European Union} & Female & -0.0044278 & 0.0002939 & -15.0664007 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0100682 & 0.0001051 & 95.7956424 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (57) Locations} & Female & -0.0008438 & 0.0001896 & -4.4503909 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0176030 & 0.0001701 & 103.4783706 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (58) Jobs \& manufacturing} & Female & 0.0002215 & 0.0003125 & 0.7086483 & 0.48\\
+\cmidrule{1-6}
+ & Intercept & 0.0070547 & 0.0000690 & 102.2200613 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (59) Small business} & Female & -0.0000227 & 0.0001167 & -0.1948699 & 0.85\\
+\cmidrule{1-6}
+ & Intercept & 0.0328354 & 0.0001082 & 303.3701317 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (60) Agreement \& disagreement} & Female & -0.0102158 & 0.0001823 & -56.0338702 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0187326 & 0.0001134 & 165.1455528 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (61) Voluntary sector} & Female & 0.0075517 & 0.0002253 & 33.5146669 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0152785 & 0.0000587 & 260.3794919 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (62) Comments} & Female & -0.0036504 & 0.0000997 & -36.6196859 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0090888 & 0.0001324 & 68.6336761 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (63) Social care} & Female & 0.0080677 & 0.0002317 & 34.8179514 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0213910 & 0.0000681 & 314.0303987 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (64) Time} & Female & -0.0017923 & 0.0001249 & -14.3468017 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0121571 & 0.0001637 & 74.2672732 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (65) Media \& animals} & Female & -0.0030953 & 0.0002716 & -11.3961506 & < 0.001 ***\\
+\cmidrule{1-6}
+ & Intercept & 0.0038287 & 0.0000119 & 322.4905663 & < 0.001 ***\\
+\cmidrule{2-6}
+\multirow{-2}{*}{\raggedright\arraybackslash (66) Other} & Female & 0.0002877 & 0.0000200 & 14.3849523 & < 0.001 ***\\*
+\end{longtabu}
+
+\hypertarget{closeness-in-frequency-for-each-topic}{%
+\subsection{Closeness in frequency for each
+topic}\label{closeness-in-frequency-for-each-topic}}
+
 Using the frequency of a topic among male MPs as a baseline, there are
 35 topics where the frequency among AWS MPs is proportionally closer, in
 absolute terms, than the frequency of the topic among female MPs. The
@@ -2038,7 +1945,7 @@ Relative to each other, there are 34 topics where the frequency between
 AWS and non-AWS MPs are closer to each other than either is to the topic
 frequency in male MPs. In 18 topics, the frequency between AWS and male
 MPs are the most similar, and in the remaining 14 topics the difference
-in frequency are smallest between non-AWS and male MPs. See
+in frequency are smallest between non-AWS and male MPs. See Table
 \ref{tab:absolute-differences} for details.
 
 \begin{longtabu} to \linewidth {>{\raggedright}X>{\raggedright}X>{\raggedright\arraybackslash}p{6cm}}
@@ -2136,710 +2043,18 @@ Topic & Women Relative to Male MPs & Most Similar\\
 (66) Other & Non-AWS more like male & Women more similar to each other\\*
 \end{longtabu}
 
-On the hypothesis that non-AWS MPs are more similar to male MPs in their
-topic selection, the following are topics with the largest absolute
-differences between AWS and other MPs.
-
-Figure \ref{fig:p-effect1} shows the frequency for the topics where AWS
-and non-AWS MPs differ the most. Figure \ref{fig:p-effect2} shows the
-frequency for the topics where AWS and non-AWS MPs are most similar to
-each other, regardless of their similarity to male Labour MPs. Figure
-\ref{fig:p-effect-cv} is the topics with the most variation, between
-AWS, non-AWS and male Labour MPs. Figures \ref{fig:p-effect1},
-\ref{fig:p-effect2} and \ref{fig:p-effect-cv} all use the coefficient of
-variation to measure variance between each group of MPs. Figures
-\ref{fig:p-effect1} and \ref{fig:p-effect2} only use female Labour MPS,
-Figure \ref{fig:p-effect-cv} uses all three groups.
-
-\begin{itemize}
-\item
-  Measuring and comparing Coefficients of Variation
-\item
-  use the CV equality function to compare variations?
-\end{itemize}
-
-\begin{figure}
-\centering
-\includegraphics{methodology_files/figure-latex/p-effect1-1.pdf}
-\caption{\label{fig:p-effect1}Where AWS MPs are most distinct from non-AWS
-female MPs}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics{methodology_files/figure-latex/p-effect2-1.pdf}
-\caption{\label{fig:p-effect2}Where AWS MPs are most similar to non-AWS
-female MPs}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics{methodology_files/figure-latex/p-effect-cv-1.pdf}
-\caption{\label{fig:p-effect-cv}Topics with the greatest frequency
-coefficient of variation}
-\end{figure}
-
-{[}Stuff on categories with extensive differences{]}
-
-=======
-\caption{\label{eu-validity}Number of Speeches in ``European Union''
-Topic per Year}
-\end{figure}
-
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
-\hypertarget{discussion}{%
-\section{Discussion}\label{discussion}}
-
-There do not appear to be substantial or meaningful differences in the
-speaking styles of female Labour MPs selected through all women
-shortlists when compared to their female colleagues selected through
-open shortlists using LIWC. This is possibly due to the speaking style
-dominant in British parliamentary debate, which is more formal than the
-speech used in most day-to-day conversation. LIWC was developed by
-American researchers, and the LIWC dictionary may not be able to capture
-stylistic differences between American and British English, and may not
-include words commonly used in formal British English speech, limiting
-its usefulness in the context of British political debate.
-
-There is more distinction between AWS and non-AWS MPs in terms and
-topics.
-\protect\hyperlink{ux5cux2520Naiveux5cux2520Bayesux5cux2520classification}{Naive
-Bayes classification} was able to accurately determine the AWS status of
-female Labour MPs with slightly greater accuracy than it could
-distinguish between male and female Labour MPs (71.22\% and 70.67\%,
-respectively).
-
-AWS MPs are far more likely to make reference to their constituency and
-constituents. In the debate between whether MPs should be ``delegates''
-or ``trustees'' -- the ``mandate-independence controversy'' outlined by
-Pitkin (\protect\hyperlink{ref-pitkin1967}{1967}) -- the references to
-their constituents and constituencies suggests AWS MPs shy away from the
-Burkean concept of trusteeship and see themselves more as strict
-representatives of their constituents. In Andeweg \& Thomassen's
-(\protect\hyperlink{ref-andeweg2005}{2005}) typology of \emph{ex
-ante}/\emph{ex post} and above/below political representation, AWS MPs
-lean towards representation ``from below'', although their selection
-process is \emph{ex ante}/\emph{ex post}. AWS MPs also use events and
-individuals in their constituency as examples when speaking on a given
-topic (see the
-\protect\hyperlink{ux5cux2520AWSux5cux2520Referencesux5cux2520toux5cux2520Constituentsux5cux2520inux5cux2520Context}{Appendix}
-for more examples).
-
-AWS MPs refer to their constituents both specifically and in the
-abstract, particularly when criticising government policy. For example,
-in debate on 4th March 2015, Gemma Doyle, than the Labour MP for West
-Dunbartonshire (elected on an AWS in 2010), when asked if she would give
-way to Conservative MP Stephen Mosley, responded:
-
-\begin{quote}
-No, I will not {[}give way{]}, because my constituents want me to make
-these points, not to give more time to Conservative Members.
-\end{quote}
-
-On 2nd June 2010, during debate on Israel-Palestine, Valerie Vaz, MP for
-Walsall South, also used the views of her constituents to support her
-position:
-
-\begin{quote}
-My constituents want more than pressure. Will the Foreign Secretary come
-back to the House and report on a timetable for the discussions on a
-diplomatic solution, just as we did on Ireland?
-\end{quote}
-
-On 4th April 2001, Betty Williams, member for Conwy from 1997--2010,
-raised the case of a wilderness guide in her constituency unable to
-access parts of the countryside due to foot and mouth disease:
-
-\begin{quote}
-Is my right hon. Friend aware that there is continuing concern about the
-limited access to the countryside and crags of north Wales? May I draw
-his attention to the circumstances of my constituent, Ric Potter? Like
-many others, he has had to travel to Scotland, where there is greater
-access. Will my right hon. Friend help us to enable people such as Ric
-Potter to find work in outdoor pursuits?
-\end{quote}
-
-\clearpage
-
-\hypertarget{appendix}{%
-\section{Appendix}\label{appendix}}
-
-\hypertarget{gender-effect-estimates}{%
-\subsection{Gender effect estimates}\label{gender-effect-estimates}}
-
-Estimate effects of different topics, using only gender.
-
-\begin{longtabu} to \linewidth {>{\raggedright}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedright}X}
-\caption{\label{tab:estimate-table-gender}Topic Estimates}\\
-\toprule
- & Estimate & Standard Error & t value & Pr(>|t|) & \\
-\midrule
-<<<<<<< HEAD
-\endfirsthead
-\caption[]{\label{tab:estimate-table-gender}Topic Estimates \textit{(continued)}}\\
-\toprule
- & Estimate & Standard Error & t value & Pr(>|t|) & \\
-\midrule
-\endhead
-\
-\endfoot
-\bottomrule
-\endlastfoot
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 1 -- Employment \& unions}}\\
-\hspace{1em}1 & Intercept & 0.0120561 & 0.0001233 & 97.7458509 & < 0.001 ***\\
-\hspace{1em}1 & Female & -0.0009786 & 0.0002204 & -4.4396315 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 2 -- Legal system}}\\
-\hspace{1em}2 & Intercept & 0.0167102 & 0.0001677 & 99.6358100 & < 0.001 ***\\
-\hspace{1em}2 & Female & 0.0001861 & 0.0002867 & 0.6492618 & 0.52\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 3 -- Roads}}\\
-\hspace{1em}3 & Intercept & 0.0116864 & 0.0001469 & 79.5274864 & < 0.001 ***\\
-\hspace{1em}3 & Female & -0.0018110 & 0.0002574 & -7.0349793 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 4 -- Housing}}\\
-\hspace{1em}4 & Intercept & 0.0112593 & 0.0001746 & 64.4711132 & < 0.001 ***\\
-\hspace{1em}4 & Female & 0.0054870 & 0.0002870 & 19.1204992 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 5 -- Police, firefighters \& prison}}\\
-\hspace{1em}5 & Intercept & 0.0140238 & 0.0001747 & 80.2546259 & < 0.001 ***\\
-\hspace{1em}5 & Female & 0.0008970 & 0.0002998 & 2.9917221 & 0.003 **\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 6 -- Northern Ireland}}\\
-\hspace{1em}6 & Intercept & 0.0089592 & 0.0000450 & 198.8903532 & < 0.001 ***\\
-\hspace{1em}6 & Female & -0.0002231 & 0.0000821 & -2.7163043 & 0.007 **\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 7 -- Committee}}\\
-\hspace{1em}7 & Intercept & 0.0213132 & 0.0001509 & 141.2139750 & < 0.001 ***\\
-\hspace{1em}7 & Female & -0.0015245 & 0.0002307 & -6.6073185 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 8 -- Schools}}\\
-\hspace{1em}8 & Intercept & 0.0147366 & 0.0001975 & 74.6029960 & < 0.001 ***\\
-\hspace{1em}8 & Female & 0.0009898 & 0.0003519 & 2.8128100 & 0.005 **\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 9 -- Energy \& climate change}}\\
-\hspace{1em}9 & Intercept & 0.0170286 & 0.0002027 & 84.0111642 & < 0.001 ***\\
-\hspace{1em}9 & Female & -0.0026669 & 0.0003638 & -7.3306532 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 10 -- Defence}}\\
-\hspace{1em}10 & Intercept & 0.0157819 & 0.0001837 & 85.9128350 & < 0.001 ***\\
-\hspace{1em}10 & Female & -0.0061172 & 0.0003240 & -18.8794191 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 11 -- Parliament}}\\
-\hspace{1em}11 & Intercept & 0.0119042 & 0.0000790 & 150.6173576 & < 0.001 ***\\
-\hspace{1em}11 & Female & -0.0019543 & 0.0001429 & -13.6787831 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 12 -- International politics}}\\
-\hspace{1em}12 & Intercept & 0.0125948 & 0.0001249 & 100.8499998 & < 0.001 ***\\
-\hspace{1em}12 & Female & -0.0050786 & 0.0002170 & -23.4024173 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 13 -- Ministers}}\\
-\hspace{1em}13 & Intercept & 0.0167087 & 0.0001064 & 157.0415815 & < 0.001 ***\\
-\hspace{1em}13 & Female & 0.0011454 & 0.0001923 & 5.9551523 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 14 -- Policy impact}}\\
-\hspace{1em}14 & Intercept & 0.0115397 & 0.0000460 & 251.1090985 & < 0.001 ***\\
-\hspace{1em}14 & Female & 0.0009556 & 0.0000875 & 10.9167682 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 15 -- Gender}}\\
-\hspace{1em}15 & Intercept & 0.0048738 & 0.0001146 & 42.5372998 & < 0.001 ***\\
-\hspace{1em}15 & Female & 0.0121863 & 0.0002379 & 51.2176906 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 16 -- Regional development}}\\
-\hspace{1em}16 & Intercept & 0.0230313 & 0.0001276 & 180.4911579 & < 0.001 ***\\
-\hspace{1em}16 & Female & 0.0026193 & 0.0002503 & 10.4645867 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 17 -- Communications}}\\
-\hspace{1em}17 & Intercept & 0.0097462 & 0.0001202 & 81.0915937 & < 0.001 ***\\
-\hspace{1em}17 & Female & -0.0009899 & 0.0002069 & -4.7848162 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 18 -- Immigration}}\\
-\hspace{1em}18 & Intercept & 0.0087105 & 0.0000900 & 96.8147319 & < 0.001 ***\\
-\hspace{1em}18 & Female & -0.0000391 & 0.0001635 & -0.2394474 & 0.81\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 19 -- Health system}}\\
-\hspace{1em}19 & Intercept & 0.0161788 & 0.0001976 & 81.8627819 & < 0.001 ***\\
-\hspace{1em}19 & Female & 0.0079743 & 0.0003600 & 22.1488945 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 20 -- International development}}\\
-\hspace{1em}20 & Intercept & 0.0160465 & 0.0001897 & 84.5865773 & < 0.001 ***\\
-\hspace{1em}20 & Female & -0.0020679 & 0.0003358 & -6.1579789 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 21 -- Benefits \& disability}}\\
-\hspace{1em}21 & Intercept & 0.0120722 & 0.0001441 & 83.8028248 & < 0.001 ***\\
-\hspace{1em}21 & Female & 0.0080944 & 0.0002832 & 28.5770350 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 22 -- Sport \& culture}}\\
-\hspace{1em}22 & Intercept & 0.0127412 & 0.0001526 & 83.4724542 & < 0.001 ***\\
-\hspace{1em}22 & Female & -0.0003753 & 0.0002649 & -1.4166824 & 0.16\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 23 -- History}}\\
-\hspace{1em}23 & Intercept & 0.0137581 & 0.0001117 & 123.2082084 & < 0.001 ***\\
-\hspace{1em}23 & Female & -0.0046801 & 0.0001833 & -25.5317143 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 24 -- Higher education \& skills}}\\
-\hspace{1em}24 & Intercept & 0.0143325 & 0.0001641 & 87.3629912 & < 0.001 ***\\
-\hspace{1em}24 & Female & -0.0004494 & 0.0003006 & -1.4950418 & 0.13\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 25 -- Concurring point}}\\
-\hspace{1em}25 & Intercept & 0.0155213 & 0.0000474 & 327.6313660 & < 0.001 ***\\
-\hspace{1em}25 & Female & -0.0026315 & 0.0000760 & -34.6035104 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 26 -- Pensions}}\\
-\hspace{1em}26 & Intercept & 0.0147019 & 0.0001709 & 86.0482540 & < 0.001 ***\\
-\hspace{1em}26 & Female & 0.0019874 & 0.0002808 & 7.0777074 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 27 -- Points of order}}\\
-\hspace{1em}27 & Intercept & 0.0177894 & 0.0001316 & 135.2139528 & < 0.001 ***\\
-\hspace{1em}27 & Female & -0.0054025 & 0.0002166 & -24.9447457 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 28 -- Issues}}\\
-\hspace{1em}28 & Intercept & 0.0345025 & 0.0000980 & 352.1646087 & < 0.001 ***\\
-\hspace{1em}28 & Female & 0.0006780 & 0.0001716 & 3.9511379 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 29 -- Constituencies}}\\
-\hspace{1em}29 & Intercept & 0.0131800 & 0.0000540 & 244.1589822 & < 0.001 ***\\
-\hspace{1em}29 & Female & 0.0023276 & 0.0001069 & 21.7824341 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 30 -- Ethnic groups \& racism}}\\
-\hspace{1em}30 & Intercept & 0.0085781 & 0.0000728 & 117.8578866 & < 0.001 ***\\
-\hspace{1em}30 & Female & 0.0019552 & 0.0001365 & 14.3196680 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 31 -- Amendments}}\\
-\hspace{1em}31 & Intercept & 0.0150304 & 0.0001578 & 95.2713075 & < 0.001 ***\\
-\hspace{1em}31 & Female & -0.0028669 & 0.0002705 & -10.5980156 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 32 -- Reports}}\\
-\hspace{1em}32 & Intercept & 0.0169724 & 0.0001117 & 151.9867135 & < 0.001 ***\\
-\hspace{1em}32 & Female & 0.0012779 & 0.0001865 & 6.8516021 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 33 -- People}}\\
-\hspace{1em}33 & Intercept & 0.0377446 & 0.0001213 & 311.2792086 & < 0.001 ***\\
-\hspace{1em}33 & Female & -0.0014521 & 0.0002123 & -6.8400753 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 34 -- Wales \& Scotland}}\\
-\hspace{1em}34 & Intercept & 0.0135410 & 0.0001549 & 87.4194387 & < 0.001 ***\\
-\hspace{1em}34 & Female & -0.0031743 & 0.0002506 & -12.6669967 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 35 -- Alcohol \& tobacco}}\\
-\hspace{1em}35 & Intercept & 0.0108579 & 0.0001486 & 73.0683773 & < 0.001 ***\\
-\hspace{1em}35 & Female & 0.0005320 & 0.0002832 & 1.8786468 & 0.060\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 36 -- Place names}}\\
-\hspace{1em}36 & Intercept & 0.0083659 & 0.0000671 & 124.6776088 & < 0.001 ***\\
-\hspace{1em}36 & Female & 0.0007972 & 0.0001241 & 6.4237856 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 37 -- Budget}}\\
-\hspace{1em}37 & Intercept & 0.0246505 & 0.0001775 & 138.8996009 & < 0.001 ***\\
-\hspace{1em}37 & Female & -0.0003435 & 0.0002961 & -1.1599722 & 0.25\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 38 -- Tax}}\\
-\hspace{1em}38 & Intercept & 0.0193082 & 0.0001896 & 101.8596764 & < 0.001 ***\\
-\hspace{1em}38 & Female & 0.0030544 & 0.0003310 & 9.2272811 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 39 -- Private companies}}\\
-\hspace{1em}39 & Intercept & 0.0123871 & 0.0001199 & 103.3046194 & < 0.001 ***\\
-\hspace{1em}39 & Female & -0.0009559 & 0.0002220 & -4.3062780 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 40 -- Environment \& fishing}}\\
-\hspace{1em}40 & Intercept & 0.0094757 & 0.0001428 & 66.3605526 & < 0.001 ***\\
-\hspace{1em}40 & Female & -0.0024801 & 0.0002435 & -10.1854049 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 41 -- Crime}}\\
-\hspace{1em}41 & Intercept & 0.0141387 & 0.0001700 & 83.1774783 & < 0.001 ***\\
-\hspace{1em}41 & Female & 0.0052430 & 0.0003115 & 16.8290865 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 42 -- Bills}}\\
-\hspace{1em}42 & Intercept & 0.0244386 & 0.0001508 & 162.0410131 & < 0.001 ***\\
-\hspace{1em}42 & Female & -0.0012130 & 0.0002557 & -4.7439287 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 43 -- Children}}\\
-\hspace{1em}43 & Intercept & 0.0076822 & 0.0001213 & 63.3511535 & < 0.001 ***\\
-\hspace{1em}43 & Female & 0.0094502 & 0.0002461 & 38.3935766 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 44 -- Utilities \& PFI}}\\
-\hspace{1em}44 & Intercept & 0.0123659 & 0.0000838 & 147.6006401 & < 0.001 ***\\
-\hspace{1em}44 & Female & -0.0001325 & 0.0001597 & -0.8294008 & 0.41\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 45 -- Middle East}}\\
-\hspace{1em}45 & Intercept & 0.0174606 & 0.0002080 & 83.9606437 & < 0.001 ***\\
-\hspace{1em}45 & Female & -0.0020795 & 0.0003607 & -5.7649929 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 46 -- Local authorities}}\\
-\hspace{1em}46 & Intercept & 0.0179838 & 0.0001437 & 125.1849736 & < 0.001 ***\\
-\hspace{1em}46 & Female & 0.0015586 & 0.0002836 & 5.4965933 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 47 -- Elections}}\\
-\hspace{1em}47 & Intercept & 0.0181834 & 0.0001549 & 117.3877176 & < 0.001 ***\\
-\hspace{1em}47 & Female & -0.0075879 & 0.0002715 & -27.9430467 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 48 -- Debate}}\\
-\hspace{1em}48 & Intercept & 0.0180191 & 0.0000681 & 264.6774024 & < 0.001 ***\\
-\hspace{1em}48 & Female & -0.0018256 & 0.0001238 & -14.7506463 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 49 -- Transport}}\\
-\hspace{1em}49 & Intercept & 0.0163759 & 0.0001857 & 88.1991855 & < 0.001 ***\\
-\hspace{1em}49 & Female & -0.0002969 & 0.0003477 & -0.8538425 & 0.39\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 50 -- Questions}}\\
-\hspace{1em}50 & Intercept & 0.0161647 & 0.0000757 & 213.4856091 & < 0.001 ***\\
-\hspace{1em}50 & Female & 0.0001682 & 0.0001301 & 1.2927442 & 0.20\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 51 -- Families}}\\
-\hspace{1em}51 & Intercept & 0.0101120 & 0.0001164 & 86.8890866 & < 0.001 ***\\
-\hspace{1em}51 & Female & 0.0044922 & 0.0002501 & 17.9608814 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 52 -- Health research}}\\
-\hspace{1em}52 & Intercept & 0.0087873 & 0.0001603 & 54.8116345 & < 0.001 ***\\
-\hspace{1em}52 & Female & 0.0050129 & 0.0002923 & 17.1518648 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 53 -- Dispatch box}}\\
-\hspace{1em}53 & Intercept & 0.0075482 & 0.0000252 & 299.9335737 & < 0.001 ***\\
-\hspace{1em}53 & Female & -0.0010058 & 0.0000411 & -24.4759297 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 54 -- Parties}}\\
-\hspace{1em}54 & Intercept & 0.0248257 & 0.0001495 & 166.0099980 & < 0.001 ***\\
-\hspace{1em}54 & Female & -0.0062183 & 0.0002451 & -25.3739370 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 55 -- Statements}}\\
-\hspace{1em}55 & Intercept & 0.0211074 & 0.0000674 & 313.1127111 & < 0.001 ***\\
-\hspace{1em}55 & Female & -0.0025215 & 0.0001226 & -20.5654157 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 56 -- European Union}}\\
-\hspace{1em}56 & Intercept & 0.0163664 & 0.0001702 & 96.1683285 & < 0.001 ***\\
-\hspace{1em}56 & Female & -0.0044278 & 0.0002939 & -15.0664007 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 57 -- Locations}}\\
-\hspace{1em}57 & Intercept & 0.0100682 & 0.0001051 & 95.7956424 & < 0.001 ***\\
-\hspace{1em}57 & Female & -0.0008438 & 0.0001896 & -4.4503909 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 58 -- Jobs \& manufacturing}}\\
-\hspace{1em}58 & Intercept & 0.0176030 & 0.0001701 & 103.4783706 & < 0.001 ***\\
-\hspace{1em}58 & Female & 0.0002215 & 0.0003125 & 0.7086483 & 0.48\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 59 -- Small business}}\\
-\hspace{1em}59 & Intercept & 0.0070547 & 0.0000690 & 102.2200613 & < 0.001 ***\\
-\hspace{1em}59 & Female & -0.0000227 & 0.0001167 & -0.1948699 & 0.85\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 60 -- Agreement \& disagreement}}\\
-\hspace{1em}60 & Intercept & 0.0328354 & 0.0001082 & 303.3701317 & < 0.001 ***\\
-\hspace{1em}60 & Female & -0.0102158 & 0.0001823 & -56.0338702 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 61 -- Voluntary sector}}\\
-\hspace{1em}61 & Intercept & 0.0187326 & 0.0001134 & 165.1455528 & < 0.001 ***\\
-\hspace{1em}61 & Female & 0.0075517 & 0.0002253 & 33.5146669 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 62 -- Comments}}\\
-\hspace{1em}62 & Intercept & 0.0152785 & 0.0000587 & 260.3794919 & < 0.001 ***\\
-\hspace{1em}62 & Female & -0.0036504 & 0.0000997 & -36.6196859 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 63 -- Social care}}\\
-\hspace{1em}63 & Intercept & 0.0090888 & 0.0001324 & 68.6336761 & < 0.001 ***\\
-\hspace{1em}63 & Female & 0.0080677 & 0.0002317 & 34.8179514 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 64 -- Time}}\\
-\hspace{1em}64 & Intercept & 0.0213910 & 0.0000681 & 314.0303987 & < 0.001 ***\\
-\hspace{1em}64 & Female & -0.0017923 & 0.0001249 & -14.3468017 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 65 -- Media \& animals}}\\
-\hspace{1em}65 & Intercept & 0.0121571 & 0.0001637 & 74.2672732 & < 0.001 ***\\
-\hspace{1em}65 & Female & -0.0030953 & 0.0002716 & -11.3961506 & < 0.001 ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 66 -- Other}}\\
-\hspace{1em}66 & Intercept & 0.0038287 & 0.0000119 & 322.4905663 & < 0.001 ***\\
-\hspace{1em}66 & Female & 0.0002877 & 0.0000200 & 14.3849523 & < 0.001 ***\\*
-=======
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 1 -- Employment \& unions}}\\
-\hspace{1em}Intercept & 0.0120558 & 0.0001226 & 98.2982598 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0009773 & 0.0002202 & -4.4373689 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 2 -- Legal system}}\\
-\hspace{1em}Intercept & 0.0167081 & 0.0001695 & 98.5906502 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0001904 & 0.0002876 & 0.6621819 & 0.51 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 3 -- Roads}}\\
-\hspace{1em}Intercept & 0.0116843 & 0.0001466 & 79.6825193 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0018067 & 0.0002565 & -7.0437191 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 4 -- Housing}}\\
-\hspace{1em}Intercept & 0.0112593 & 0.0001766 & 63.7601028 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0054862 & 0.0002889 & 18.9886898 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 5 -- Police, firefighters \& prison}}\\
-\hspace{1em}Intercept & 0.0140240 & 0.0001728 & 81.1565375 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0008923 & 0.0002990 & 2.9842081 & 0.003 & **\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 6 -- Northern Ireland}}\\
-\hspace{1em}Intercept & 0.0089596 & 0.0000453 & 197.9376090 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0002230 & 0.0000831 & -2.6833803 & 0.007 & **\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 7 -- Committee}}\\
-\hspace{1em}Intercept & 0.0213134 & 0.0001512 & 140.9203444 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0015285 & 0.0002328 & -6.5672623 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 8 -- Schools}}\\
-\hspace{1em}Intercept & 0.0147374 & 0.0001952 & 75.5156362 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0009837 & 0.0003469 & 2.8358887 & 0.005 & **\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 9 -- Energy \& climate change}}\\
-\hspace{1em}Intercept & 0.0170306 & 0.0002011 & 84.6909082 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0026726 & 0.0003639 & -7.3438573 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 10 -- Defence}}\\
-\hspace{1em}Intercept & 0.0157848 & 0.0001844 & 85.5795520 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0061179 & 0.0003260 & -18.7662038 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 11 -- Parliament}}\\
-\hspace{1em}Intercept & 0.0119034 & 0.0000793 & 150.1066439 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0019536 & 0.0001431 & -13.6535321 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 12 -- International politics}}\\
-\hspace{1em}Intercept & 0.0125950 & 0.0001233 & 102.1756834 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0050772 & 0.0002152 & -23.5953423 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 13 -- Ministers}}\\
-\hspace{1em}Intercept & 0.0167095 & 0.0001075 & 155.4918804 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0011453 & 0.0001909 & 5.9990245 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 14 -- Policy impact}}\\
-\hspace{1em}Intercept & 0.0115405 & 0.0000467 & 247.1534072 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0009546 & 0.0000873 & 10.9321624 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 15 -- Gender}}\\
-\hspace{1em}Intercept & 0.0048719 & 0.0001169 & 41.6786074 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0121878 & 0.0002402 & 50.7432137 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 16 -- Regional development}}\\
-\hspace{1em}Intercept & 0.0230320 & 0.0001267 & 181.8358615 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0026217 & 0.0002534 & 10.3464415 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 17 -- Communications}}\\
-\hspace{1em}Intercept & 0.0097486 & 0.0001203 & 81.0660742 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0009969 & 0.0002068 & -4.8214598 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 18 -- Immigration}}\\
-\hspace{1em}Intercept & 0.0087113 & 0.0000879 & 99.0798879 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0000399 & 0.0001607 & -0.2483047 & 0.80 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 19 -- Health system}}\\
-\hspace{1em}Intercept & 0.0161813 & 0.0001963 & 82.4182372 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0079699 & 0.0003606 & 22.0990638 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 20 -- International development}}\\
-\hspace{1em}Intercept & 0.0160467 & 0.0001888 & 84.9712499 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0020680 & 0.0003324 & -6.2206476 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 21 -- Benefits \& disability}}\\
-\hspace{1em}Intercept & 0.0120721 & 0.0001443 & 83.6430500 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0080950 & 0.0002813 & 28.7771977 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 22 -- Sport \& culture}}\\
-\hspace{1em}Intercept & 0.0127416 & 0.0001522 & 83.7277733 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0003740 & 0.0002616 & -1.4293244 & 0.15 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 23 -- History}}\\
-\hspace{1em}Intercept & 0.0137582 & 0.0001119 & 122.9285059 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0046789 & 0.0001838 & -25.4564522 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 24 -- Higher education \& skills}}\\
-\hspace{1em}Intercept & 0.0143325 & 0.0001639 & 87.4390370 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0004525 & 0.0002994 & -1.5114308 & 0.13 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 25 -- Concurring point}}\\
-\hspace{1em}Intercept & 0.0155206 & 0.0000466 & 332.8280261 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0026311 & 0.0000750 & -35.0700318 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 26 -- Pensions}}\\
-\hspace{1em}Intercept & 0.0147001 & 0.0001701 & 86.4362686 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0019916 & 0.0002808 & 7.0937838 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 27 -- Points of order}}\\
-\hspace{1em}Intercept & 0.0177899 & 0.0001304 & 136.4542143 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0054036 & 0.0002161 & -25.0001241 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 28 -- Issues}}\\
-\hspace{1em}Intercept & 0.0345024 & 0.0000991 & 348.2518448 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0006762 & 0.0001717 & 3.9389187 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 29 -- Constituencies}}\\
-\hspace{1em}Intercept & 0.0131792 & 0.0000538 & 245.0529092 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0023290 & 0.0001065 & 21.8782635 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 30 -- Ethnic groups \& racism}}\\
-\hspace{1em}Intercept & 0.0085781 & 0.0000726 & 118.0996216 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0019576 & 0.0001366 & 14.3255282 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 31 -- Amendments}}\\
-\hspace{1em}Intercept & 0.0150300 & 0.0001583 & 94.9241895 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0028644 & 0.0002684 & -10.6722265 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 32 -- Reports}}\\
-\hspace{1em}Intercept & 0.0169717 & 0.0001105 & 153.6020779 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0012798 & 0.0001857 & 6.8932095 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 33 -- People}}\\
-\hspace{1em}Intercept & 0.0377448 & 0.0001208 & 312.3638134 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0014525 & 0.0002100 & -6.9162948 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 34 -- Wales \& Scotland}}\\
-\hspace{1em}Intercept & 0.0135395 & 0.0001542 & 87.8038603 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0031719 & 0.0002505 & -12.6629961 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 35 -- Alcohol \& tobacco}}\\
-\hspace{1em}Intercept & 0.0108567 & 0.0001497 & 72.5174053 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0005344 & 0.0002870 & 1.8623926 & 0.063 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 36 -- Place names}}\\
-\hspace{1em}Intercept & 0.0083655 & 0.0000671 & 124.7427562 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0007984 & 0.0001241 & 6.4322198 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 37 -- Budget}}\\
-\hspace{1em}Intercept & 0.0246516 & 0.0001794 & 137.3766916 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0003427 & 0.0002989 & -1.1463241 & 0.25 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 38 -- Tax}}\\
-\hspace{1em}Intercept & 0.0193076 & 0.0001905 & 101.3312585 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0030527 & 0.0003316 & 9.2047863 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 39 -- Private companies}}\\
-\hspace{1em}Intercept & 0.0123859 & 0.0001200 & 103.2265704 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0009558 & 0.0002224 & -4.2971025 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 40 -- Environment \& fishing}}\\
-\hspace{1em}Intercept & 0.0094747 & 0.0001433 & 66.1392213 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0024778 & 0.0002424 & -10.2204118 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 41 -- Crime}}\\
-\hspace{1em}Intercept & 0.0141399 & 0.0001719 & 82.2729667 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0052400 & 0.0003121 & 16.7910290 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 42 -- Bills}}\\
-\hspace{1em}Intercept & 0.0244361 & 0.0001510 & 161.8726636 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0012074 & 0.0002583 & -4.6746393 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 43 -- Children}}\\
-\hspace{1em}Intercept & 0.0076816 & 0.0001224 & 62.7703411 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0094493 & 0.0002446 & 38.6253202 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 44 -- Utilities \& PFI}}\\
-\hspace{1em}Intercept & 0.0123660 & 0.0000838 & 147.5182406 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0001332 & 0.0001597 & -0.8336308 & 0.40 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 45 -- Middle East}}\\
-\hspace{1em}Intercept & 0.0174587 & 0.0002090 & 83.5492976 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0020814 & 0.0003627 & -5.7381267 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 46 -- Local authorities}}\\
-\hspace{1em}Intercept & 0.0179820 & 0.0001455 & 123.5806929 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0015599 & 0.0002882 & 5.4129075 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 47 -- Elections}}\\
-\hspace{1em}Intercept & 0.0181818 & 0.0001562 & 116.4335256 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0075881 & 0.0002715 & -27.9527608 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 48 -- Debate}}\\
-\hspace{1em}Intercept & 0.0180195 & 0.0000686 & 262.8627614 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0018249 & 0.0001230 & -14.8305990 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 49 -- Transport}}\\
-\hspace{1em}Intercept & 0.0163769 & 0.0001851 & 88.4732521 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0002980 & 0.0003461 & -0.8609762 & 0.39 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 50 -- Questions}}\\
-\hspace{1em}Intercept & 0.0161649 & 0.0000756 & 213.7358034 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0001674 & 0.0001300 & 1.2874523 & 0.20 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 51 -- Families}}\\
-\hspace{1em}Intercept & 0.0101121 & 0.0001161 & 87.1131980 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0044915 & 0.0002511 & 17.8908688 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 52 -- Health research}}\\
-\hspace{1em}Intercept & 0.0087860 & 0.0001605 & 54.7287657 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0050139 & 0.0002941 & 17.0467226 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 53 -- Dispatch box}}\\
-\hspace{1em}Intercept & 0.0075484 & 0.0000252 & 299.2492191 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0010064 & 0.0000408 & -24.6610302 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 54 -- Parties}}\\
-\hspace{1em}Intercept & 0.0248256 & 0.0001508 & 164.6595307 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0062193 & 0.0002485 & -25.0299952 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 55 -- Statements}}\\
-\hspace{1em}Intercept & 0.0211080 & 0.0000663 & 318.4773224 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0025222 & 0.0001204 & -20.9423749 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 56 -- European Union}}\\
-\hspace{1em}Intercept & 0.0163672 & 0.0001678 & 97.5490397 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0044312 & 0.0002913 & -15.2095098 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 57 -- Locations}}\\
-\hspace{1em}Intercept & 0.0100684 & 0.0001063 & 94.7537127 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0008448 & 0.0001917 & -4.4060051 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 58 -- Jobs \& manufacturing}}\\
-\hspace{1em}Intercept & 0.0176038 & 0.0001734 & 101.5152313 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0002192 & 0.0003130 & 0.7001742 & 0.48 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 59 -- Small business}}\\
-\hspace{1em}Intercept & 0.0070549 & 0.0000703 & 100.3910783 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0000223 & 0.0001173 & -0.1899731 & 0.85 & \\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 60 -- Agreement \& disagreement}}\\
-\hspace{1em}Intercept & 0.0328360 & 0.0001081 & 303.8892524 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0102175 & 0.0001822 & -56.0650145 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 61 -- Voluntary sector}}\\
-\hspace{1em}Intercept & 0.0187333 & 0.0001139 & 164.5326954 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0075510 & 0.0002285 & 33.0471024 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 62 -- Comments}}\\
-\hspace{1em}Intercept & 0.0152788 & 0.0000597 & 255.8200094 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0036510 & 0.0001006 & -36.3055228 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 63 -- Social care}}\\
-\hspace{1em}Intercept & 0.0090885 & 0.0001331 & 68.2815486 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0080707 & 0.0002302 & 35.0611376 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 64 -- Time}}\\
-\hspace{1em}Intercept & 0.0213923 & 0.0000679 & 315.0245762 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0017936 & 0.0001260 & -14.2325407 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 65 -- Media \& animals}}\\
-\hspace{1em}Intercept & 0.0121559 & 0.0001645 & 73.9171975 & < 0.001 & ***\\
-\hspace{1em}Female & -0.0030924 & 0.0002736 & -11.3010314 & < 0.001 & ***\\
-\addlinespace[0.3em]
-\multicolumn{6}{l}{\textbf{Topic 66 -- Other}}\\
-\hspace{1em}Intercept & 0.0038288 & 0.0000121 & 316.8868169 & < 0.001 & ***\\
-\hspace{1em}Female & 0.0002873 & 0.0000199 & 14.4065798 & < 0.001 & ***\\
-\bottomrule
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
-\end{longtabu}
-
 \hypertarget{theta-distribution}{%
 \subsection{\texorpdfstring{\(\theta\)
 distribution}{\textbackslash{}theta distribution}}\label{theta-distribution}}
 
-<<<<<<< HEAD
 Figure \ref{fig:theta-boxplot} shows the distribution of \(\theta\)
 scores used to assign overall topics to individual speeches in Table
 \ref{tab:topic-summary-table}, per topic.
-=======
-Figure \ref{k0-theta-boxplot} shows the distribution of \(\theta\)
-scores used to assign overall topics to individual speeches in Table 10,
-per topic.
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 
 \begin{figure}
 \centering
 \includegraphics{methodology_files/figure-latex/theta-boxplot-1.pdf}
-<<<<<<< HEAD
 \caption{\label{fig:theta-boxplot}Theta Values in Topic Assignment}
-=======
-\caption{\label{k0-theta-boxplot}Theta Values in Topic Assignment}
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 \end{figure}
 
 \hypertarget{aws-references-to-constituents-in-context}{%
@@ -2854,7 +2069,6 @@ constituent'' and ``my constituents'', by AWS MPs, in context.
 \toprule
 Pre & Keyword & Post\\
 \midrule
-<<<<<<< HEAD
 \endfirsthead
 \caption[]{\label{tab:constituent-kwic}A random sample of KWIC's \textit{(continued)}}\\
 \toprule
@@ -2865,8 +2079,6 @@ Pre & Keyword & Post\\
 \endfoot
 \bottomrule
 \endlastfoot
-=======
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 . I was briefed by a vehicle hire company in & my constituency & called Reflex and, quite frankly, if such banking\\
 150 per cent. two years ago. Another of & my constituents & has advised me of an application for an 85 per\\
 already begun, for example just over the border from & my constituency & in the constituency of my hon. Friend the Member\\
@@ -3136,12 +2348,7 @@ first home. There are so many young people in & my constituency & who see homes 
 There are also problems for low-income families, such as & my constituent & on Colleymoor Leys lane who says:\\
 term. I know from the experience of businesses in & my constituency & and in the surrounding west midlands area that New Street\\
 that he needs those, but he failed to tell & my constituents & watching yesterday that a 1p cut in duty will not\\
-<<<<<<< HEAD
 average, which show that over a fifth-22\% in & my constituency-of & people who resort to food banks for an emergency food\\*
-=======
-average, which show that over a fifth-22\% in & my constituency-of & people who resort to food banks for an emergency food\\
-\bottomrule
->>>>>>> 68357d6126e54ffebc93bbeb9bf6dcba4c2bdeb9
 \end{longtabu}
 
 \hypertarget{references}{%

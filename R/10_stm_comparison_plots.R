@@ -83,8 +83,9 @@ for (i in t_list){
   p_effect <- ggplot(effect_compare %>% filter(topic == i),
                      aes(y = estimate, x = covariate.value,
                          color = covariate.value)) + 
-    geom_linerange(aes(ymin = ci.lower, ymax = ci.upper)) + 
-    geom_point() + 
+    geom_errorbar(aes(ymin = ci.lower, ymax = ci.upper),
+                  size = 0.5, width = 0.2) + 
+    geom_point(size = 1, alpha = 0.8) + 
     scale_y_continuous(labels = scales::percent) + 
     scale_colour_manual(values = c("#cb6a49", "#7aa457", "#a06dba" ),
                       labels = c("Men", "Non-AWS", "AWS"),
